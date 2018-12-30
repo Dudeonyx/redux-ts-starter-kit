@@ -1,6 +1,6 @@
 import createAction from './action';
 import createReducer from './reducer';
-import { createSelector, createSelectorName } from './selector';
+import { createSelector, createSelectorName, createSubSelectorName, createSubSelector } from './selector';
 import { Action } from './types';
 
 // type GetPayloadType<A> = A extends ((payload: infer P) => Action) ? P : A extends ((payload: infer P) => RAction) ? P : A;
@@ -17,6 +17,7 @@ interface ICreate<State, Actions> {
   slice?: string;
   actions: { [key in keyof Actions]: Reduce<State, Actions[key]> };
   initialState: State;
+  subSelectors?: boolean;
 }
 
 
@@ -29,7 +30,7 @@ export default function create<
   SliceState,
   Actions = undefined,
   State = any
-  >({ slice = '', actions, initialState }: ICreate<SliceState, Actions extends undefined ? {[s:string]:any} :Actions >) {
+  >({ slice = '', actions, initialState, subSelectors = false }: ICreate<SliceState, Actions extends undefined ? {[s:string]:any} :Actions >) {
   type Ax = Actions extends undefined ?  {[s:string]:any} : Actions
   const actionKeys = Object.keys(actions) as (keyof Ax)[];
   const createActionType = actionTypeBuilder(slice);
@@ -66,8 +67,19 @@ export default function create<
   );
 
   const selectorName = createSelectorName(slice);
+  let additionalSelectors = {} as {[s:string]: (state: State) => State | SliceState}
+
+  if(subSelectors && typeof initialState ==='object' && !Array.isArray(initialState)) {
+    const initialStateKeys = Object.keys(initialState)
+    additionalSelectors = initialStateKeys.reduce((map, key)=>{
+      const subSelectorName = createSubSelectorName(slice,key)
+      map[subSelectorName] = createSubSelector(slice,key)
+      return map;
+    },{} as any)
+  }
   const selectors = {
     [selectorName]: createSelector<State, SliceState>(slice),
+    ...additionalSelectors,
   };
   return {
     actions: actionMap,

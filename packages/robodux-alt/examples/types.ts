@@ -80,6 +80,7 @@ const auth = robodux<ISliceState, AuthActions, IState>({
     },
   },
   initialState,
+  subSelectors: true,
 });
 
 // You can destructure and export the reducer, action creators and selectors
@@ -87,7 +88,7 @@ export const {
   reducer: authReducer,
   slice: authSlice,
   actions: { authFail, authStart, authSuccess, authLogout },
-  selectors: { getAuth },
+  selectors: { getAuth, getAuthAuthenticating, getAuthIdToken, getAuthError, getAuthUserId },
 } = auth;
 
 const rootReducer = combineReducers<IState>({
@@ -148,6 +149,8 @@ console.log(
   '\nNew Auth State: ',
   getAuth(store.getState()),
   '\n',
+  'authenticating selector: ',getAuthAuthenticating(store.getState()),
+  '\n',
 );
 /* 
    [authStart action dispatched]
@@ -160,17 +163,22 @@ console.log(
      authenticating: true, <- modified by authStart action
      error: null 
     }
+
+    authenticating selector:  true
     */
 
 console.log(
   '\n[start: authSuccess action dispatched]\n',
   'Action: ',
   store.dispatch(
-    authSuccess({ idToken: 'really Long Token', userId: 'Its Me' }),
+    authSuccess({ idToken: 'really Long Token', userId: 'It\'s Me' }),
   ),
   '\nNew Auth State: ',
   getAuth(store.getState()),
-  '\n[stop: authSuccess action dispatched]\n',
+  '\nAuth idToken selector: ',
+  getAuthIdToken(store.getState()),
+  '\nAuth userId selector: ',
+  getAuthUserId(store.getState()),
   "\n*** You've logged in successfully!***\n",
 );
 
@@ -180,17 +188,20 @@ console.log(
   type: 'auth/authSuccess',
   payload: {
     idToken: 'really Long Token',
-    userId: 'Its Me'
+    userId: 'It's Me'
   }
 }
 
 New Auth State:  {
   idToken: 'really Long Token',
-  userId: 'Its Me',
+  userId: 'It's Me',
   authenticating: false,
   error: null
 }
-[stop: authSuccess action dispatched]
+
+Auth idToken selector:  'really Long Token'
+
+Auth userId selector:  'It's Me'
 
 *** You've logged in successfully!***
 */
@@ -210,7 +221,7 @@ Action:  undefined
 
 Unchanged Auth State: {
   idToken: 'really Long Token',
-  userId: 'Its Me',
+  userId: 'It's Me',
   authenticating: false,
   error: null
 }

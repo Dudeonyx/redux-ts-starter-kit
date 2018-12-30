@@ -10,6 +10,15 @@ export function createSelector<State extends Hash, SliceState>(
   }
   return (state: State) => state[slice];
 }
+export function createSubSelector<State extends Hash, SliceState>(
+  slice: string,
+  subSlice: string,
+): (state: State) => SliceState | State {
+  if (!slice) {
+    return (state: State) => state[subSlice];
+  }
+  return (state: State) => state[slice][subSlice];
+}
 
 export function createSelectorName(slice: string) {
   if (!slice) {
@@ -17,6 +26,13 @@ export function createSelectorName(slice: string) {
   }
 
   return camelize(`get ${slice}`);
+}
+export function createSubSelectorName(slice: string, subSlice:string) {
+  if (!slice) {
+    return camelize(`get ${subSlice}`);
+  }
+
+  return camelize(`get ${slice} ${subSlice}`);
 }
 
 // https://stackoverflow.com/a/2970667/1713216

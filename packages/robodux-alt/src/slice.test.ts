@@ -105,6 +105,58 @@ describe('createSlice', () => {
     });
   });
 
+  describe('when initialState is an object', () => {
+    const { selectors } = createSlice({
+      actions: {
+        setName: (state, name) => { state.name = name},
+        setSurName: (state, surName) => { state.surName = surName},
+        setMiddleName: (state, MiddleName) => { state.MiddleName = MiddleName}
+      },
+      slice: 'form',
+      initialState:{
+        name: '',
+        surName: '',
+        middleName: '',
+      },
+      subSelectors: true,
+    })
+
+    const state ={
+      form : {
+        name: 'John',
+        surName: 'Doe',
+        middleName: 'Wayne',
+      }
+    }
+
+    it('should create selector with correct name', () => {
+      expect(selectors.hasOwnProperty('getForm')).toBe(true);
+    });
+    it('should create sub selector with correct name', () => {
+      expect(selectors.hasOwnProperty('getFormName')).toBe(true);
+    });
+    it('should create sub selector with correct name', () => {
+      expect(selectors.hasOwnProperty('getFormSurName')).toBe(true);
+    });
+    it('should create sub selector with correct name', () => {
+      expect(selectors.hasOwnProperty('getFormMiddleName')).toBe(true);
+    });
+
+    it('should select the state slice', ()=>{
+      expect(selectors.getForm(state)).toEqual(state.form)
+    })
+    it('should select the state slice name field', ()=>{
+      expect(selectors.getFormName(state)).toEqual('John')
+    })
+    it('should select the state slice surName field', ()=>{
+      expect(selectors.getFormSurName(state)).toEqual('Doe')
+    })
+    it('should select the state slice middleName field', ()=>{
+      expect(selectors.getFormMiddleName(state)).toEqual('Wayne')
+    })
+  })
+  
+
   describe('when mutating state object', () => {
     const { actions, reducer } = createSlice({
       actions: {
