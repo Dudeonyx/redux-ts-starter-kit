@@ -1,4 +1,4 @@
-# robodux [![Build Status](https://travis-ci.org/neurosnap/robodux.svg?branch=master)](https://travis-ci.org/neurosnap/robodux)
+# robodux-alt [![Build Status](https://travis-ci.org/dudeonyx/robodux.svg?branch=master)](https://travis-ci.org/dudeonyx/robodux)
 
 One of the biggest complaints developers have with redux is the amount of
 boilerplate and new concepts they have to learn to use it.  `robodux` attempts
@@ -18,11 +18,12 @@ which means reducers are allowed to mutate the state directly.
 * Reducers leverage `immer` which makes updating state easy
 * When stringifying action creators they return the action type
 * Helper functions for manually creating actions and reducers
-* Reducers do no receive entire action object, only payload
+* Reducers do not receive entire action object, only payload
 
 ## Why not X?
 
 This library was heavily inspired by [autodux](https://github.com/ericelliott/autodux) and [redux-starter-kit](https://github.com/markerikson/redux-starter-kit).
+Note: This is an alternate branch of
 The reason why I decided to create a separate library was primarily for:
 
 * typescript support
@@ -31,10 +32,12 @@ The reason why I decided to create a separate library was primarily for:
 * create action helper
 * create reducer helper
 
+This is an alternate branch of robodux updated to use typescript 3.2.2 and uses simpler actions interfaces for better typechecks, and also includes an experimental createSliceAlt function that does the same thing as robodux except that it creates multiple selectors when the initial state is an object
+
 ## Usage
 
 ```js
-import robodux from 'robodux';
+import robodux from 'robodux-alt';
 import { createStore, combineReducers } from 'redux';
 
 interface User {
@@ -51,6 +54,8 @@ interface CounterActions {
   decrement: number;
   multiply: number;
 }
+
+// You can destructure and export the reducer, action creators and selectors
 
 const counter = robodux<number, CounterActions, State>({
   slice: 'counter', // slice is optional could be blank ''
@@ -117,7 +122,7 @@ Supply an interface where they keys are the action names and the values are the 
 return which requires the entire state as the parameter and not simply the slice state.
 
 ```js
-import robodux from 'robodux';
+import robodux from 'robodux-alt';
 import { Action } from 'redux';
 
 interface SliceState {
@@ -131,8 +136,8 @@ interface State {
 }
 
 interface Actions {
-  set: (payload: SliceState) => Action;
-  reset: () => Action;
+  set: SliceState;
+  reset: null;
 }
 
 const defaultState = {
@@ -149,9 +154,82 @@ const { actions, selectors, reducer } = robodux<SliceState, Actions, State>({
   initialState: defaultState,
 });
 
-const val = selectors.getHi({ hi: defaultState, other: true }); // assumes param is State
-actions.set({ test: 'ok', wow: 0 }); // autocomplete and type helping for payload
-actions.reset();
+const val = selectors.getHi({ hi: defaultState, other: true }); // typechecks param as State
+actions.set({ test: 'ok', wow: 0 }); // autocomplete and type helping for payload, typeerror if called without payload
+actions.reset(); // typechecks to ensure action is called without params
+```
+
+## CREATESLICE-ALT
+
+Behaves exactly like the default robodux export except that when the initial state is an object it generates additional selectors for each key in the state object.
+
+The additional selectors are name like: `get${slice}${key}`
+
+So if you have an intial state object in a slice called `auth` and with keys `userId` and `idToken`, the selectors created would be: `getAuth`, `getAuthUserId` and `getAuthIdToken`
+
+Note: this feature is kept seperate because the it hasn't undergone rigorous testing and the selectors type inference is not yet satisfactory to me
+
+### Usage
+
+```js
+import { createSliceAlt } from 'robodux-alt';
+import { createStore } from 'redux';
+
+interface SliceState {
+  name: string;
+  surname: string;
+  middleName: string;
+}
+
+interface Actions {
+  setName: string;
+  setSurname:string;
+  setMiddlename: string;
+}
+
+interface State {
+  form: SliceState;
+}
+
+const { reducer, actions, selectors } = createSliceAlt<SliceState, Actions, State>({
+      actions: {
+        setName: (state, name) => { state.name = name},
+        setSurname: (state, surname) => { state.surName = surname},
+        setMiddlename: (state, middlename) => { state.Middlename = middlename}
+      },
+      slice: 'form',
+      initialState: {
+        name: '',
+        surname: '',
+        middlename: '',
+      },
+    })
+
+const state ={
+  form : {
+    name: 'John',
+    surname: 'Doe',
+    middlename: 'Wayne',
+  }
+}
+
+console.log(selectors.getForm(state))
+// -> {
+//      name: 'John',
+//      surname: 'Doe',
+//      middlename: 'Wayne',
+//    }
+
+console.log(selectors.getFormName(state))
+// -> 'John'
+
+console.log(selectors.getFormSurname(state))
+// -> 'Doe'
+
+console.log(selectors.getFormMiddlename(state))
+// -> 'Wayne'
+
+
 ```
 
 ## API
@@ -169,13 +247,18 @@ This allows developers to not have to worry about passing around action types, i
 pass around action creators for reducers, sagas, etc.
 
 ```js
-import { createAction } from 'robodux';
+import { createAction } from 'robodux-alt';
 
 const increment = createAction('INCREMENT');
 console.log(increment);
 // -> 'INCREMENT'
 console.log(increment(2));
 // { type: 'INCREMENT', payload: 2 };
+const storeDetails = createAction('STORE_DETAILS');
+console.log(storeDetails);
+// -> 'STORE_DETAILS'
+console.log(storeDetails({name: 'John', surname: 'Doe'}));
+// { type: 'INCREMENT', payload: {name: 'John', surname: 'Doe'} };
 ```
 
 ### createReducer
@@ -184,7 +267,7 @@ This is the helper function that `robodux` uses to create a reducer.  This funct
 to reducer functions.  It will return a reducer.
 
 ```js
-import { createReducer } from 'robodux';
+import { createReducer } from 'robodux-alt';
 
 const counter = createReducer({
   initialState: 0,

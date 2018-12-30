@@ -108,22 +108,22 @@ describe('createSlice', () => {
     const { selectors } = createSliceAlt({
       actions: {
         setName: (state, name) => { state.name = name},
-        setSurName: (state, surName) => { state.surName = surName},
-        setMiddleName: (state, MiddleName) => { state.MiddleName = MiddleName}
+        setSurname: (state, surname) => { state.surName = surname},
+        setMiddlename: (state, middlename) => { state.middlename = middlename}
       },
       slice: 'form',
       initialState:{
         name: '',
-        surName: '',
-        middleName: '',
+        surname: '',
+        middlename: '',
       },
     })
 
     const state ={
       form : {
         name: 'John',
-        surName: 'Doe',
-        middleName: 'Wayne',
+        surname: 'Doe',
+        middlename: 'Wayne',
       }
     }
     const all = selectors.getForm(state)
@@ -135,10 +135,10 @@ describe('createSlice', () => {
       expect(selectors.hasOwnProperty('getFormName')).toBe(true);
     });
     it('should create sub selector with correct name', () => {
-      expect(selectors.hasOwnProperty('getFormSurName')).toBe(true);
+      expect(selectors.hasOwnProperty('getFormSurname')).toBe(true);
     });
     it('should create sub selector with correct name', () => {
-      expect(selectors.hasOwnProperty('getFormMiddleName')).toBe(true);
+      expect(selectors.hasOwnProperty('getFormMiddlename')).toBe(true);
     });
 
     it('should select the state slice', ()=>{
@@ -147,11 +147,11 @@ describe('createSlice', () => {
     it('should select the state slice name field', ()=>{
       expect(selectors.getFormName(state)).toEqual('John')
     })
-    it('should select the state slice surName field', ()=>{
-      expect(selectors.getFormSurName(state)).toEqual('Doe')
+    it('should select the state slice surname field', ()=>{
+      expect(selectors.getFormSurname(state)).toEqual('Doe')
     })
-    it('should select the state slice middleName field', ()=>{
-      expect(selectors.getFormMiddleName(state)).toEqual('Wayne')
+    it('should select the state slice middlename field', ()=>{
+      expect(selectors.getFormMiddlename(state)).toEqual('Wayne')
     })
   })
   
