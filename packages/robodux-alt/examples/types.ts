@@ -1,4 +1,4 @@
-import robodux from '../src/slice';
+import robodux, { createSliceAlt } from '../src/slice';
 import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 
@@ -59,7 +59,7 @@ const initialState: ISliceState = {
   error: null,
 };
 
-const auth = robodux<ISliceState, AuthActions, IState>({
+const auth = createSliceAlt<ISliceState, AuthActions, IState>({
   slice: 'auth',
   actions: {
     authFail: (state, error) => {
@@ -80,7 +80,6 @@ const auth = robodux<ISliceState, AuthActions, IState>({
     },
   },
   initialState,
-  subSelectors: true,
 });
 
 // You can destructure and export the reducer, action creators and selectors

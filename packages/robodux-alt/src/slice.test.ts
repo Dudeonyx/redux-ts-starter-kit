@@ -1,5 +1,4 @@
-import createSlice from './slice';
-import { Action } from './types';
+import createSlice, { createSliceAlt } from './slice';
 
 describe('createSlice', () => {
   describe('when slice is empty', () => {
@@ -105,8 +104,8 @@ describe('createSlice', () => {
     });
   });
 
-  describe('when initialState is an object', () => {
-    const { selectors } = createSlice({
+  describe('createSliceAlt when initialState is an object', () => {
+    const { selectors } = createSliceAlt({
       actions: {
         setName: (state, name) => { state.name = name},
         setSurName: (state, surName) => { state.surName = surName},
@@ -118,7 +117,6 @@ describe('createSlice', () => {
         surName: '',
         middleName: '',
       },
-      subSelectors: true,
     })
 
     const state ={
