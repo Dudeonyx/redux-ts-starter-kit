@@ -32,7 +32,7 @@ function remove<S = Obj>() {
   };
 }
 
-export default function mapSlice<S, M>({ slice }: IMapSlice<S>) {
+export default function mapSlice<S, M = undefined>({ slice }: IMapSlice<S>) {
   const initialState = {} as S;
   return robodux<S, M>({
     slice,
@@ -42,6 +42,6 @@ export default function mapSlice<S, M>({ slice }: IMapSlice<S>) {
       [`set${cap(slice)}`]: set<S>(),
       [`remove${cap(slice)}`]: remove<S>(),
       [`reset${cap(slice)}`]: () => initialState,
-    },
+    } as any,
   });
 }
