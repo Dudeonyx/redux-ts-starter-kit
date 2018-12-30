@@ -1,6 +1,6 @@
 import createAction from './action';
 import createReducer from './reducer';
-import { createSelector, createSelectorName, createSubSelectorName, createSubSelector } from './selector';
+import { createSelector, createSelectorName, createSubSelectorName, createSubSelector, createSliceSelector, createSliceSubSelector } from './selector';
 import { Action } from './types';
 
 // type GetPayloadType<A> = A extends ((payload: infer P) => Action) ? P : A extends ((payload: infer P) => RAction) ? P : A;
@@ -29,7 +29,7 @@ const actionTypeBuilder = (slice: string) => (action: string) =>
 export default function create<
   SliceState,
   Actions = undefined,
-  State = any
+  State = {[key: string]: SliceState} | SliceState
   >({ slice = '', actions, initialState, subSelectors = false }: ICreate<SliceState, Actions extends undefined ? {[s:string]:any} :Actions >) {
   type Ax = Actions extends undefined ?  {[s:string]:any} : Actions
   const actionKeys = Object.keys(actions) as (keyof Ax)[];
@@ -66,19 +66,20 @@ export default function create<
     {} as any,
   );
 
+if (slice !== ''){  
   const selectorName = createSelectorName(slice);
-  let additionalSelectors = {} as {[s:string]: (state: State) => State | SliceState}
-
+  let additionalSelectors = {} as {[x:string]: (state: State) => SliceState[keyof SliceState]}
+  
   if(subSelectors && typeof initialState ==='object' && !Array.isArray(initialState)) {
-    const initialStateKeys = Object.keys(initialState)
-    additionalSelectors = initialStateKeys.reduce((map, key)=>{
-      const subSelectorName = createSubSelectorName(slice,key)
-      map[subSelectorName] = createSubSelector(slice,key)
+    const initialStateKeys = Object.keys(initialState) as (keyof SliceState)[]
+    additionalSelectors =initialStateKeys.reduce((map, key)=>{
+      const subSelectorName = createSubSelectorName(slice,key as string)
+      map[subSelectorName] = createSliceSubSelector<State, SliceState>(slice as keyof State,key)
       return map;
     },{} as any)
   }
   const selectors = {
-    [selectorName]: createSelector<State, SliceState>(slice),
+    [selectorName]: createSliceSelector<State, SliceState>(slice as keyof State),
     ...additionalSelectors,
   };
   return {
@@ -87,4 +88,26 @@ export default function create<
     slice,
     selectors,
   };
+} else {
+  const selectorName = createSelectorName('');
+  let additionalSelectors = {} as {[x:string]: (state: State) => SliceState[keyof SliceState]}
+  if(subSelectors && typeof initialState ==='object' && !Array.isArray(initialState)) {
+    const initialStateKeys = Object.keys(initialState) as (keyof State)[]
+    additionalSelectors = initialStateKeys.reduce((map, key)=>{
+      const subSelectorName = createSubSelectorName('', key as string)
+      map[subSelectorName] = createSubSelector<State>(key)
+      return map;
+    },{} as any)
+  }
+  const selectors = {
+   [selectorName]: createSelector<State>(),
+   ...additionalSelectors,
+ };
+  return {
+    actions: actionMap,
+    reducer,
+    slice,
+    selectors,
+  };
+}
 }

@@ -128,6 +128,7 @@ describe('createSlice', () => {
         middleName: 'Wayne',
       }
     }
+    const all = selectors.getForm(state)
 
     it('should create selector with correct name', () => {
       expect(selectors.hasOwnProperty('getForm')).toBe(true);

@@ -35,7 +35,7 @@ The reason why I decided to create a separate library was primarily for:
 
 ```js
 import robodux from 'robodux';
-import { createStore, combineReducers, Action } from 'redux';
+import { createStore, combineReducers } from 'redux';
 
 interface User {
   name: string;
@@ -47,32 +47,33 @@ interface State {
 }
 
 interface CounterActions {
-  increment: (payload: number) => Action;
-  decrement: (payload: number) => Action;
-  multiply: (payload: number) => Action;
+  increment: number;
+  decrement: number;
+  multiply: number;
 }
 
 const counter = robodux<number, CounterActions, State>({
   slice: 'counter', // slice is optional could be blank ''
   initialState: 0,
   actions: {
-    increment: (state: number) => state + 1,
-    decrement: (state: number) => state - 1,
-    multiply: (state: number, payload: number) => state * payload,
+    increment: (state) => state + 1,
+    decrement: (state) => state - 1,
+    multiply: (state, payload) => state * payload,
   },
 });
 
 interface UserActions {
-  setUserName: (payload: string) => Action;
+  setUserName: string;
 }
 
 const user = robodux<User, UserActions, State>({
   slice: 'user', // slice is optional could be blank ''
   initialState: { name: '' },
   actions: {
-    setUserName: (state: User, payload: string) => {
+    setUserName: (state, payload) => {
       state.name = payload; // mutate the state all you want with immer
     },
+  subSelectors: true,
   }
 })
 
@@ -84,20 +85,22 @@ const reducer = combineReducers({
 const store = createStore(reducer);
 
 store.dispatch(counter.actions.increment());
-// -> { counter: 1, user: {} }
+// -> { counter: 1, user: { name: '' } }
 store.dispatch(counter.actions.increment());
-// -> { counter: 1, user: {} }
+// -> { counter: 2, user: { name: '' } }
 store.dispatch(counter.actions.multiply(3));
-// -> { counter: 6, user: {} }
+// -> { counter: 6, user: { name: '' } }
 console.log(`${counter.actions.decrement}`);
 // -> counter/decrement
 store.dispatch(user.actions.setUserName('eric'));
 // -> { counter: 6, user: { name: 'eric' } }
 const state = store.getState();
-console.log(user.selectors.getUser(state));
-// -> { name: 'eric' }
 console.log(counter.selectors.getCounter(state));
 // -> 6
+console.log(user.selectors.getUser(state));
+// -> { name: 'eric' }
+console.log(user.selectors.getUserName(state));
+// -> 'eric'
 ```
 
 ## Types
@@ -108,7 +111,7 @@ console.log(counter.selectors.getCounter(state));
 slice passed to the state, then this will assume that this is the entire state shape.
 
 `Actions` helps improve autocompelete and typing for the `actions` object returned from `robodux`.
-Supply an interface where they keys are the action names and the values are the functions that return actions.
+Supply an interface where they keys are the action names and the values are the payload types, which should be null if the action takes no payload.
 
 `State` is the entire state shape for when a slice is used with `robodux`.  This helps type the selectors we
 return which requires the entire state as the parameter and not simply the slice state.

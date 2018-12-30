@@ -2,22 +2,30 @@ interface Hash {
   [key: string]: any;
 }
 
-export function createSelector<State extends Hash, SliceState>(
-  slice: string,
-): (state: State) => SliceState | State {
-  if (!slice) {
-    return (state: State) => state;
-  }
+export function createSelector<State extends Hash>(
+): (state: State) =>  State {
+    
+  return (state: State) => state;
+
+}
+export function createSliceSelector<State extends Hash, SliceState>(
+  slice: keyof State,
+): (state: State) => SliceState {
+
   return (state: State) => state[slice];
 }
-export function createSubSelector<State extends Hash, SliceState>(
-  slice: string,
-  subSlice: string,
-): (state: State) => SliceState | State {
-  if (!slice) {
+export function createSubSelector<State extends Hash, K extends keyof State= keyof State>(
+  subSlice: K,
+): (state: State) => State[K]   {
+
     return (state: State) => state[subSlice];
-  }
-  return (state: State) => state[slice][subSlice];
+}
+export function createSliceSubSelector<State extends Hash, SliceState, K extends keyof State = keyof State, L extends keyof SliceState = keyof SliceState>(
+  slice: K,
+  subSlice: L,
+): (state: State) => SliceState[L]  {
+
+  return (state: State) => (state[slice] as SliceState)[subSlice];
 }
 
 export function createSelectorName(slice: string) {
