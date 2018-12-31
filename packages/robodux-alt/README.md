@@ -78,7 +78,6 @@ const user = robodux<User, UserActions, State>({
     setUserName: (state, payload) => {
       state.name = payload; // mutate the state all you want with immer
     },
-  subSelectors: true,
   }
 })
 
@@ -104,8 +103,6 @@ console.log(counter.selectors.getCounter(state));
 // -> 6
 console.log(user.selectors.getUser(state));
 // -> { name: 'eric' }
-console.log(user.selectors.getUserName(state));
-// -> 'eric'
 ```
 
 ## Types
