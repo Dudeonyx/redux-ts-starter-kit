@@ -9,8 +9,6 @@ import {
 } from './selector';
 import { Action } from './types';
 
-// type GetPayloadType<A> = A extends ((payload: infer P) => Action) ? P : A extends ((payload: infer P) => RAction) ? P : A;
-
 type Reduce<State, Payload = null> = Payload extends null
   ? (state: State) => State | undefined | void
   : (state: State, payload: Payload) => State | undefined | void;
@@ -28,6 +26,9 @@ interface ICreate<State, Actions> {
 const actionTypeBuilder = (slice: string) => (action: string) =>
   slice ? `${slice}/${action}` : action;
 
+type NoUndefinedActionsCheck<Actions> = Actions extends undefined
+  ? { [s: string]: any }
+  : Actions;
 export default function create<
   SliceState,
   Actions = undefined,
@@ -36,11 +37,9 @@ export default function create<
   slice = '',
   actions,
   initialState,
-}: ICreate<
-  SliceState,
-  Actions extends undefined ? { [s: string]: any } : Actions
->) {
-  const { actionMap, reducer } = makeActionMapAndReducer<SliceState, Actions>(
+}: ICreate<SliceState, NoUndefinedActionsCheck<Actions>>) {
+  type Ax = NoUndefinedActionsCheck<Actions>;
+  const { actionMap, reducer } = makeActionMapAndReducer<SliceState, Ax>(
     actions,
     slice,
     initialState,
@@ -64,11 +63,9 @@ export function createSliceAlt<
   slice = '',
   actions,
   initialState,
-}: ICreate<
-  SliceState,
-  Actions extends undefined ? { [s: string]: any } : Actions
->) {
-  const { actionMap, reducer } = makeActionMapAndReducer<SliceState, Actions>(
+}: ICreate<SliceState, NoUndefinedActionsCheck<Actions>>) {
+  type Ax = NoUndefinedActionsCheck<Actions>;
+  const { actionMap, reducer } = makeActionMapAndReducer<SliceState, Ax>(
     actions,
     slice,
     initialState,
@@ -85,7 +82,6 @@ export function createSliceAlt<
 
 function makeSelectors<SliceState, State>(slice: string) {
   const selectorName = createSelectorName(slice);
-  // let additionalSelectors = {} as {[x:string]: (state: State) => State | SliceState}
   const selectors = {
     [selectorName]: createSelector<State, SliceState>(slice),
   };
@@ -97,7 +93,6 @@ function makeSelectorsAlt<SliceState, State>(
   initialState: SliceState,
 ) {
   const selectorName = createSelectorName(slice);
-  // let additionalSelectors = {} as {[x:string]: (state: State) => State | SliceState}
   const selectors = {
     [selectorName]: createSelectorAlt<State, SliceState>(slice),
   };
@@ -115,23 +110,11 @@ function makeSelectorsAlt<SliceState, State>(
   return selectors;
 }
 
-function makeActionMapAndReducer<SliceState, Actions>(
-  actions: {
-    [key in keyof (Actions extends undefined
-      ? { [s: string]: any }
-      : Actions)]: Reduce<
-      SliceState,
-      (Actions extends undefined ? { [s: string]: any } : Actions)[key]
-    >
-  },
+function makeActionMapAndReducer<SliceState, Ax>(
+  actions: { [key in keyof Ax]: Reduce<SliceState, Ax[key]> },
   slice: string,
   initialState: SliceState,
 ) {
-  type Ax = Actions extends undefined
-    ? {
-        [s: string]: any;
-      }
-    : Actions;
   const actionKeys = Object.keys(actions) as (keyof Ax)[];
   const createActionType = actionTypeBuilder(slice);
   const reducer = makeReducer<SliceState, Ax>(

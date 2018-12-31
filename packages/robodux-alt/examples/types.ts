@@ -12,7 +12,7 @@ interface IState {
   auth: ISliceState;
 }
 
-type Actions = {
+interface Actions  {
   set: SliceState;
   reset: null;
 };
