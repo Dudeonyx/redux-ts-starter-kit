@@ -88,11 +88,11 @@ export const {
   slice: authSlice,
   actions: { authFail, authStart, authSuccess, authLogout },
   selectors: {
-    getAuth,
-    getAuthAuthenticating,
-    getAuthIdToken,
-    getAuthError,
-    getAuthUserId,
+    getState: getAuth,
+    authenticating: getAuthAuthenticating,
+    error: getAuthError,
+    idToken: getAuthIdToken,
+    userId: getAuthUserId,
   },
 } = auth;
 

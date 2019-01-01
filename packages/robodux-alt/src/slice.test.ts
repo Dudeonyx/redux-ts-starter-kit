@@ -134,29 +134,29 @@ describe('createSlice', () => {
     };
 
     it('should create selector with correct name', () => {
-      expect(selectors.hasOwnProperty('getForm')).toBe(true);
+      expect(selectors.hasOwnProperty('getState')).toBe(true);
     });
     it('should create sub selector with correct name', () => {
-      expect(selectors.hasOwnProperty('getFormName')).toBe(true);
+      expect(selectors.hasOwnProperty('name')).toBe(true);
     });
     it('should create sub selector with correct name', () => {
-      expect(selectors.hasOwnProperty('getFormSurname')).toBe(true);
+      expect(selectors.hasOwnProperty('surname')).toBe(true);
     });
     it('should create sub selector with correct name', () => {
-      expect(selectors.hasOwnProperty('getFormMiddlename')).toBe(true);
+      expect(selectors.hasOwnProperty('middlename')).toBe(true);
     });
 
     it('should select the state slice', () => {
-      expect(selectors.getForm(state)).toEqual(state.form);
+      expect(selectors.getState(state)).toEqual(state.form);
     });
     it('should select the state slice name field', () => {
-      expect(selectors.getFormName(state)).toEqual('John');
+      expect(selectors.name(state)).toEqual('John');
     });
     it('should select the state slice surname field', () => {
-      expect(selectors.getFormSurname(state)).toEqual('Doe');
+      expect(selectors.surname(state)).toEqual('Doe');
     });
     it('should select the state slice middlename field', () => {
-      expect(selectors.getFormMiddlename(state)).toEqual('Wayne');
+      expect(selectors.middlename(state)).toEqual('Wayne');
     });
   });
 

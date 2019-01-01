@@ -12,7 +12,7 @@ export function createSelector<State extends Hash, SliceState>(
 }
 export function createSelectorAlt<State extends Hash, SliceState>(
   slice: string,
-): (state: State) => SliceState | SliceState[keyof SliceState] {
+): (state: State) => SliceState{
   if (!slice) {
     return (state: State) => <any>state;
   }
@@ -21,7 +21,7 @@ export function createSelectorAlt<State extends Hash, SliceState>(
 export function createSubSelector<State extends Hash, SliceState>(
   slice: keyof State,
   subSlice: keyof SliceState,
-): (state: State) => SliceState | SliceState[keyof SliceState] {
+): (state: State) => SliceState[keyof SliceState] {
   if (!slice) {
     return (state: State) => state[subSlice as keyof State];
   }

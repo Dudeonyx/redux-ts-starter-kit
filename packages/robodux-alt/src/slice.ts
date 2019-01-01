@@ -3,7 +3,6 @@ import createReducer from './reducer';
 import {
   createSelector,
   createSelectorName,
-  createSubSelectorName,
   createSubSelector,
   createSelectorAlt,
 } from './selector';
@@ -50,20 +49,56 @@ type Result<A extends ActionsAny = ActionsAny, SS = any, S = SS> = {
     [key in keyof A]: Object extends A[key]
       ? (payload?: any) => Action
       : A[key] extends never
-        ? () => Action
-        : (payload: A[key]) => Action<A[key]>
+      ? () => Action
+      : (payload: A[key]) => Action<A[key]>
+  };
+};
+type ResultWithoutSlice<A extends ActionsAny = ActionsAny, SS = any, S = SS> = {
+  slice: string;
+  reducer: Reducer<SS, Action>;
+  selectors: { getState: (state: S) => SS };
+  actions: {
+    [key in keyof A]: Object extends A[key]
+      ? (payload?: any) => Action
+      : A[key] extends never
+      ? () => Action
+      : (payload: A[key]) => Action<A[key]>
   };
 };
 type ResultAlt<A = any, SS = any, S = SS> = {
   slice: string;
   reducer: Reducer<SS, Action>;
-  selectors: { [x: string]: (state: S) => SS | SS[keyof SS] };
+  selectors: SS extends {}
+    ? ({ [key in keyof SS]: (state: S) => SS[key] } & {
+        getState: (state: S) => SS;
+      })
+    : {
+        getState: (state: S) => SS;
+      };
   actions: {
     [key in keyof A]: Object extends A[key]
       ? (payload?: any) => Action
       : A[key] extends never
-        ? () => Action
-        : (payload: A[key]) => Action<A[key]>
+      ? () => Action
+      : (payload: A[key]) => Action<A[key]>
+  };
+};
+type ResultAltWithoutSlice<
+  A = any,
+  SS extends { [X: string]: any } = any,
+  S = SS
+> = {
+  slice: string;
+  reducer: Reducer<SS, Action>;
+  selectors: {
+    getState: (state: S) => SS;
+  };
+  actions: {
+    [key in keyof A]: Object extends A[key]
+      ? (payload?: any) => Action
+      : A[key] extends never
+      ? () => Action
+      : (payload: A[key]) => Action<A[key]>
   };
 };
 type InputWithSlice<SS = any, Ax = ActionsAny> = {
@@ -102,7 +137,10 @@ export default function create<
 export default function create<SliceState, Actions extends ActionsAny>({
   actions,
   initialState,
-}: InputWithoutSlice<SliceState, Actions>): Result<Actions, SliceState>;
+}: InputWithoutSlice<SliceState, Actions>): ResultWithoutSlice<
+  Actions,
+  SliceState
+>;
 
 export default function create<SliceState, Actions extends ActionsAny, State>({
   actions,
@@ -142,7 +180,10 @@ export function createSliceAlt<
 export function createSliceAlt<SliceState, Actions extends ActionsAny>({
   actions,
   initialState,
-}: InputWithoutSlice<SliceState, Actions>): ResultAlt<Actions, SliceState>;
+}: InputWithoutSlice<SliceState, Actions>): ResultAltWithoutSlice<
+  Actions,
+  SliceState
+>;
 
 export function createSliceAlt<
   SliceState,
@@ -180,21 +221,29 @@ function makeSelectorsAlt<SliceState, State>(
   slice: string,
   initialState: SliceState,
 ) {
-  const selectorName = createSelectorName(slice);
-  const selectors = {
-    [selectorName]: createSelectorAlt<State, SliceState>(slice),
+  const getState = {
+    getState: createSelectorAlt<State, SliceState>(slice),
   };
+  let initialStateKeys: (keyof SliceState)[] = [];
   if (typeof initialState === 'object' && !Array.isArray(initialState)) {
-    const initialStateKeys = Object.keys(initialState) as (keyof SliceState)[];
-    initialStateKeys.reduce((map, key) => {
-      const subSelectorName = createSubSelectorName(slice, <string>key);
-      map[subSelectorName] = createSubSelector<State, SliceState>(
+    initialStateKeys = <any>Object.keys(initialState);
+  }
+  const otherSelectors = initialStateKeys.reduce<
+    { [key in keyof SliceState]: (state: State) => SliceState[key] }
+  >(
+    (map, key) => {
+      map[key] = createSubSelector<State, SliceState>(
         slice as keyof State,
         key,
       );
       return map;
-    }, selectors);
-  }
+    },
+    {} as any,
+  );
+  const selectors = {
+    ...getState,
+    ...otherSelectors,
+  };
   return selectors;
 }
 //#endregion
@@ -244,8 +293,8 @@ function makeActionMap<Ax, Actions>(
       [key in keyof Actions]: Object extends Actions[key]
         ? (payload?: any) => Action
         : Actions[key] extends never
-          ? () => Action
-          : (payload: Actions[key]) => Action<Actions[key]>
+        ? () => Action
+        : (payload: Actions[key]) => Action<Actions[key]>
     }
   >(
     (map, action) => {
