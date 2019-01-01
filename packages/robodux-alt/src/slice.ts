@@ -23,7 +23,7 @@ interface ICreate<State, Actions> {
 } */
 
 type ActionReducer<S = any, A = any> = (
-  state: S | undefined,
+  state: S,
   payload: A,
 ) => S | void | undefined;
 // type CReducer2<S = any> = (state: S) => S;
