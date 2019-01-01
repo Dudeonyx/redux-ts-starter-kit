@@ -22,7 +22,7 @@ const defaultState = {
   wow: 0,
 };
 
-const { actions, selectors, reducer } = robodux<Actions, SliceState, IState>({
+const { actions, selectors, reducer } = robodux<SliceState, Actions, IState>({
   slice: 'hi',
   actions: {
     set: (state, payload) => payload,

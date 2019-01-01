@@ -84,8 +84,8 @@ const actionTypeBuilder = (slice: string) => (action: string) =>
 type NoEmptyObject<S> = Object extends S ? { [slice: string]: any } : S;
 
 export default function create<
-  Actions extends ActionsAny,
   SliceState,
+  Actions extends ActionsAny,
   State extends {}
 >({
   actions,
@@ -96,12 +96,12 @@ export default function create<
   SliceState,
   NoEmptyObject<State>
 >;
-export default function create<Actions extends ActionsAny, SliceState>({
+export default function create<SliceState, Actions extends ActionsAny>({
   actions,
   initialState,
 }: InputWithoutSlice<SliceState, Actions>): Result<Actions, SliceState>;
 
-export default function create<Actions extends ActionsAny, SliceState, State>({
+export default function create<SliceState, Actions extends ActionsAny, State>({
   actions,
   initialState,
   slice = '',
@@ -124,8 +124,8 @@ export default function create<Actions extends ActionsAny, SliceState, State>({
 //#region
 
 export function createSliceAlt<
-  Actions extends ActionsAny,
   SliceState,
+  Actions extends ActionsAny,
   State extends {}
 >({
   slice,
@@ -136,14 +136,14 @@ export function createSliceAlt<
   SliceState,
   NoEmptyObject<State>
 >;
-export function createSliceAlt<Actions extends ActionsAny, SliceState>({
+export function createSliceAlt<SliceState, Actions extends ActionsAny>({
   actions,
   initialState,
 }: InputWithoutSlice<SliceState, Actions>): ResultAlt<Actions, SliceState>;
 
 export function createSliceAlt<
-  Actions extends ActionsAny,
   SliceState,
+  Actions extends ActionsAny,
   State = undefined
 >({
   slice = '',
