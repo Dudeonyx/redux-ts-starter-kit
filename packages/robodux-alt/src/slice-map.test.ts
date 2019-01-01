@@ -15,7 +15,7 @@ describe('mapSlice', () => {
   describe('add', () => {
     it('should add items to map', () => {
       const slice = 'test';
-      const { reducer, actions, selectors } = mapSlice<State, Actions>(slice);
+      const { reducer, actions } = mapSlice<State, Actions>(slice);
       const test = {
         1: 'one',
         2: 'two',

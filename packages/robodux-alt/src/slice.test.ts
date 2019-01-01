@@ -105,7 +105,7 @@ describe('createSlice', () => {
   });
 
   describe('createSliceAlt when initialState is an object', () => {
-    const { selectors, actions } = createSliceAlt({
+    const { selectors } = createSliceAlt({
       actions: {
         setName: (state, name: string) => {
           state.name = name;
@@ -132,7 +132,6 @@ describe('createSlice', () => {
         middlename: 'Wayne',
       },
     };
-    const all = selectors.getForm(state);
 
     it('should create selector with correct name', () => {
       expect(selectors.hasOwnProperty('getForm')).toBe(true);

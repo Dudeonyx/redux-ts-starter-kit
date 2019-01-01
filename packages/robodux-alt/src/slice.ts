@@ -22,12 +22,15 @@ interface ICreate<State, Actions> {
   initialState: State;
 } */
 
-type ActionReducer<S = any, A = any> = (
+export type ActionReducer<S = any, A = any> = (
   state: S,
   payload: A,
 ) => S | void | undefined;
 // type CReducer2<S = any> = (state: S) => S;
-type Reducer<SS = any, A = Action> = (state: SS | undefined, payload: A) => SS;
+export type Reducer<SS = any, A = Action> = (
+  state: SS | undefined,
+  payload: A,
+) => SS;
 
 type ActionsObj<SS = any, Ax = any> = {
   [K in keyof Ax]: ActionReducer<SS, Ax[K]>
@@ -36,7 +39,7 @@ type ActionsObj<SS = any, Ax = any> = {
 type ActionsAny<P = any> = {
   [Action: string]: P;
 };
-interface ReduceM<SS> {
+export interface ReduceM<SS> {
   [Action: string]: ActionReducer<SS, Action>;
 }
 type Result<A extends ActionsAny = ActionsAny, SS = any, S = SS> = {
