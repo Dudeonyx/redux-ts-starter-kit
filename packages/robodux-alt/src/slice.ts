@@ -63,14 +63,19 @@ type ResultAlt<A = any, SS = any, S = SS> = {
         : (payload: A[key]) => Action<A[key]>
   };
 };
-type Input<SS = any, Ax = ActionsAny> = {
+type InputWithSlice<SS = any, Ax = ActionsAny> = {
+  initialState: SS;
+  actions: ActionsObj<SS, Ax>;
+  slice: string;
+};
+type InputWithoutSlice<SS = any, Ax = ActionsAny> = {
+  initialState: SS;
+  actions: ActionsObj<SS, Ax>;
+};
+type InputWithOptionalSlice<SS = any, Ax = ActionsAny> = {
   initialState: SS;
   actions: ActionsObj<SS, Ax>;
   slice?: string;
-};
-type Input0<SS = any, Ax = ActionsAny> = {
-  initialState: SS;
-  actions: ActionsObj<SS, Ax>;
 };
 
 const actionTypeBuilder = (slice: string) => (action: string) =>
@@ -78,30 +83,29 @@ const actionTypeBuilder = (slice: string) => (action: string) =>
 
 type NoEmptyObject<S> = Object extends S ? { [slice: string]: any } : S;
 
-export default function create<Actions extends ActionsAny, SliceState>({
-  actions,
-  initialState,
-}: Input0<SliceState, Actions>): Result<Actions, SliceState>;
-
 export default function create<
   Actions extends ActionsAny,
   SliceState,
   State extends {}
 >({
-  slice,
   actions,
   initialState,
-}: Input<SliceState, Actions>): Result<
+  slice,
+}: InputWithSlice<SliceState, Actions>): Result<
   Actions,
   SliceState,
   NoEmptyObject<State>
 >;
+export default function create<Actions extends ActionsAny, SliceState>({
+  actions,
+  initialState,
+}: InputWithoutSlice<SliceState, Actions>): Result<Actions, SliceState>;
 
 export default function create<Actions extends ActionsAny, SliceState, State>({
   actions,
   initialState,
   slice = '',
-}: Input<SliceState, Actions>) {
+}: InputWithOptionalSlice<SliceState, Actions>) {
   const { actionMap, reducer } = makeActionMapAndReducer<
     SliceState,
     ActionsObj<SliceState, Actions>,
@@ -119,11 +123,6 @@ export default function create<Actions extends ActionsAny, SliceState, State>({
 }
 //#region
 
-export function createSliceAlt<Actions extends ActionsAny, SliceState>({
-  actions,
-  initialState,
-}: Input0<SliceState, Actions>): ResultAlt<Actions, SliceState>;
-
 export function createSliceAlt<
   Actions extends ActionsAny,
   SliceState,
@@ -132,17 +131,25 @@ export function createSliceAlt<
   slice,
   actions,
   initialState,
-}: Input<SliceState, Actions>): ResultAlt<
+}: InputWithSlice<SliceState, Actions>): ResultAlt<
   Actions,
   SliceState,
   NoEmptyObject<State>
 >;
+export function createSliceAlt<Actions extends ActionsAny, SliceState>({
+  actions,
+  initialState,
+}: InputWithoutSlice<SliceState, Actions>): ResultAlt<Actions, SliceState>;
 
 export function createSliceAlt<
   Actions extends ActionsAny,
   SliceState,
   State = undefined
->({ slice = '', actions, initialState }: Input<SliceState, Actions>) {
+>({
+  slice = '',
+  actions,
+  initialState,
+}: InputWithOptionalSlice<SliceState, Actions>) {
   const { actionMap, reducer } = makeActionMapAndReducer<
     SliceState,
     ActionsObj<SliceState, Actions>,
