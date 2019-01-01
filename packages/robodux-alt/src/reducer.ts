@@ -15,7 +15,7 @@ export default function createReducer<S, SS extends S = any>({
   initialState,
   actions,
   slice,
-}: CreateReducer<NoEmptyArray<SS>>): Reducer<S>;
+}: CreateReducer<NoEmptyArray<SS>>): Reducer<SS>;
 export default function createReducer<S>({
   initialState,
   actions,
