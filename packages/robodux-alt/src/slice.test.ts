@@ -4,10 +4,10 @@ describe('createSlice', () => {
   describe('when slice is empty', () => {
     type State = number;
     interface Actions {
-      increment: null;
+      increment: never;
       multiply: number;
     }
-    const { actions, reducer, selectors } = createSlice<State, Actions>({
+    const { actions, reducer, selectors } = createSlice<Actions,State>({
       actions: {
         increment: (state) => state + 1,
         multiply: (state, payload) => state * payload,
@@ -105,11 +105,11 @@ describe('createSlice', () => {
   });
 
   describe('createSliceAlt when initialState is an object', () => {
-    const { selectors } = createSliceAlt({
+    const { selectors, actions } = createSliceAlt({
       actions: {
-        setName: (state, name) => { state.name = name},
-        setSurname: (state, surname) => { state.surName = surname},
-        setMiddlename: (state, middlename) => { state.middlename = middlename}
+        setName: (state, name: string) => { state.name = name},
+        setSurname: (state, surname: string) => { state.surname = surname},
+        setMiddlename: (state, middlename: string) => { state.middlename = middlename}
       },
       slice: 'form',
       initialState:{
@@ -159,7 +159,7 @@ describe('createSlice', () => {
   describe('when mutating state object', () => {
     const { actions, reducer } = createSlice({
       actions: {
-        setUserName: (state, payload) => {
+        setUserName: (state, payload: string) => {
           state.user = payload;
         },
       },
