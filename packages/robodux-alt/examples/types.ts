@@ -12,17 +12,17 @@ interface IState {
   auth: ISliceState;
 }
 
-interface Actions  {
+interface Actions {
   set: SliceState;
   reset: never;
-};
+}
 
 const defaultState = {
   test: '',
   wow: 0,
 };
 
-const { actions, selectors, reducer } = robodux< Actions,SliceState,IState>({
+const { actions, selectors, reducer } = robodux<Actions, SliceState, IState>({
   slice: 'hi',
   actions: {
     set: (state, payload) => payload,
@@ -31,12 +31,12 @@ const { actions, selectors, reducer } = robodux< Actions,SliceState,IState>({
   initialState: defaultState,
 });
 
-const val = selectors.getHi({ hi:defaultState , auth:({} as any)});
+const val = selectors.getHi({ hi: defaultState, auth: {} as any });
 actions.set({ test: 'ok', wow: 0 });
 actions.reset();
 const red = reducer;
 
-console.log('\nHi selector: ',val,'\nHi reducer', red);
+console.log('\nHi selector: ', val, '\nHi reducer', red);
 
 interface ISliceState {
   idToken: string;
@@ -87,7 +87,13 @@ export const {
   reducer: authReducer,
   slice: authSlice,
   actions: { authFail, authStart, authSuccess, authLogout },
-  selectors: { getAuth, getAuthAuthenticating, getAuthIdToken, getAuthError, getAuthUserId },
+  selectors: {
+    getAuth,
+    getAuthAuthenticating,
+    getAuthIdToken,
+    getAuthError,
+    getAuthUserId,
+  },
 } = auth;
 
 const rootReducer = combineReducers<IState>({
@@ -148,7 +154,8 @@ console.log(
   '\nNew Auth State: ',
   getAuth(store.getState()),
   '\n',
-  'authenticating selector: ',getAuthAuthenticating(store.getState()),
+  'authenticating selector: ',
+  getAuthAuthenticating(store.getState()),
   '\n',
 );
 /* 
@@ -170,7 +177,7 @@ console.log(
   '\n[start: authSuccess action dispatched]\n',
   'Action: ',
   store.dispatch(
-    authSuccess({ idToken: 'really Long Token', userId: 'It\'s Me' }),
+    authSuccess({ idToken: 'really Long Token', userId: "It's Me" }),
   ),
   '\nNew Auth State: ',
   getAuth(store.getState()),

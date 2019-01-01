@@ -6,26 +6,26 @@ export function createSelector<State extends Hash, SliceState>(
   slice: string,
 ): (state: State) => SliceState {
   if (!slice) {
-    return (state: State) => state as any;
+    return (state: State) => <any>state;
   }
   return (state: State) => state[slice];
 }
 export function createSelectorAlt<State extends Hash, SliceState>(
   slice: string,
-): (state: State) => SliceState | State | SliceState[keyof SliceState] | State[keyof State] {
+): (state: State) => SliceState | SliceState[keyof SliceState] {
   if (!slice) {
-    return (state: State) => state;
+    return (state: State) => <any>state;
   }
   return (state: State) => state[slice];
 }
 export function createSubSelector<State extends Hash, SliceState>(
   slice: keyof State,
   subSlice: keyof SliceState,
-): (state: State) => SliceState | State |SliceState[keyof SliceState] | State[keyof State]  {
+): (state: State) => SliceState | SliceState[keyof SliceState] {
   if (!slice) {
     return (state: State) => state[subSlice as keyof State];
   }
-  return (state: State) => (state[slice]as unknown as SliceState)[subSlice];
+  return (state: State) => (<SliceState>(<unknown>state[slice]))[subSlice];
 }
 
 export function createSelectorName(slice: string) {
@@ -35,7 +35,7 @@ export function createSelectorName(slice: string) {
 
   return camelize(`get ${slice}`);
 }
-export function createSubSelectorName(slice: string, subSlice:string) {
+export function createSubSelectorName(slice: string, subSlice: string) {
   if (!slice) {
     return camelize(`get ${subSlice}`);
   }

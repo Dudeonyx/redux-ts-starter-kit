@@ -9,8 +9,12 @@ describe('createSelectorName', () => {
 });
 describe('createSubSelectorName', () => {
   it('should convert to camel case', () => {
-    expect(createSubSelectorName('some','thing')).toEqual('getSomeThing');
-    expect(createSubSelectorName('someThing', 'else')).toEqual('getSomeThingElse');
-    expect(createSubSelectorName('some-thing', 'else-now')).toEqual('getSomeThingElseNow');
+    expect(createSubSelectorName('some', 'thing')).toEqual('getSomeThing');
+    expect(createSubSelectorName('someThing', 'else')).toEqual(
+      'getSomeThingElse',
+    );
+    expect(createSubSelectorName('some-thing', 'else-now')).toEqual(
+      'getSomeThingElseNow',
+    );
   });
 });

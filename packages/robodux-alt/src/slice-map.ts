@@ -2,7 +2,6 @@ import robodux from './slice';
 
 const cap = (t: string) => t.charAt(0).toUpperCase() + t.substr(1);
 
-
 type Obj = {
   [key: string]: any;
 };
@@ -29,9 +28,11 @@ function remove<S = Obj>() {
   };
 }
 
-export default function mapSlice<A, SS extends {} = any,S extends {} =any>(slice: string) {
+export default function mapSlice<A, SS extends {} = any, S extends {} = any>(
+  slice: string,
+) {
   const initialState = {} as SS;
-  return robodux<A,SS,S>({
+  return robodux<A, SS, S>({
     slice,
     initialState,
     actions: {
