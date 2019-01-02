@@ -12,11 +12,19 @@ export function createSelector<State extends Hash, SliceState>(
 }
 export function createSelectorAlt<State extends Hash, SliceState>(
   slice: string,
-): (state: State) => SliceState{
+): (state: State) => SliceState {
   if (!slice) {
     return (state: State) => <any>state;
   }
-  return (state: State) => state[slice];
+  return (state: State) => {
+    if (!state.hasOwnProperty(slice)) {
+      throw new Error(`${slice} was not found in the given State,
+      This selector was either called with a bad state argument or
+      an incorrect slice name was given when instantiating the parent reducer,
+      check for spelling errors`);
+    }
+    return state[slice];
+  };
 }
 export function createSubSelector<State extends Hash, SliceState>(
   slice: keyof State,
@@ -25,7 +33,15 @@ export function createSubSelector<State extends Hash, SliceState>(
   if (!slice) {
     return (state: State) => state[subSlice as keyof State];
   }
-  return (state: State) => (<SliceState>(<unknown>state[slice]))[subSlice];
+  return (state: State) => {
+    if (!state.hasOwnProperty(slice)) {
+      throw new Error(`${slice} was not found in the given State,
+      This selector was either called with a bad state argument or
+      an incorrect slice name was given when instantiating the parent reducer,
+      check for spelling errors`);
+    }
+    return (<SliceState>(<unknown>state[slice]))[subSlice];
+  };
 }
 
 export function createSelectorName(slice: string) {
