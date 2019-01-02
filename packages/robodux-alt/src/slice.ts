@@ -24,10 +24,11 @@ export type ActionReducer<SS = any, A = any> = (
   state: SS,
   payload: A,
 ) => SS | void | undefined;
+
 export type ActionReducerWithSlice<SS = any, A = any, S = any> = (
   state: SS,
   payload: A,
-  _Store?: S,
+  _FullState: S,
 ) => SS | void | undefined;
 
 export type Reducer<SS = any, A = Action> = (
@@ -50,7 +51,7 @@ export interface ReduceM<SS> {
   [Action: string]: ActionReducer<SS, Action>;
 }
 type Result<A extends ActionsAny = ActionsAny, SS = any, S = SS> = {
-  slice: keyof S;
+  slice: SS extends S ? '' : keyof S;
   reducer: Reducer<SS, Action>;
   selectors: { getState: (state: S) => SS };
   actions: {
@@ -62,23 +63,11 @@ type Result<A extends ActionsAny = ActionsAny, SS = any, S = SS> = {
   };
 };
 
-/* type ResultWithoutSlice<A extends ActionsAny = ActionsAny, SS = any, S = SS> = {
-  slice: string;
-  reducer: Reducer<SS, Action>;
-  selectors: { getState: Selector<S, SS> };
-  actions: {
-    [key in keyof A]: Object extends A[key]
-      ? (payload?: any) => Action
-      : A[key] extends never
-      ? () => Action
-      : (payload: A[key]) => Action<A[key]>
-  };
-}; */
 type ResultAlt<A = any, SS = any, S = SS> = {
-  slice: keyof S;
+  slice: SS extends S ? '' : keyof S;
   reducer: Reducer<SS, Action>;
   selectors: SS extends {}
-    ? ({ [key in keyof SS]: (state: S) => SS } & {
+    ? ({ [key in keyof SS]: (state: S) => SS[key] } & {
         getState: (state: S) => SS;
       })
     : {
@@ -92,24 +81,7 @@ type ResultAlt<A = any, SS = any, S = SS> = {
       : (payload: A[key]) => Action<A[key]>
   };
 };
-/* type ResultAltWithoutSlice<
-  A = any,
-  SS = any,
-  S = SS
-> = {
-  slice: string;
-  reducer: Reducer<SS, Action>;
-  selectors: {
-    getState: (state: S) => SS;
-  };
-  actions: {
-    [key in keyof A]: Object extends A[key]
-      ? (payload?: any) => Action
-      : A[key] extends never
-      ? () => Action
-      : (payload: A[key]) => Action<A[key]>
-  };
-}; */
+
 type InputWithSlice<SS = any, Ax = ActionsAny, S = any> = {
   initialState: SS;
   actions: ActionsObjWithSlice<SS, Ax, S>;
@@ -124,7 +96,7 @@ type InputWithOptionalSlice<SS = any, Ax = ActionsAny, S = any> = {
   actions: ActionsObjWithSlice<SS, Ax, S>;
   slice?: any;
 };
-type NoEmptyObject<S> = Object extends S ? { [slice: string]: any } : S;
+// type NoEmptyObject<S> = Object extends S ? { [slice: string]: any } : S;
 
 const allCapsSnakeCase = (string: string) =>
   string
@@ -159,11 +131,10 @@ export default function create<SliceState, Actions extends ActionsAny, State>({
 }: InputWithOptionalSlice<SliceState, Actions, State>) {
   const { actionMap, reducer } = makeActionMapAndReducer<
     SliceState,
-    ActionsObj<SliceState, Actions>,
+    ActionsObjWithSlice<SliceState, Actions>,
     Actions
   >(actions, slice, initialState);
-  type StateX = NoEmptyObject<State>;
-  const selectors = makeSelectors<SliceState, StateX>(slice);
+  const selectors = makeSelectors<SliceState, State>(slice);
 
   return {
     actions: actionMap,
@@ -203,11 +174,10 @@ export function createSliceAlt<
 }: InputWithOptionalSlice<SliceState, Actions, State>) {
   const { actionMap, reducer } = makeActionMapAndReducer<
     SliceState,
-    ActionsObj<SliceState, Actions>,
+    ActionsObjWithSlice<SliceState, Actions>,
     Actions
   >(actions, slice, initialState);
-  type StateX = NoEmptyObject<State>;
-  const selectors = makeSelectorsAlt<SliceState, StateX>(slice, initialState);
+  const selectors = makeSelectorsAlt<SliceState, State>(slice, initialState);
   return {
     actions: actionMap,
     reducer,

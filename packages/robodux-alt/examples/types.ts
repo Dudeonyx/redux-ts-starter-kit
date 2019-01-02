@@ -73,7 +73,7 @@ const auth = createSliceAlt({
       state.error = error;
       state.authenticating = false;
     },
-    authLogout: (state) => {
+    authLogout: (state, _n:never) => {
       state.idToken = null;
       state.userId = null;
     },
