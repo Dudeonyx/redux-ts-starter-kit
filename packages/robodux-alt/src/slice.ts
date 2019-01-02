@@ -43,7 +43,7 @@ export interface ReduceM<SS> {
 type Result<A extends ActionsAny = ActionsAny, SS = any, S = SS> = {
   slice: string;
   reducer: Reducer<SS, Action>;
-  selectors: { getState: (state: S) => SS };
+  selectors: { getState: <Si extends S = S>(state: Si) => SS };
   actions: {
     [key in keyof A]: Object extends A[key]
       ? (payload?: any) => Action
@@ -55,7 +55,7 @@ type Result<A extends ActionsAny = ActionsAny, SS = any, S = SS> = {
 type ResultWithoutSlice<A extends ActionsAny = ActionsAny, SS = any, S = SS> = {
   slice: string;
   reducer: Reducer<SS, Action>;
-  selectors: { getState: (state: S) => SS };
+  selectors: { getState: <Si extends S = S>(state: Si) => SS };
   actions: {
     [key in keyof A]: Object extends A[key]
       ? (payload?: any) => Action
@@ -68,11 +68,11 @@ type ResultAlt<A = any, SS = any, S = SS> = {
   slice: string;
   reducer: Reducer<SS, Action>;
   selectors: SS extends {}
-    ? ({ [key in keyof SS]: (state: S) => SS[key] } & {
-        getState: (state: S) => SS;
+    ? ({ [key in keyof SS]: <Si extends S = S>(state: Si) => SS[key] } & {
+        getState: <Si extends S = S>(state: Si) => SS;
       })
     : {
-        getState: (state: S) => SS;
+        getState: <Si extends S = S>(state: Si) => SS;
       };
   actions: {
     [key in keyof A]: Object extends A[key]
