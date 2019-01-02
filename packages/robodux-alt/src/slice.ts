@@ -38,8 +38,8 @@ type ActionsAny<P = any> = {
   [Action: string]: P;
 };
 
-interface Selector<S, SS> {
-  <Si extends S = S>(state: Si): SS;
+export interface Selector<State, Slice> {
+  <Si extends State = State>(state: Si): Slice;
 }
 export interface ReduceM<SS> {
   [Action: string]: ActionReducer<SS, Action>;
@@ -119,11 +119,15 @@ type InputWithOptionalSlice<SS = any, Ax = ActionsAny> = {
   actions: ActionsObj<SS, Ax>;
   slice?: string;
 };
+type NoEmptyObject<S> = Object extends S ? { [slice: string]: any } : S;
+
+const allCapsSnakeCase = (string: string) =>
+  string
+    .replace(/(\w)([A-Z])/g, '$1_$2')
+    .replace(/(\w)/g, (w) => w.toUpperCase());
 
 const actionTypeBuilder = (slice: string) => (action: string) =>
-  slice ? `${slice}/${action}` : action;
-
-type NoEmptyObject<S> = Object extends S ? { [slice: string]: any } : S;
+  slice ? `${slice}/${allCapsSnakeCase(action)}` : allCapsSnakeCase(action);
 
 export default function create<
   SliceState,

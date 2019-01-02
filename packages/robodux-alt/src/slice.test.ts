@@ -25,14 +25,14 @@ describe('createSlice', () => {
 
     it('should have the correct action for increment', () => {
       expect(actions.increment()).toEqual({
-        type: 'increment',
+        type: 'INCREMENT',
         payload: undefined,
       });
     });
 
     it('should have the correct action for multiply', () => {
       expect(actions.multiply(3)).toEqual({
-        type: 'multiply',
+        type: 'MULTIPLY',
         payload: 3,
       });
     });
@@ -77,13 +77,13 @@ describe('createSlice', () => {
 
     it('should have the correct action for increment', () => {
       expect(actions.increment()).toEqual({
-        type: 'cool/increment',
+        type: 'cool/INCREMENT',
         payload: undefined,
       });
     });
     it('should have the correct action for multiply', () => {
       expect(actions.multiply(5)).toEqual({
-        type: 'cool/multiply',
+        type: 'cool/MULTIPLY',
         payload: 5,
       });
     });
