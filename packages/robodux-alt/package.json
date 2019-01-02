@@ -14,6 +14,7 @@
     "build": "tsc",
     "test": "tsc --noEmit && jest",
     "prepublish": "yarn build",
+    "alpha": "yarn publish --tag alpha",
     "precommit": "lint-staged",
     "prettier": "prettier --write {src}/*.ts"
   },
