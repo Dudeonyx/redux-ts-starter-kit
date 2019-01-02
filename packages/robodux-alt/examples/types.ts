@@ -39,14 +39,14 @@ const red = reducer;
 console.log('\nHi selector: ', val, '\nHi reducer', red);
 
 interface ISliceState {
-  idToken: string;
-  userId: string;
+  idToken: string | null;
+  userId: string | null;
   authenticating: boolean;
-  error: Error;
+  error: Error | null;
 }
-
-interface AuthActions {
-  authSuccess: { idToken: string; userId: string };
+type AuthSuccess = { idToken: string | null; userId: string | null };
+export interface AuthActions {
+  authSuccess: AuthSuccess;
   authStart: never;
   authFail: Error;
   authLogout: never;
@@ -74,7 +74,7 @@ const auth = createSliceAlt({
     authStart: (state) => {
       state.authenticating = true;
     },
-    authSuccess: (state, payload: any) => {
+    authSuccess: (state, payload: AuthSuccess) => {
       state.authenticating = false;
       state.idToken = payload.idToken;
       state.userId = payload.userId;
