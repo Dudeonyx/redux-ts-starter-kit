@@ -69,11 +69,11 @@ const auth = createSliceAlt({
   slice: 'auth',
   initialState,
   actions: {
-    authFail: (state, error: Error) => {
+    authFail: (state, error: Error, _: IState) => {
       state.error = error;
       state.authenticating = false;
     },
-    authLogout: (state, _n:never) => {
+    authLogout: (state, _n: never) => {
       state.idToken = null;
       state.userId = null;
     },
@@ -111,7 +111,7 @@ const initialStateOeds: IordersReducerState = {
 
 // const fdfge = fdf(initialStateOeds, 'error')
 
-const ordersRobodux = createSliceAlt({
+const ordersRobodux = robodux({
   slice: 'ords',
   initialState: initialStateOeds,
   actions: {
