@@ -92,10 +92,12 @@ const allCapsSnakeCase = (string: string) =>
 const actionTypeBuilder = (slice: string) => (action: string) =>
   slice ? `${slice}/${allCapsSnakeCase(action)}` : allCapsSnakeCase(action);
 
+type AnyState = { [slice: string]: any };
+
 export default function create<
   SliceState,
   Actions extends ActionsAny,
-  State extends {}
+  State extends AnyState
 >({
   actions,
   initialState,
@@ -111,10 +113,14 @@ export default function create<SliceState, Actions extends ActionsAny>({
   initialState,
 }: InputWithoutSlice<SliceState, Actions>): Result<Actions, SliceState>;
 
-export default function create<SliceState, Actions extends ActionsAny, State>({
+export default function create<
+  SliceState,
+  Actions extends ActionsAny,
+  State extends AnyState
+>({
   actions,
   initialState,
-  slice = '' as any,
+  slice = '',
 }: InputWithOptionalSlice<SliceState, Actions, State>) {
   const { actionMap, reducer } = makeActionMapAndReducer<
     SliceState,
@@ -135,7 +141,7 @@ export default function create<SliceState, Actions extends ActionsAny, State>({
 export function createSliceAlt<
   SliceState,
   Actions extends ActionsAny,
-  State extends {}
+  State extends AnyState
 >({
   slice,
   actions,
@@ -154,11 +160,11 @@ export function createSliceAlt<SliceState, Actions extends ActionsAny>({
 export function createSliceAlt<
   SliceState,
   Actions extends ActionsAny,
-  State = undefined
+  State extends AnyState
 >({
-  slice = '' as any,
   actions,
   initialState,
+  slice = '',
 }: InputWithOptionalSlice<SliceState, Actions, State>) {
   const { actionMap, reducer } = makeActionMapAndReducer<
     SliceState,
