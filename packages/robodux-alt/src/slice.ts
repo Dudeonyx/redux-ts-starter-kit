@@ -20,10 +20,10 @@ interface ICreate<State, Actions> {
   initialState: State;
 } */
 
-export type ActionReducer<S = any, A = any> = (
-  state: S,
+export type ActionReducer<SS = any, A = any> = (
+  state: SS,
   payload: A,
-) => S | void | undefined;
+) => SS | void | undefined;
 // type CReducer2<S = any> = (state: S) => S;
 export type Reducer<SS = any, A = Action> = (
   state: SS | undefined,

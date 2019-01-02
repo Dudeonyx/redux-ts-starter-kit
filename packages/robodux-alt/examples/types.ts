@@ -1,19 +1,21 @@
 import robodux, { createSliceAlt } from '../src/slice';
 import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
+import { IordersReducerState, IDbOrders } from './types.d';
 
-interface SliceState {
+interface HiSliceState {
   test: string;
   wow: number;
 }
 
 interface IState {
-  hi: SliceState;
-  auth: ISliceState;
+  hi: HiSliceState;
+  auth: AuthSliceState;
+  ords: IordersReducerState;
 }
 
 interface Actions {
-  set: SliceState;
+  set: HiSliceState;
   reset: never;
 }
 
@@ -22,7 +24,7 @@ const defaultState = {
   wow: 0,
 };
 
-const { actions, selectors, reducer } = robodux<SliceState, Actions, IState>({
+const { actions, selectors, reducer } = robodux<HiSliceState, Actions, IState>({
   slice: 'hi',
   actions: {
     set: (state, payload) => payload,
@@ -31,14 +33,18 @@ const { actions, selectors, reducer } = robodux<SliceState, Actions, IState>({
   initialState: defaultState,
 });
 
-const val = selectors.getState({ hi: defaultState, auth: {} as any });
+const val = selectors.getState({
+  hi: defaultState,
+  auth: {} as AuthSliceState,
+  ords: {} as IordersReducerState,
+});
 actions.set({ test: 'ok', wow: 0 });
 actions.reset();
 const red = reducer;
 
 console.log('\nHi selector: ', val, '\nHi reducer', red);
 
-interface ISliceState {
+interface AuthSliceState {
   idToken: string | null;
   userId: string | null;
   authenticating: boolean;
@@ -52,7 +58,7 @@ export interface AuthActions {
   authLogout: never;
 }
 
-const initialState: ISliceState = {
+const initialState: AuthSliceState = {
   idToken: '',
   userId: '',
   authenticating: false,
@@ -96,9 +102,45 @@ export const {
   },
 } = auth;
 
+const initialStateOeds: IordersReducerState = {
+  orders: null,
+  loading: false,
+  error: null,
+};
+// const fdf = <S>(state:S, slice: keyof S) => state[slice];
+
+// const fdfge = fdf(initialStateOeds, 'error')
+
+const ordersRobodux = createSliceAlt({
+  slice: 'ords',
+  initialState: initialStateOeds,
+  actions: {
+    setOrders: (state, orders: IDbOrders) => {
+      state.error = null;
+      state.orders = orders;
+      state.loading = false;
+    },
+    setOrdersError: (state, error: Error) => {
+      state.error = error;
+      state.loading = false;
+    },
+    setOrdersLoading: (state, n: never) => {
+      state.loading = true;
+      state.error = null;
+    },
+  },
+});
+
+export const {
+  reducer: ordersReducer,
+  actions: ordersActions,
+  selectors: ordersSelectors,
+} = ordersRobodux;
+
 const rootReducer = combineReducers<IState>({
   hi: reducer,
   auth: authReducer,
+  ords: ordersReducer,
 });
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
