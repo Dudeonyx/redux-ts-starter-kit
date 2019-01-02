@@ -96,11 +96,11 @@ describe('createSlice', () => {
     });
 
     it('should create selector with correct name', () => {
-      expect(selectors.hasOwnProperty('getCool')).toBe(true);
+      expect(selectors.hasOwnProperty('getState')).toBe(true);
     });
 
     it('should return the slice state data', () => {
-      expect(selectors.getCool({ cool: 2 })).toEqual(2);
+      expect(selectors.getState({ cool: 2 })).toEqual(2);
     });
   });
 

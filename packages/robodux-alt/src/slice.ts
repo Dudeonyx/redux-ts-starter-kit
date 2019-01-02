@@ -2,7 +2,6 @@ import createAction from './action';
 import createReducer from './reducer';
 import {
   createSelector,
-  createSelectorName,
   createSubSelector,
   createSelectorAlt,
 } from './selector';
@@ -44,7 +43,7 @@ export interface ReduceM<SS> {
 type Result<A extends ActionsAny = ActionsAny, SS = any, S = SS> = {
   slice: string;
   reducer: Reducer<SS, Action>;
-  selectors: { [x: string]: (state: S) => SS };
+  selectors: { getState: (state: S) => SS };
   actions: {
     [key in keyof A]: Object extends A[key]
       ? (payload?: any) => Action
@@ -210,9 +209,8 @@ export function createSliceAlt<
 }
 
 function makeSelectors<SliceState, State>(slice: string) {
-  const selectorName = createSelectorName(slice);
   const selectors = {
-    [selectorName]: createSelector<State, SliceState>(slice),
+    getState: createSelector<State, SliceState>(slice),
   };
   return selectors;
 }

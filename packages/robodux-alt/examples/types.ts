@@ -31,7 +31,7 @@ const { actions, selectors, reducer } = robodux<SliceState, Actions, IState>({
   initialState: defaultState,
 });
 
-const val = selectors.getHi({ hi: defaultState, auth: {} as any });
+const val = selectors.getState({ hi: defaultState, auth: {} as any });
 actions.set({ test: 'ok', wow: 0 });
 actions.reset();
 const red = reducer;
