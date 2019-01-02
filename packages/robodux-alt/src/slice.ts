@@ -37,13 +37,17 @@ type ActionsObj<SS = any, Ax = any> = {
 type ActionsAny<P = any> = {
   [Action: string]: P;
 };
+
+interface Selector<S, SS> {
+  <Si extends S = S>(state: Si): SS;
+}
 export interface ReduceM<SS> {
   [Action: string]: ActionReducer<SS, Action>;
 }
 type Result<A extends ActionsAny = ActionsAny, SS = any, S = SS> = {
   slice: string;
   reducer: Reducer<SS, Action>;
-  selectors: { getState: <Si extends S = S>(state: Si) => SS };
+  selectors: { getState: Selector<S, SS> };
   actions: {
     [key in keyof A]: Object extends A[key]
       ? (payload?: any) => Action
@@ -52,10 +56,11 @@ type Result<A extends ActionsAny = ActionsAny, SS = any, S = SS> = {
       : (payload: A[key]) => Action<A[key]>
   };
 };
+
 type ResultWithoutSlice<A extends ActionsAny = ActionsAny, SS = any, S = SS> = {
   slice: string;
   reducer: Reducer<SS, Action>;
-  selectors: { getState: <Si extends S = S>(state: Si) => SS };
+  selectors: { getState: Selector<S, SS> };
   actions: {
     [key in keyof A]: Object extends A[key]
       ? (payload?: any) => Action
@@ -68,11 +73,11 @@ type ResultAlt<A = any, SS = any, S = SS> = {
   slice: string;
   reducer: Reducer<SS, Action>;
   selectors: SS extends {}
-    ? ({ [key in keyof SS]: <Si extends S = S>(state: Si) => SS[key] } & {
-        getState: <Si extends S = S>(state: Si) => SS;
+    ? ({ [key in keyof SS]: Selector<S, SS[key]> } & {
+        getState: Selector<S, SS>;
       })
     : {
-        getState: <Si extends S = S>(state: Si) => SS;
+        getState: Selector<S, SS>;
       };
   actions: {
     [key in keyof A]: Object extends A[key]
