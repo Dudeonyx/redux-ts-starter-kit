@@ -5,19 +5,34 @@
   "types": "./dist/index.d.ts",
   "license": "MIT",
   "description": "reduce redux boilerplate",
-  "author": "Eric Bower",
+  "author": "Umeayo Onyekachukwu <umeayo.o.h@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dudeonyx/robodux.git"
+    "url": "git+https://github.com/Dudeonyx/robodux.git"
   },
+  "bugs": {
+    "url": "https://github.com/Dudeonyx/robodux/issues"
+  },
+  "homepage": "https://github.com/Dudeonyx/robodux#readme",
   "scripts": {
-    "build": "tsc",
-    "test": "tsc --noEmit && jest",
+    "build": "yarn clean && yarn prettier && yarn test && yarn tsc",
+    "clean": "rimraf dist",
+    "test": "yarn tsc --noEmit && yarn run jest",
     "prepublish": "yarn build",
     "alpha": "yarn publish --tag alpha",
     "precommit": "lint-staged",
-    "prettier": "prettier --write {src}/*.ts"
+    "prettier": "prettier --write src/*.ts"
   },
+  "keywords": [
+    "react",
+    "redux",
+    "boilerplate",
+    "typescript",
+    "reducers",
+    "createSlice",
+    "react-redux",
+    "javascript"
+  ],
   "devDependencies": {
     "@types/jest": "^23.3.11",
     "@types/node": "^10.12.18",
@@ -30,7 +45,8 @@
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
     "ts-jest": "^23.10.5",
-    "typescript": "^3.2.2"
+    "typescript": "^3.2.2",
+    "rimraf": "latest"
   },
   "dependencies": {
     "immer": "^1.9.3"
