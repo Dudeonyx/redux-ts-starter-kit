@@ -73,7 +73,7 @@ describe('serializableStateInvariantMiddleware', () => {
 
     const serializableStateInvariantMiddleware = createSerializableStateInvariantMiddleware();
 
-    const store = configureStore({
+    const { store } = configureStore({
       reducer,
       middleware: [serializableStateInvariantMiddleware],
     });
@@ -119,7 +119,7 @@ describe('serializableStateInvariantMiddleware', () => {
 
     const serializableStateInvariantMiddleware = createSerializableStateInvariantMiddleware();
 
-    const store = configureStore({
+    const { store } = configureStore({
       reducer: {
         testSlice: reducer,
       },

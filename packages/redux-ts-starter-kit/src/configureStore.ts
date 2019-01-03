@@ -6,7 +6,8 @@ import {
   Middleware,
   Reducer,
   StoreEnhancer,
-  Store,
+  DeepPartial,
+  ReducersMapObject,
 } from 'redux';
 import { composeWithDevTools, EnhancerOptions } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
@@ -34,29 +35,13 @@ export function getDefaultMiddleware(isProduction = IS_PRODUCTION) {
     : middlewareArrayPlus;
 }
 
-type ReducersObj<S = any> = { [K in keyof S]: Reducer<S[K]> };
-
-export function configureStore<S, SE, E, PS extends Partial<S> = Partial<S>>({
-  reducer,
-  middleware,
-  devTools,
-  preloadedState,
-  enhancers,
-}: {
-  reducer: Reducer<S> | ReducersObj<S>;
-  preloadedState?: PS; // ensures PS is not inferred as an empty object
-  middleware?: Middleware[];
-  devTools?: boolean;
-  enhancers?: StoreEnhancer<E, SE>[];
-}): Store<S & SE> & E;
-
-export function configureStore(
+export function configureStore<S, DP extends DeepPartial<S> = DeepPartial<S>>(
   options: {
-    reducer: any;
-    preloadedState?: any;
-    middleware?: any[];
+    reducer: Reducer<S> | ReducersMapObject<S>;
+    preloadedState?: DP; // ensures preloadedState's inferred type does not overide S
+    middleware?: Middleware[];
     devTools?: boolean;
-    enhancers?: any[];
+    enhancers?: StoreEnhancer[];
   } = <any>{},
 ) {
   const {
@@ -80,20 +65,21 @@ export function configureStore(
 
   const middlewareEnhancer = applyMiddleware(...middleware);
 
-  let finalCompose = compose;
-
-  if (devTools) {
-    finalCompose = composeWithDevTools(({
-      // Enable capture of stack traces for dispatched Redux actions
-      trace: !IS_PRODUCTION,
-    } as unknown) as EnhancerOptions);
-  }
-
   const storeEnhancers = [middlewareEnhancer, ...enhancers];
+
+  let finalCompose: (...funcs: Function[]) => StoreEnhancer =
+    devTools !== false
+      ? composeWithDevTools({
+          // Enable capture of stack traces for dispatched Redux actions
+          trace: !IS_PRODUCTION,
+        } as EnhancerOptions)
+      : compose;
 
   const composedEnhancer = finalCompose(...storeEnhancers);
 
-  const store = createStore(rootReducer, preloadedState, <any>composedEnhancer);
+  const store = preloadedState
+    ? createStore(rootReducer, preloadedState, composedEnhancer)
+    : createStore(rootReducer, composedEnhancer);
 
-  return store;
+  return [store, rootReducer] as [typeof store, typeof rootReducer];
 }

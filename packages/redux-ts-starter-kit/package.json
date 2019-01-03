@@ -21,7 +21,8 @@
     "prepublish": "yarn build",
     "alpha": "yarn publish --tag alpha",
     "precommit": "lint-staged",
-    "prettier": "prettier --write src/*.ts"
+    "prettier": "prettier --write src/*.ts",
+    "example": "rimraf ./examples/test/ && tsc -p ./examples/ && node ./examples/test/examples/sample.js"
   },
   "keywords": [
     "react",
@@ -55,7 +56,8 @@
     "redux-devtools-extension": "^2.13.7",
     "redux-immutable-state-invariant": "^2.1.0",
     "redux-thunk": "^2.3.0",
-    "robodux-alt": "alpha"
+    "reselect": "^4.0.0",
+    "robodux-alt": "^4.0.0-alpha.6"
   },
   "lint-staged": {
     "*.{js}": [

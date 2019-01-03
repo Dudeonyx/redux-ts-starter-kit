@@ -7,3 +7,4 @@ export {
   getActionType,
   mapSlice,
 } from 'robodux-alt';
+export * from 'reselect';
