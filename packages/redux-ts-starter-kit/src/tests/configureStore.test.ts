@@ -248,7 +248,6 @@ describe('multiple createSlice reducers used to create a redux store', () => {
       form: formSlice.reducer,
       hi: hiSlice.reducer,
     },
-    preloadedState: {},
   });
 
   it('returns the combined initial states', () => {
@@ -679,20 +678,11 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     });
   });
   describe('Selectors work as expected', () => {
-    store.dispatch(hiSlice.actions.setGreeting('Kaydo!'));
-    store.dispatch(hiSlice.actions.setWaves(5));
-    store.dispatch(formSlice.actions.setName('John'));
-    store.dispatch(formSlice.actions.setSurname('Wayne'));
-    store.dispatch(formSlice.actions.setMiddlename('Doe'));
-    store.dispatch(
-      authSlice.actions.authLogin({
-        idToken: 'a random token',
-        userId: 'a user id',
-      }),
-    );
-
     describe('Selectors in formSlice', () => {
       it('selects form', () => {
+        store.dispatch(formSlice.actions.setName('John'));
+        store.dispatch(formSlice.actions.setSurname('Wayne'));
+        store.dispatch(formSlice.actions.setMiddlename('Doe'));
         expect(formSlice.selectors.getSlice(store.getState())).toEqual({
           name: 'John',
           surname: 'Wayne',
@@ -712,6 +702,8 @@ describe('multiple createSlice reducers used to create a redux store', () => {
 
     describe('Selectors in hiSlice', () => {
       it('selects hi', () => {
+        store.dispatch(hiSlice.actions.setWaves(5));
+        store.dispatch(hiSlice.actions.setGreeting('Kaydo!'));
         expect(hiSlice.selectors.getSlice(store.getState())).toEqual({
           greeting: 'Kaydo!',
           waves: 5,
@@ -726,6 +718,12 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     });
     describe('Selectors in authSlice', () => {
       it('selects auth', () => {
+        store.dispatch(
+          authSlice.actions.authLogin({
+            idToken: 'a random token',
+            userId: 'a user id',
+          }),
+        );
         expect(authSlice.selectors.getSlice(store.getState())).toEqual({
           idToken: 'a random token',
           userId: 'a user id',

@@ -77,9 +77,7 @@ export function configureStore<S, DP extends DeepPartial<S> = DeepPartial<S>>(
 
   const composedEnhancer = finalCompose(...storeEnhancers);
 
-  const store = preloadedState
-    ? createStore(rootReducer, preloadedState, composedEnhancer)
-    : createStore(rootReducer, composedEnhancer);
+  const store = createStore(rootReducer, preloadedState, composedEnhancer);
 
   return [store, rootReducer] as [typeof store, typeof rootReducer];
 }
