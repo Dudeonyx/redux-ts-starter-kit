@@ -31,7 +31,7 @@ type ActionsAny<P = any> = {
 };
 type AnyState = { [slice: string]: any };
 
-interface ReduceM<SS> {
+export interface ReduceM<SS> {
   [Action: string]: ActionReducer<SS, Action>;
 }
 
