@@ -40,7 +40,7 @@ export interface ReduceM<SS> {
 type Result<A = any, SS = any, S = SS, str = keyof S> = {
   slice: SS extends S ? '' : str;
   reducer: Reducer<SS, Action>;
-  selectors: { getState: (state: S) => SS };
+  selectors: { getSlice: (state: S) => SS };
   actions: {
     [key in keyof A]: Object extends A[key]
       ? (payload?: any) => Action
@@ -55,10 +55,10 @@ type ResultAlt<A = any, SS = any, S = SS, str = keyof S> = {
   reducer: Reducer<SS, Action>;
   selectors: SS extends {}
     ? ({ [key in keyof SS]: (state: S) => SS[key] } & {
-        getState: (state: S) => SS;
+        getSlice: (state: S) => SS;
       })
     : {
-        getState: (state: S) => SS;
+        getSlice: (state: S) => SS;
       };
   actions: {
     [key in keyof A]: Object extends A[key]
@@ -185,7 +185,7 @@ export default function createSliceAlt<
 
 function makeSelectors<SliceState, State>(slice: string) {
   const selectors = {
-    getState: createSelector<State, SliceState>(slice),
+    getSlice: createSelector<State, SliceState>(slice),
   };
   return selectors;
 }
@@ -194,8 +194,8 @@ function makeSelectorsAlt<SliceState, State>(
   slice: string,
   initialState: SliceState,
 ) {
-  const getState = {
-    getState: createSelectorAlt<State, SliceState>(slice),
+  const getSlice = {
+    getSlice: createSelectorAlt<State, SliceState>(slice),
   };
   let initialStateKeys: (keyof SliceState)[] = [];
   if (typeof initialState === 'object' && !Array.isArray(initialState)) {
@@ -214,7 +214,7 @@ function makeSelectorsAlt<SliceState, State>(
     {} as any,
   );
   const selectors = {
-    ...getState,
+    ...getSlice,
     ...otherSelectors,
   };
   return selectors;

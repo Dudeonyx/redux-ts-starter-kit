@@ -33,7 +33,7 @@ const { actions, selectors, reducer } = robodux<HiSliceState, Actions, IState>({
   initialState: defaultState,
 });
 
-const val = selectors.getState({
+const val = selectors.getSlice({
   hi: defaultState,
   auth: {} as AuthSliceState,
   ords: {} as IordersReducerState,
@@ -94,7 +94,7 @@ export const {
   slice: authSlice,
   actions: { authFail, authStart, authSuccess, authLogout },
   selectors: {
-    getState: getAuth,
+    getSlice: getAuth,
     authenticating: getAuthAuthenticating,
     error: getAuthError,
     idToken: getAuthIdToken,
@@ -107,9 +107,6 @@ const initialStateOeds: IordersReducerState = {
   loading: false,
   error: null,
 };
-// const fdf = <S>(state:S, slice: keyof S) => state[slice];
-
-// const fdfge = fdf(initialStateOeds, 'error')
 
 const ordersRobodux = robodux({
   slice: 'ords',
