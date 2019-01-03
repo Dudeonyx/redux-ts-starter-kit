@@ -36,26 +36,7 @@ export function getDefaultMiddleware(isProduction = IS_PRODUCTION) {
 
 type ReducersObj<S = any> = { [K in keyof S]: Reducer<S[K]> };
 
-// export function configureStore<
-//   SE,
-//   E,
-//   S,
-//   R extends {} = ReducersObj<S>
-// >({
-//   reducer,
-//   middleware,
-//   devTools,
-//   preloadedState,
-//   enhancers,
-// }: {
-//   reducer: R;
-//   preloadedState?: S;
-//   middleware?: Middleware[];
-//   devTools?: boolean;
-//   enhancers?: StoreEnhancer<E, SE>[];
-// }): Store<S & SE> & E;
-
-export default function configureStore<S, SE, E, PS extends Partial<S> = Partial<S>>({
+export function configureStore<S, SE, E, PS extends Partial<S> = Partial<S>>({
   reducer,
   middleware,
   devTools,
@@ -69,19 +50,22 @@ export default function configureStore<S, SE, E, PS extends Partial<S> = Partial
   enhancers?: StoreEnhancer<E, SE>[];
 }): Store<S & SE> & E;
 
-export default function configureStore({
-  reducer,
-  middleware = getDefaultMiddleware(),
-  devTools = true,
-  preloadedState,
-  enhancers = [],
-}: {
-  reducer: any;
-  preloadedState?: any;
-  middleware?: any[];
-  devTools?: boolean;
-  enhancers?: any[];
-}) {
+export function configureStore(
+  options: {
+    reducer: any;
+    preloadedState?: any;
+    middleware?: any[];
+    devTools?: boolean;
+    enhancers?: any[];
+  } = <any>{},
+) {
+  const {
+    reducer,
+    middleware = getDefaultMiddleware(),
+    devTools = true,
+    preloadedState,
+    enhancers = [],
+  } = options;
   let rootReducer;
 
   if (typeof reducer === 'function') {
@@ -109,11 +93,7 @@ export default function configureStore({
 
   const composedEnhancer = finalCompose(...storeEnhancers);
 
-  const store = createStore(
-    rootReducer,
-    preloadedState,
-    composedEnhancer,
-  );
+  const store = createStore(rootReducer, preloadedState, <any>composedEnhancer);
 
   return store;
 }

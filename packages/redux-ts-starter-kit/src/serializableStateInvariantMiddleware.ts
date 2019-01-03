@@ -1,5 +1,5 @@
 import isPlainObject from './isPlainObject';
-import { Action } from './types';
+import { Action } from 'robodux-alt';
 import { AnyAction } from 'redux';
 
 export function isPlain(
