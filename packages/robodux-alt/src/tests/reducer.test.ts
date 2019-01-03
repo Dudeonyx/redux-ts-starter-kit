@@ -1,4 +1,5 @@
 import createReducer from '../reducer';
+import { Reducer } from 'src/slice';
 
 describe('createReducer', () => {
   describe('given impure reducers with immer', () => {
@@ -58,9 +59,9 @@ describe('createReducer', () => {
   });
 });
 
-function behavesLikeReducer(todosReducer: any) {
+function behavesLikeReducer<R extends Reducer>(todosReducer: R) {
   it('should handle initial state', () => {
-    expect(todosReducer(undefined, {})).toEqual([]);
+    expect(todosReducer(undefined, { type: '' })).toEqual([]);
   });
 
   it('should handle ADD_TODO', () => {

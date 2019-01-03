@@ -2,6 +2,7 @@ import robodux from '../src/slice';
 import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
+import createReducer from 'src/reducer';
 
 interface HiSliceState {
   test: string;
@@ -74,6 +75,28 @@ const auth = robodux({
       state.authenticating = false;
     },
     authLogout: (state, _n: never) => {
+      state.idToken = null;
+      state.userId = null;
+    },
+    authStart: (state) => {
+      state.authenticating = true;
+    },
+    authSuccess: (state, payload: AuthSuccess) => {
+      state.authenticating = false;
+      state.idToken = payload.idToken;
+      state.userId = payload.userId;
+    },
+  },
+});
+
+export const authReducer2 = createReducer({
+  initialState,
+  actions: {
+    authFail: (state, error: Error) => {
+      state.error = error;
+      state.authenticating = false;
+    },
+    authLogout: (state) => {
       state.idToken = null;
       state.userId = null;
     },

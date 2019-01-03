@@ -31,8 +31,8 @@ type ActionsAny<P = any> = {
 };
 type AnyState = { [slice: string]: any };
 
-export interface ReduceM<SS> {
-  [Action: string]: ActionReducer<SS, Action>;
+export interface ReduceM<SS, A = Action> {
+  [Action: string]: ActionReducer<SS, A>;
 }
 
 type ResultAlt<A = any, SS = any, S = SS, str = keyof S> = {
@@ -46,7 +46,7 @@ type ResultAlt<A = any, SS = any, S = SS, str = keyof S> = {
         getSlice: (state: S) => SS;
       };
   actions: {
-    [key in keyof A]: Object extends A[key]
+    [key in keyof A]: Object extends A[key] // ensures payload isn't inferred as {}
       ? (payload?: any) => Action
       : A[key] extends never
       ? () => Action
