@@ -79,7 +79,7 @@ const actionTypeBuilder = (slice: string) => (action: string) =>
 
 //#region
 
-export default function createSliceAlt<
+export default function createSlice<
   SliceState,
   Actions extends ActionsAny,
   State extends AnyState
@@ -93,12 +93,12 @@ export default function createSliceAlt<
   State,
   typeof slice
 >;
-export default function createSliceAlt<SliceState, Actions extends ActionsAny>({
+export default function createSlice<SliceState, Actions extends ActionsAny>({
   actions,
   initialState,
 }: InputWithoutSlice<SliceState, Actions>): ResultAlt<Actions, SliceState>;
 
-export default function createSliceAlt<
+export default function createSlice<
   SliceState,
   Actions extends ActionsAny,
   State extends AnyState
