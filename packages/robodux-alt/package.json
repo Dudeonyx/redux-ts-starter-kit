@@ -1,6 +1,6 @@
 {
   "name": "robodux-alt",
-  "version": "4.0.0-alpha.6",
+  "version": "4.0.0-alpha.8",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
