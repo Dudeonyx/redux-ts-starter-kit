@@ -1,12 +1,11 @@
 module.exports = {
-  transform: {
-    '^.+\\.tsx?$': 'ts-jest',
-  },
   testRegex: 'test.ts',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  globals: {
-    'ts-jest': {
-      skipBabel: true,
-    },
-  },
-};
+  moduleFileExtensions: [
+    'js',
+    'jsx',
+    'ts',
+    'tsx',
+  ],
+  preset: 'ts-jest',
+  testMatch: null,
+}

@@ -1,6 +1,4 @@
 {
-  "baseUrl": "types",
-  "typeRoots": ["types"],
   "compilerOptions": {
     "noImplicitAny": true,
     "noUnusedLocals": true,
@@ -15,7 +13,6 @@
     "moduleResolution": "node",
     "lib": ["es2015", "es2017", "dom"],
     "declaration": true,
-
   },
   "exclude": [
     "node_modules",
