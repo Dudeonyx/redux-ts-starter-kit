@@ -1,4 +1,4 @@
-import createSlice, { createSliceAlt } from './slice';
+import createSlice from '../slice';
 
 describe('createSlice', () => {
   describe('when slice is empty', () => {
@@ -105,7 +105,7 @@ describe('createSlice', () => {
   });
 
   describe('createSliceAlt when initialState is an object', () => {
-    const { selectors } = createSliceAlt({
+    const { selectors } = createSlice({
       actions: {
         setName: (state, name: string) => {
           state.name = name;
@@ -168,7 +168,6 @@ describe('createSlice', () => {
         },
       },
       initialState: { user: '' },
-      slice: 'user',
     });
 
     it('should set the username', () => {

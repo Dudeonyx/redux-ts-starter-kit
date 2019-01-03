@@ -94,7 +94,7 @@ const actionTypeBuilder = (slice: string) => (action: string) =>
 
 type AnyState = { [slice: string]: any };
 
-export default function create<
+export function createSliceLegacy<
   SliceState,
   Actions extends ActionsAny,
   State extends AnyState
@@ -108,12 +108,12 @@ export default function create<
   State,
   typeof slice
 >;
-export default function create<SliceState, Actions extends ActionsAny>({
+export function createSliceLegacy<SliceState, Actions extends ActionsAny>({
   actions,
   initialState,
 }: InputWithoutSlice<SliceState, Actions>): Result<Actions, SliceState>;
 
-export default function create<
+export function createSliceLegacy<
   SliceState,
   Actions extends ActionsAny,
   State extends AnyState
@@ -138,7 +138,7 @@ export default function create<
 }
 //#region
 
-export function createSliceAlt<
+export default function createSliceAlt<
   SliceState,
   Actions extends ActionsAny,
   State extends AnyState
@@ -152,12 +152,12 @@ export function createSliceAlt<
   State,
   typeof slice
 >;
-export function createSliceAlt<SliceState, Actions extends ActionsAny>({
+export default function createSliceAlt<SliceState, Actions extends ActionsAny>({
   actions,
   initialState,
 }: InputWithoutSlice<SliceState, Actions>): ResultAlt<Actions, SliceState>;
 
-export function createSliceAlt<
+export default function createSliceAlt<
   SliceState,
   Actions extends ActionsAny,
   State extends AnyState

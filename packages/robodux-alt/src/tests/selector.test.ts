@@ -1,4 +1,4 @@
-import { createSelectorName, createSubSelectorName } from './selector';
+import { createSelectorName, createSubSelectorName } from '../selector';
 
 describe('createSelectorName', () => {
   it('should convert to camel case', () => {

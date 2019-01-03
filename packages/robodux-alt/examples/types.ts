@@ -1,4 +1,4 @@
-import robodux, { createSliceAlt } from '../src/slice';
+import robodux from '../src/slice';
 import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
@@ -65,7 +65,7 @@ const initialState: AuthSliceState = {
   error: null,
 };
 
-const auth = createSliceAlt({
+const auth = robodux({
   slice: 'auth',
   initialState,
   actions: {

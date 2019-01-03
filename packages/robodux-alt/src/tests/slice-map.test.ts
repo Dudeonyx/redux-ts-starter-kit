@@ -1,4 +1,4 @@
-import mapSlice from './slice-map';
+import mapSlice from '../slice-map';
 
 interface State {
   [key: string]: string;

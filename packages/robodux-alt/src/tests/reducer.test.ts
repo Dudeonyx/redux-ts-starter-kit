@@ -1,4 +1,4 @@
-import createReducer from './reducer';
+import createReducer from '../reducer';
 
 describe('createReducer', () => {
   describe('given impure reducers with immer', () => {

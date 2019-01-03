@@ -14,13 +14,15 @@
     "outDir": "./dist",
     "moduleResolution": "node",
     "lib": ["es2015", "es2017", "dom"],
-    "declaration": true
+    "declaration": true,
+
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/*.test.ts"
   ],
   "include": [
-    "./src/index.ts",
+    "src",
     // "./examples/*.ts",
   ]
 }
