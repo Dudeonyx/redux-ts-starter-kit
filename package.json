@@ -6,7 +6,7 @@
     "bootstrap": "lerna bootstrap",
     "clean": "rimraf packages/**/lib",
     "build": "yarn clean && lerna run build",
-    "publish": "yarn clean && lerna publish"
+    "publish": "lerna publish"
   },
 
   "devDependencies": {
