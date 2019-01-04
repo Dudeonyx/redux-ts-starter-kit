@@ -1,9 +1,14 @@
-export * from './configureStore';
-export { configureStore as default } from './configureStore';
+export { configureStore, getDefaultMiddleware } from './configureStore';
 export {
-  default as createSlice,
+  createSlice,
   createAction,
   createReducer,
   getActionType,
+  createNextState,
 } from '@redux-ts-starter-kit/slice';
-export * from 'reselect';
+export {
+  createSelector,
+  createSelectorCreator,
+  createStructuredSelector,
+  defaultMemoize,
+} from 'reselect';

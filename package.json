@@ -5,7 +5,7 @@
     "test": "lerna run test",
     "bootstrap": "lerna bootstrap",
     "clean": "rimraf packages/**/lib",
-    "build": "yarn clean && tsc -b packages/slice packages/core",
+    "build": "yarn clean && lerna run build",
     "publish": "yarn clean && lerna publish"
   },
 
