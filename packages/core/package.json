@@ -18,8 +18,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn prettier && yarn test && yarn tsc",
-    "clean": "rimraf dist",
+    "build": "yarn clean && yarn prettier && yarn test && yarn tsc -b",
+    "clean": "rimraf lib",
     "test": "yarn tsc --noEmit && yarn run jest",
     "prepublish": "yarn build",
     "alpha": "yarn publish --tag alpha",
