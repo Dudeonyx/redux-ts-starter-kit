@@ -1,14 +1,151 @@
-0 silly argv { _: [ 'add' ],
-0 silly argv   globs: [],
-0 silly argv   lernaVersion: '3.6.0',
+0 silly argv { _: [ 'publish' ],
+0 silly argv   composed: 'publish',
+0 silly argv   lernaVersion: '3.8.4',
 0 silly argv   '$0':
-0 silly argv    'C:\\Users\\Dudeonyx\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\lerna\\cli.js',
-0 silly argv   pkg: 'tslint-react tslint-config-prettier' }
-1 notice cli v3.6.0
-2 verbose rootPath D:\github\workspaces
-3 error Error: Invalid tag name "tslint-react tslint-config-prettier": Tags may not have any characters that encodeURIComponent encodes.
-3 error     at invalidTagName (D:\github\workspaces\node_modules\npm-package-arg\npa.js:87:15)
-3 error     at fromRegistry (D:\github\workspaces\node_modules\npm-package-arg\npa.js:290:13)
-3 error     at resolve (D:\github\workspaces\node_modules\npm-package-arg\npa.js:77:12)
-3 error     at npa (D:\github\workspaces\node_modules\npm-package-arg\npa.js:48:10)
-3 error     at AddCommand.initialize (D:\github\workspaces\node_modules\@lerna\add\index.js:30:17)
+0 silly argv    'C:\\Users\\Dudeonyx\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\lerna\\cli.js' }
+1 notice cli v3.8.4
+2 verbose rootPath C:\github\redux-ts-starter-kit
+3 verbose session da9eeaa3610134d1
+4 verbose user-agent lerna/3.8.4/node@v10.13.0+x64 (win32)
+5 silly argv { _: [ 'publish' ], composed: 'publish', lernaVersion: '3.8.4' }
+6 verbose rootPath C:\github\redux-ts-starter-kit
+7 info current version 0.0.2-alpha.0
+8 silly isAnythingCommitted
+9 verbose isAnythingCommitted 1
+10 silly currentBranch
+11 verbose currentBranch master
+12 silly remoteBranchExists
+13 silly isBehindUpstream
+14 silly isBehindUpstream master is behind origin/master by 0 commit(s) and ahead by 1
+15 silly hasTags
+16 verbose hasTags true
+17 silly git-describe.sync "v0.0.2-alpha.0-1-g8c98fc2" => {"lastTagName":"v0.0.2-alpha.0","lastVersion":"v0.0.2-alpha.0","refCount":"1","sha":"8c98fc2","isDirty":false}
+18 info Looking for changed packages since v0.0.2-alpha.0
+19 verbose updated @redux-ts-starter-kit/core
+20 verbose updated @redux-ts-starter-kit/slice
+21 verbose git-describe undefined => "v0.0.2-alpha.0-1-g8c98fc2"
+22 silly git-describe parsed => {"lastTagName":"v0.0.2-alpha.0","lastVersion":"v0.0.2-alpha.0","refCount":"1","sha":"8c98fc2","isDirty":false}
+23 silly batched [ PackageGraphNode {
+23 silly batched     name: '@redux-ts-starter-kit/slice',
+23 silly batched     externalDependencies:
+23 silly batched      Map {
+23 silly batched        '@types/jest' => [Object],
+23 silly batched        '@types/node' => [Object],
+23 silly batched        'babel-core' => [Object],
+23 silly batched        'babel-jest' => [Object],
+23 silly batched        'husky' => [Object],
+23 silly batched        'jest' => [Object],
+23 silly batched        'lint-staged' => [Object],
+23 silly batched        'prettier' => [Object],
+23 silly batched        'redux' => [Object],
+23 silly batched        'redux-thunk' => [Object],
+23 silly batched        'rimraf' => [Object],
+23 silly batched        'ts-jest' => [Object],
+23 silly batched        'typescript' => [Object],
+23 silly batched        'immer' => [Object] },
+23 silly batched     localDependencies: Map {},
+23 silly batched     localDependents: Map { '@redux-ts-starter-kit/core' => [PackageGraphNode] } } ]
+24 silly batched [ PackageGraphNode {
+24 silly batched     name: '@redux-ts-starter-kit/core',
+24 silly batched     externalDependencies:
+24 silly batched      Map {
+24 silly batched        '@types/jest' => [Object],
+24 silly batched        '@types/node' => [Object],
+24 silly batched        '@types/redux-immutable-state-invariant' => [Object],
+24 silly batched        'babel-core' => [Object],
+24 silly batched        'babel-jest' => [Object],
+24 silly batched        'husky' => [Object],
+24 silly batched        'jest' => [Object],
+24 silly batched        'lint-staged' => [Object],
+24 silly batched        'prettier' => [Object],
+24 silly batched        'rimraf' => [Object],
+24 silly batched        'ts-jest' => [Object],
+24 silly batched        'typescript' => [Object],
+24 silly batched        'immer' => [Object],
+24 silly batched        'redux' => [Object],
+24 silly batched        'redux-devtools-extension' => [Object],
+24 silly batched        'redux-immutable-state-invariant' => [Object],
+24 silly batched        'redux-thunk' => [Object],
+24 silly batched        'reselect' => [Object] },
+24 silly batched     localDependencies: Map {},
+24 silly batched     localDependents: Map {} } ]
+25 silly lifecycle No script for "preversion" in "root", continuing
+26 silly lifecycle No script for "preversion" in "@redux-ts-starter-kit/slice", continuing
+27 silly lifecycle No script for "version" in "@redux-ts-starter-kit/slice", continuing
+28 silly lifecycle No script for "preversion" in "@redux-ts-starter-kit/core", continuing
+29 silly lifecycle No script for "version" in "@redux-ts-starter-kit/core", continuing
+30 silly lifecycle No script for "version" in "root", continuing
+31 silly gitAdd [ 'C:\\github\\redux-ts-starter-kit\\packages\\slice\\package.json',
+31 silly gitAdd   'C:\\github\\redux-ts-starter-kit\\packages\\core\\package.json',
+31 silly gitAdd   'C:\\github\\redux-ts-starter-kit\\lerna.json' ]
+32 silly gitCommit v0.0.2-alpha.1
+33 verbose git [ 'commit', '-m', 'v0.0.2-alpha.1' ]
+34 silly gitTag v0.0.2-alpha.1
+35 verbose git [ 'tag', 'v0.0.2-alpha.1', '-m', 'v0.0.2-alpha.1' ]
+36 silly lifecycle No script for "postversion" in "@redux-ts-starter-kit/core", continuing
+37 silly lifecycle No script for "postversion" in "@redux-ts-starter-kit/slice", continuing
+38 silly lifecycle No script for "postversion" in "root", continuing
+39 info git Pushing tags...
+40 silly gitPush origin master
+41 silly batched [ PackageGraphNode {
+41 silly batched     name: '@redux-ts-starter-kit/slice',
+41 silly batched     externalDependencies: Map { 'immer' => [Object] },
+41 silly batched     localDependencies: Map {},
+41 silly batched     localDependents: Map { '@redux-ts-starter-kit/core' => [PackageGraphNode] } } ]
+42 silly batched [ PackageGraphNode {
+42 silly batched     name: '@redux-ts-starter-kit/core',
+42 silly batched     externalDependencies:
+42 silly batched      Map {
+42 silly batched        'immer' => [Object],
+42 silly batched        'redux' => [Object],
+42 silly batched        'redux-devtools-extension' => [Object],
+42 silly batched        'redux-immutable-state-invariant' => [Object],
+42 silly batched        'redux-thunk' => [Object],
+42 silly batched        'reselect' => [Object] },
+42 silly batched     localDependencies: Map {},
+42 silly batched     localDependents: Map {} } ]
+43 info publish Publishing packages to npm...
+44 info Verifying npm credentials
+45 verbose Retrieving npm user profile
+46 http fetch GET 200 https://registry.npmjs.org/-/npm/v1/user 3583ms
+47 silly npm profile get received {"tfa":false,"name":"dudeonyx","email":"umeayo.o.h@gmail.com","email_verified":true,"created":"2018-11-07T19:53:01.194Z","updated":"2018-11-07T19:53:01.192Z","cidr_whitelist":null}
+48 silly npm whoami received {"username":"dudeonyx"}
+49 silly verifyNpmPackageAccess
+50 http fetch GET 200 https://registry.npmjs.org/-/org/dudeonyx/package?format=cli 1724ms
+51 silly getCurrentSHA
+52 verbose getCurrentSHA efe56e5979baf9a7476fc037124037e315db5352
+53 silly lifecycle No script for "prepublish" in "root", continuing
+54 silly lifecycle No script for "prepare" in "root", continuing
+55 silly lifecycle No script for "prepublishOnly" in "root", continuing
+56 silly lifecycle No script for "prepack" in "root", continuing
+57 verbose pack-directory packages\slice
+58 silly lifecycle "prepublish" starting in "@redux-ts-starter-kit/slice"
+59 info lifecycle @redux-ts-starter-kit/slice@0.0.2-alpha.1~prepublish: @redux-ts-starter-kit/slice@0.0.2-alpha.1
+60 verbose lifecycle @redux-ts-starter-kit/slice@0.0.2-alpha.1~prepublish: unsafe-perm in lifecycle true
+61 verbose lifecycle @redux-ts-starter-kit/slice@0.0.2-alpha.1~prepublish: PATH: C:\github\redux-ts-starter-kit\node_modules\npm-lifecycle\node-gyp-bin;C:\github\redux-ts-starter-kit\packages\slice\node_modules\.bin;C:\Windows\System32;C:\Windows;C:\Windows\System32\wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\nodejs\;C:\Program Files (x86)\Yarn\bin\;C:\Program Files\Git\cmd;C:\Program Files (x86)\GnuPG\bin;C:\Users\Dudeonyx\AppData\Local\Microsoft\WindowsApps;C:\Users\Dudeonyx\AppData\Roaming\npm;C:\Users\Dudeonyx\AppData\Local\Yarn\bin;C:\Users\Dudeonyx\AppData\Local\Programs\Microsoft VS Code\bin
+62 verbose lifecycle @redux-ts-starter-kit/slice@0.0.2-alpha.1~prepublish: CWD: C:\github\redux-ts-starter-kit\packages\slice
+63 silly lifecycle @redux-ts-starter-kit/slice@0.0.2-alpha.1~prepublish: Args: [ '/d /s /c', 'yarn build' ]
+64 silly lifecycle @redux-ts-starter-kit/slice@0.0.2-alpha.1~prepublish: Returned: code: 0  signal: null
+65 silly lifecycle "prepublish" finished in "@redux-ts-starter-kit/slice"
+66 silly lifecycle No script for "prepare" in "@redux-ts-starter-kit/slice", continuing
+67 silly lifecycle No script for "prepublishOnly" in "@redux-ts-starter-kit/slice", continuing
+68 silly lifecycle No script for "prepack" in "@redux-ts-starter-kit/slice", continuing
+69 silly lifecycle No script for "postpack" in "@redux-ts-starter-kit/slice", continuing
+70 verbose pack-directory packages\core
+71 silly lifecycle "prepublish" starting in "@redux-ts-starter-kit/core"
+72 info lifecycle @redux-ts-starter-kit/core@0.0.2-alpha.1~prepublish: @redux-ts-starter-kit/core@0.0.2-alpha.1
+73 verbose lifecycle @redux-ts-starter-kit/core@0.0.2-alpha.1~prepublish: unsafe-perm in lifecycle true
+74 verbose lifecycle @redux-ts-starter-kit/core@0.0.2-alpha.1~prepublish: PATH: C:\github\redux-ts-starter-kit\node_modules\npm-lifecycle\node-gyp-bin;C:\github\redux-ts-starter-kit\packages\core\node_modules\.bin;C:\Windows\System32;C:\Windows;C:\Windows\System32\wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\nodejs\;C:\Program Files (x86)\Yarn\bin\;C:\Program Files\Git\cmd;C:\Program Files (x86)\GnuPG\bin;C:\Users\Dudeonyx\AppData\Local\Microsoft\WindowsApps;C:\Users\Dudeonyx\AppData\Roaming\npm;C:\Users\Dudeonyx\AppData\Local\Yarn\bin;C:\Users\Dudeonyx\AppData\Local\Programs\Microsoft VS Code\bin
+75 verbose lifecycle @redux-ts-starter-kit/core@0.0.2-alpha.1~prepublish: CWD: C:\github\redux-ts-starter-kit\packages\core
+76 silly lifecycle @redux-ts-starter-kit/core@0.0.2-alpha.1~prepublish: Args: [ '/d /s /c', 'yarn build' ]
+77 silly lifecycle @redux-ts-starter-kit/core@0.0.2-alpha.1~prepublish: Returned: code: 0  signal: null
+78 silly lifecycle "prepublish" finished in "@redux-ts-starter-kit/core"
+79 silly lifecycle No script for "prepare" in "@redux-ts-starter-kit/core", continuing
+80 silly lifecycle No script for "prepublishOnly" in "@redux-ts-starter-kit/core", continuing
+81 silly lifecycle No script for "prepack" in "@redux-ts-starter-kit/core", continuing
+82 silly lifecycle No script for "postpack" in "@redux-ts-starter-kit/core", continuing
+83 silly lifecycle No script for "postpack" in "root", continuing
+84 verbose publish @redux-ts-starter-kit/slice
+85 http fetch PUT 402 https://registry.npmjs.org/@redux-ts-starter-kit%2fslice 4531ms
+86 error Error: 402 Payment Required - PUT https://registry.npmjs.org/@redux-ts-starter-kit%2fslice - You must sign up for private packages
+86 error     at res.buffer.catch.then.body (C:\github\redux-ts-starter-kit\node_modules\npm-registry-fetch\check-response.js:104:15)

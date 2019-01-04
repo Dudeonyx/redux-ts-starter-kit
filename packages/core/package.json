@@ -14,6 +14,9 @@
     "url": "https://github.com/Dudeonyx/redux-ts-starter-kit/issues"
   },
   "homepage": "https://github.com/Dudeonyx/redux-ts-starter-kit#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "yarn clean && yarn prettier && yarn test && yarn tsc",
     "clean": "rimraf dist",
@@ -64,5 +67,6 @@
       "prettier --write",
       "git add"
     ]
-  }
+  },
+  "gitHead": "efe56e5979baf9a7476fc037124037e315db5352"
 }

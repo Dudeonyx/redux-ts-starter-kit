@@ -14,6 +14,9 @@
     "url": "https://github.com/Dudeonyx/robodux/issues"
   },
   "homepage": "https://github.com/Dudeonyx/robodux#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "yarn clean && yarn prettier && yarn test && yarn tsc -b",
     "clean": "rimraf lib",
@@ -56,5 +59,6 @@
       "prettier --write",
       "git add"
     ]
-  }
+  },
+  "gitHead": "efe56e5979baf9a7476fc037124037e315db5352"
 }
