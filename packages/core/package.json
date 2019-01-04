@@ -28,7 +28,7 @@
     "prepublish": "yarn build",
     "alpha": "yarn publish --tag alpha",
     "precommit": "lint-staged",
-    "prettier": "prettier --write src/*.ts",
+    "prettier": "prettier --write src/**/*.ts",
     "example": "rimraf ./examples/test/ && tsc -p ./examples/ && node ./examples/test/examples/sample.js"
   },
   "keywords": [

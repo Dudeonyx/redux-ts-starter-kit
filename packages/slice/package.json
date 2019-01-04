@@ -28,7 +28,7 @@
     "prepare": "yarn build",
     "alpha": "yarn publish --tag alpha",
     "precommit": "lint-staged",
-    "prettier": "prettier --write src/*.ts"
+    "prettier": "prettier --write src/**/*.ts"
   },
   "keywords": [
     "react",
