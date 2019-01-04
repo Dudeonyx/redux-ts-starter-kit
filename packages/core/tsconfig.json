@@ -6,6 +6,6 @@
   },
   "exclude": ["./src/tests/","./examples/","./lib/"],
   "references": [
-    { "path": "../robodux-alt" }
+    { "path": "../slice" }
   ]
 }

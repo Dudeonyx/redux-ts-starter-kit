@@ -6,5 +6,5 @@ export {
   createReducer,
   getActionType,
   mapSlice,
-} from 'robodux-alt';
+} from '@redux-ts-starter-kit/slice';
 export * from 'reselect';

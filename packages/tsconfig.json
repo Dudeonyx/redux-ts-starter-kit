@@ -1,7 +1,7 @@
 {
   "files": [],
   "references": [
-      { "path": "redux-ts-starter-kit" },
-      { "path": "robodux-alt" }
+    { "path": "slice" },
+      { "path": "core" }
   ]
 }

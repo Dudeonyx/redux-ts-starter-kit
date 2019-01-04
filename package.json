@@ -5,7 +5,7 @@
     "test": "lerna run test",
     "bootstrap": "lerna bootstrap",
     "clean": "rimraf packages/**/lib",
-    "build": "yarn clean && tsc -b packages/robodux-alt packages/redux-ts-starter-kit"
+    "build": "yarn clean && tsc -b packages/slice packages/core"
   },
   "devDependencies": {
     "@types/jest": "^23.3.11",

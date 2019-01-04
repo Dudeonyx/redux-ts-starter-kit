@@ -3,7 +3,7 @@ import * as redux from 'redux';
 import * as devtools from 'redux-devtools-extension';
 
 import thunk from 'redux-thunk';
-import createSlice from 'robodux-alt';
+import createSlice from '@redux-ts-starter-kit/slice';
 // import immutableStateInvariant from 'redux-immutable-state-invariant'
 
 describe('getDefaultMiddleware', () => {

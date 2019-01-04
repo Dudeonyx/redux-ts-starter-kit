@@ -1,5 +1,5 @@
 import isPlainObject from './isPlainObject';
-import { Action } from 'robodux-alt';
+import { Action } from '@redux-ts-starter-kit/slice';
 import { AnyAction } from 'redux';
 
 export function isPlain(
