@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "yarn clean && yarn prettier && rollup -c",
-    "clean": "rimraf lib",
+    "clean": "rimraf lib .rpt2_cache",
     "test": "yarn tsc --noEmit && yarn run jest",
     "prepublish": "yarn build",
     "alpha": "yarn publish --tag alpha",
