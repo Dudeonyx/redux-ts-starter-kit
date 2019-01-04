@@ -6,7 +6,7 @@
     "bootstrap": "lerna bootstrap",
     "clean": "rimraf packages/**/lib",
     "build": "yarn clean && tsc -b packages/slice packages/core",
-    "publish": "lerna publish"
+    "publish": "yarn clean && lerna publish"
   },
 
   "devDependencies": {
