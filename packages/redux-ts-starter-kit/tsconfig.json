@@ -1,25 +1,11 @@
 {
+  "extends": "../tsconfig.settings.json",
   "compilerOptions": {
-    "noImplicitAny": true,
-    "noUnusedLocals": true,
-    "removeComments": true,
-    "preserveConstEnums": true,
-    "strict": true,
-    "sourceMap": true,
-    "baseUrl": ".",
-    "target": "es5",
-    "module": "commonJS",
-    "esModuleInterop": true,
-    "outDir": "./dist",
-    "moduleResolution": "node",
-    "lib": ["es2015", "es2017", "dom"],
-    "declaration": true,
+    "rootDir": "src",
+    "outDir": "lib"
   },
-  "exclude": [
-    "node_modules",
-    "src/*.test.ts"
-  ],
-  "include": [
-    "src",
+  "exclude": ["./src/tests/","./examples/","./lib/"],
+  "references": [
+    { "path": "../robodux-alt" }
   ]
 }

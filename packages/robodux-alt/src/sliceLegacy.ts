@@ -1,6 +1,6 @@
 import { Action } from './types';
 import { createSelector } from './selector';
-import { createAction } from 'src';
+import createAction from './action';
 import createReducer from './reducer';
 
 type ActionReducer<SS = any, A = any> = (
