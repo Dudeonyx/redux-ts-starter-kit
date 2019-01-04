@@ -1,7 +1,7 @@
-import createAction from "./action";
-import createReducer, { NoEmptyArray } from "./reducer";
-import { createSubSelector, createSelector } from "./selector";
-import { Action } from "./types";
+import createAction from './action';
+import createReducer, { NoEmptyArray } from './reducer';
+import { createSubSelector, createSelector } from './selector';
+import { Action } from './types';
 
 interface ActionReducer<SS = any, A = any> {
   (state: SS, payload: A): SS | void | undefined;
@@ -33,8 +33,8 @@ export interface ReduceM<SS, A = Action> {
   [Action: string]: ActionReducer<SS, A>;
 }
 
-interface Slice<A = any, SS = any, S = SS, str = ""> {
-  slice: SS extends S ? "" : str;
+interface Slice<A = any, SS = any, S = SS, str = ''> {
+  slice: SS extends S ? '' : str;
   reducer: Reducer<SS, Action>;
   selectors: SS extends any[]
     ? {
@@ -68,7 +68,7 @@ interface InputWithoutSlice<SS = any, Ax = ActionsAny> {
 interface InputWithBlankSlice<SS = any, Ax = ActionsAny> {
   initialState: SS;
   cases: ActionsObj<SS, Ax>;
-  slice: "";
+  slice: '';
 }
 interface InputWithOptionalSlice<SS = any, Ax = ActionsAny, S = any> {
   initialState: SS;
@@ -78,8 +78,8 @@ interface InputWithOptionalSlice<SS = any, Ax = ActionsAny, S = any> {
 
 const allCapsSnakeCase = (string: string) =>
   string
-    .replace(/(\w)([A-Z])/g, "$1_$2")
-    .replace(/(\w)/g, w => w.toUpperCase());
+    .replace(/(\w)([A-Z])/g, '$1_$2')
+    .replace(/(\w)/g, (w) => w.toUpperCase());
 
 const actionTypeBuilder = (slice: string) => (action: string) =>
   slice ? `${slice}/${allCapsSnakeCase(action)}` : allCapsSnakeCase(action);
@@ -93,7 +93,7 @@ export default function createSlice<
 >({
   slice,
   cases,
-  initialState
+  initialState,
 }: InputWithSlice<NoEmptyArray<SliceState>, Actions, State>): Slice<
   Actions,
   NoEmptyArray<SliceState>,
@@ -104,7 +104,7 @@ export default function createSlice<
 export default function createSlice<Actions extends ActionsAny, SliceState>({
   cases,
   initialState,
-  slice
+  slice,
 }: InputWithBlankSlice<NoEmptyArray<SliceState>, Actions>): Slice<
   Actions,
   NoEmptyArray<SliceState>,
@@ -114,7 +114,7 @@ export default function createSlice<Actions extends ActionsAny, SliceState>({
 
 export default function createSlice<Actions extends ActionsAny, SliceState>({
   cases,
-  initialState
+  initialState,
 }: InputWithoutSlice<NoEmptyArray<SliceState>, Actions>): Slice<
   Actions,
   NoEmptyArray<SliceState>
@@ -127,7 +127,7 @@ export default function createSlice<
 >({
   cases,
   initialState,
-  slice = ""
+  slice = '',
 }: InputWithOptionalSlice<NoEmptyArray<SliceState>, Actions, State>) {
   const actionKeys = Object.keys(cases) as (keyof Actions)[];
   const createActionType = actionTypeBuilder(<string>slice);
@@ -139,7 +139,7 @@ export default function createSlice<
   const reducer = createReducer<SliceState>({
     initialState,
     cases: reducerMap,
-    slice: <string>slice
+    slice: <string>slice,
   });
 
   const actionMap = actionKeys.reduce<
@@ -156,11 +156,11 @@ export default function createSlice<
       (<any>map)[action] = createAction(type);
       return map;
     },
-    {} as any
+    {} as any,
   );
 
   let initialStateKeys: (keyof SliceState)[] = [];
-  if (typeof initialState === "object" && !Array.isArray(initialState)) {
+  if (typeof initialState === 'object' && !Array.isArray(initialState)) {
     initialStateKeys = <any>Object.keys(initialState);
   }
   const otherSelectors = initialStateKeys.reduce<
@@ -169,20 +169,20 @@ export default function createSlice<
     (map, key) => {
       map[key] = createSubSelector<State, SliceState>(
         slice as keyof State,
-        key
+        key,
       );
       return map;
     },
-    {} as any
+    {} as any,
   );
   const selectors = {
     getSlice: createSelector<State, SliceState>(<string>slice),
-    ...otherSelectors
+    ...otherSelectors,
   };
   return {
     actions: actionMap,
     reducer,
     slice,
-    selectors
+    selectors,
   };
 }
