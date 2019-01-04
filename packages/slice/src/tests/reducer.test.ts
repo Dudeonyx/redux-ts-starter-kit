@@ -1,5 +1,5 @@
 import createReducer from '../reducer';
-import { Reducer } from 'src/slice';
+import { Reducer } from '../slice';
 
 describe('createReducer', () => {
   describe('given impure reducers with immer', () => {
