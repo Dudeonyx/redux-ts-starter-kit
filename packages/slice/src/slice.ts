@@ -36,7 +36,11 @@ export interface ReduceM<SS, A = Action> {
 interface Slice<A = any, SS = any, S = SS, str = ""> {
   slice: SS extends S ? "" : str;
   reducer: Reducer<SS, Action>;
-  selectors: SS extends AnyState
+  selectors: SS extends any[]
+    ? {
+        getSlice: (state: S) => SS;
+      }
+    : SS extends {}
     ? ({ [key in keyof SS]: (state: S) => SS[key] } & {
         getSlice: (state: S) => SS;
       })
