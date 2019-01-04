@@ -1,79 +1,24 @@
-0 silly argv { _: [ 'publish' ],
-0 silly argv   composed: 'publish',
+0 silly argv { _: [ 'add' ],
+0 silly argv   D: true,
+0 silly argv   dev: true,
+0 silly argv   globs: [],
 0 silly argv   lernaVersion: '3.8.4',
 0 silly argv   '$0':
 0 silly argv    'C:\\Users\\Dudeonyx\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\lerna\\cli.js',
-0 silly argv   bump: 'from-package' }
+0 silly argv   pkg: 'rimraf@2.6.3' }
 1 notice cli v3.8.4
 2 verbose rootPath C:\github\redux-ts-starter-kit
-3 verbose session d92f5f468412eed9
-4 verbose user-agent lerna/3.8.4/node@v10.13.0+x64 (win32)
-5 verbose git-describe undefined => "v0.0.2-alpha.2-1-gbd050a3"
-6 silly git-describe parsed => {"lastTagName":"v0.0.2-alpha.2","lastVersion":"v0.0.2-alpha.2","refCount":"1","sha":"bd050a3","isDirty":false}
-7 silly getPackageVersions
-8 warn Unable to determine published versions, assuming unpublished.
-9 warn Unable to determine published versions, assuming unpublished.
-10 silly batched [ PackageGraphNode {
-10 silly batched     name: '@redux-ts-starter-kit/slice',
-10 silly batched     externalDependencies: Map { 'immer' => [Object] },
-10 silly batched     localDependencies: Map {},
-10 silly batched     localDependents: Map { '@redux-ts-starter-kit/core' => [PackageGraphNode] } } ]
-11 silly batched [ PackageGraphNode {
-11 silly batched     name: '@redux-ts-starter-kit/core',
-11 silly batched     externalDependencies:
-11 silly batched      Map {
-11 silly batched        'immer' => [Object],
-11 silly batched        'redux' => [Object],
-11 silly batched        'redux-devtools-extension' => [Object],
-11 silly batched        'redux-immutable-state-invariant' => [Object],
-11 silly batched        'redux-thunk' => [Object],
-11 silly batched        'reselect' => [Object] },
-11 silly batched     localDependencies: Map {},
-11 silly batched     localDependents: Map {} } ]
-12 info publish Publishing packages to npm...
-13 info Verifying npm credentials
-14 verbose Retrieving npm user profile
-15 warn registry Unexpected warning for https://registry.npmjs.org/: Miscellaneous Warning ECONNRESET: request to https://registry.npmjs.org/-/npm/v1/user failed, reason: read ECONNRESET
-16 warn registry Using stale data from https://registry.npmjs.org/ due to a request error during revalidation.
-17 http fetch GET 200 https://registry.npmjs.org/-/npm/v1/user 12068ms (from cache)
-18 silly npm profile get received {"tfa":false,"name":"dudeonyx","email":"umeayo.o.h@gmail.com","email_verified":true,"created":"2018-11-07T19:53:01.194Z","updated":"2018-11-07T19:53:01.192Z","cidr_whitelist":null}
-19 silly npm whoami received {"username":"dudeonyx"}
-20 silly verifyNpmPackageAccess
-21 http fetch GET 200 https://registry.npmjs.org/-/org/dudeonyx/package?format=cli 21036ms (from cache)
-22 silly getCurrentSHA
-23 verbose getCurrentSHA bd050a3a932a9a8f4eccb7de436c6f7747d1325a
-24 silly lifecycle No script for "prepublish" in "root", continuing
-25 silly lifecycle No script for "prepare" in "root", continuing
-26 silly lifecycle No script for "prepublishOnly" in "root", continuing
-27 silly lifecycle No script for "prepack" in "root", continuing
-28 verbose pack-directory packages\slice
-29 silly lifecycle "prepublish" starting in "@redux-ts-starter-kit/slice"
-30 info lifecycle @redux-ts-starter-kit/slice@0.0.2-alpha.2~prepublish: @redux-ts-starter-kit/slice@0.0.2-alpha.2
-31 verbose lifecycle @redux-ts-starter-kit/slice@0.0.2-alpha.2~prepublish: unsafe-perm in lifecycle true
-32 verbose lifecycle @redux-ts-starter-kit/slice@0.0.2-alpha.2~prepublish: PATH: C:\github\redux-ts-starter-kit\node_modules\npm-lifecycle\node-gyp-bin;C:\github\redux-ts-starter-kit\packages\slice\node_modules\.bin;C:\Windows\System32;C:\Windows;C:\Windows\System32\wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\nodejs\;C:\Program Files (x86)\Yarn\bin\;C:\Program Files\Git\cmd;C:\Program Files (x86)\GnuPG\bin;C:\Users\Dudeonyx\AppData\Local\Microsoft\WindowsApps;C:\Users\Dudeonyx\AppData\Roaming\npm;C:\Users\Dudeonyx\AppData\Local\Yarn\bin;C:\Users\Dudeonyx\AppData\Local\Programs\Microsoft VS Code\bin
-33 verbose lifecycle @redux-ts-starter-kit/slice@0.0.2-alpha.2~prepublish: CWD: C:\github\redux-ts-starter-kit\packages\slice
-34 silly lifecycle @redux-ts-starter-kit/slice@0.0.2-alpha.2~prepublish: Args: [ '/d /s /c', 'yarn build' ]
-35 silly lifecycle @redux-ts-starter-kit/slice@0.0.2-alpha.2~prepublish: Returned: code: 0  signal: null
-36 silly lifecycle "prepublish" finished in "@redux-ts-starter-kit/slice"
-37 silly lifecycle No script for "prepare" in "@redux-ts-starter-kit/slice", continuing
-38 silly lifecycle No script for "prepublishOnly" in "@redux-ts-starter-kit/slice", continuing
-39 silly lifecycle No script for "prepack" in "@redux-ts-starter-kit/slice", continuing
-40 silly lifecycle No script for "postpack" in "@redux-ts-starter-kit/slice", continuing
-41 verbose pack-directory packages\core
-42 silly lifecycle "prepublish" starting in "@redux-ts-starter-kit/core"
-43 info lifecycle @redux-ts-starter-kit/core@0.0.2-alpha.2~prepublish: @redux-ts-starter-kit/core@0.0.2-alpha.2
-44 verbose lifecycle @redux-ts-starter-kit/core@0.0.2-alpha.2~prepublish: unsafe-perm in lifecycle true
-45 verbose lifecycle @redux-ts-starter-kit/core@0.0.2-alpha.2~prepublish: PATH: C:\github\redux-ts-starter-kit\node_modules\npm-lifecycle\node-gyp-bin;C:\github\redux-ts-starter-kit\packages\core\node_modules\.bin;C:\Windows\System32;C:\Windows;C:\Windows\System32\wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\nodejs\;C:\Program Files (x86)\Yarn\bin\;C:\Program Files\Git\cmd;C:\Program Files (x86)\GnuPG\bin;C:\Users\Dudeonyx\AppData\Local\Microsoft\WindowsApps;C:\Users\Dudeonyx\AppData\Roaming\npm;C:\Users\Dudeonyx\AppData\Local\Yarn\bin;C:\Users\Dudeonyx\AppData\Local\Programs\Microsoft VS Code\bin
-46 verbose lifecycle @redux-ts-starter-kit/core@0.0.2-alpha.2~prepublish: CWD: C:\github\redux-ts-starter-kit\packages\core
-47 silly lifecycle @redux-ts-starter-kit/core@0.0.2-alpha.2~prepublish: Args: [ '/d /s /c', 'yarn build' ]
-48 silly lifecycle @redux-ts-starter-kit/core@0.0.2-alpha.2~prepublish: Returned: code: 0  signal: null
-49 silly lifecycle "prepublish" finished in "@redux-ts-starter-kit/core"
-50 silly lifecycle No script for "prepare" in "@redux-ts-starter-kit/core", continuing
-51 silly lifecycle No script for "prepublishOnly" in "@redux-ts-starter-kit/core", continuing
-52 silly lifecycle No script for "prepack" in "@redux-ts-starter-kit/core", continuing
-53 silly lifecycle No script for "postpack" in "@redux-ts-starter-kit/core", continuing
-54 silly lifecycle No script for "postpack" in "root", continuing
-55 verbose publish @redux-ts-starter-kit/slice
-56 http fetch PUT 404 https://registry.npmjs.org/@redux-ts-starter-kit%2fslice 3886ms
-57 error Error: 404 Not Found - PUT https://registry.npmjs.org/@redux-ts-starter-kit%2fslice - Scope not found
-57 error     at res.buffer.catch.then.body (C:\github\redux-ts-starter-kit\node_modules\npm-registry-fetch\check-response.js:104:15)
+3 error TypeError: Invalid comparator: latest
+3 error     at Comparator.parse (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:701:11)
+3 error     at new Comparator (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:685:8)
+3 error     at Range.<anonymous> (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:859:12)
+3 error     at Array.map (<anonymous>)
+3 error     at Range.parseRange (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:858:13)
+3 error     at Range.<anonymous> (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:801:17)
+3 error     at Array.map (<anonymous>)
+3 error     at new Range (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:800:40)
+3 error     at Function.intersects (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:1333:8)
+3 error     at getRangeToReference (C:\github\redux-ts-starter-kit\node_modules\@lerna\add\lib\get-range-to-reference.js:18:35)
+3 error     at result.filter.pkg (C:\github\redux-ts-starter-kit\node_modules\@lerna\add\index.js:136:14)
+3 error     at Array.filter (<anonymous>)
+3 error     at AddCommand.collectPackagesToChange (C:\github\redux-ts-starter-kit\node_modules\@lerna\add\index.js:128:21)
