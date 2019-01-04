@@ -5,19 +5,19 @@ import { ReduceM } from './slice';
 
 type CreateReducer<SS = any> = {
   initialState: SS;
-  actions: ReduceM<SS, any>;
+  cases: ReduceM<SS, any>;
   slice?: string;
 };
-type NoEmptyArray<State> = State extends never[] ? any[] : State;
+export type NoEmptyArray<State> = State extends never[] ? any[] : State;
 
 export default function createReducer<S, SS extends S = any>({
   initialState,
-  actions,
+  cases,
   slice = '',
 }: CreateReducer<NoEmptyArray<SS>>) {
   const reducer = (state = initialState, action: Action<any>) => {
     return createNextState(state, (draft) => {
-      const caseReducer = actions[action.type];
+      const caseReducer = cases[action.type];
 
       if (caseReducer) {
         return caseReducer(<NoEmptyArray<SS>>draft, action.payload);

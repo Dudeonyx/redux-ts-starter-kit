@@ -1,4 +1,4 @@
-import robodux from '../slice';
+import createSlice from '../slice';
 import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
@@ -25,9 +25,25 @@ const defaultState = {
   wow: 0,
 };
 
-const { actions, selectors, reducer } = robodux<HiSliceState, Actions, IState>({
+export const {
+  actions: fhjk,
+  selectors: sgjfgkfl,
+  reducer: rgsgsggf,
+} = createSlice({
   slice: 'hi',
-  actions: {
+  cases: {
+    set: (state, payload: any[]) => payload,
+    reset: (state) => ['defaultState', 'jhj'],
+  },
+  initialState: [],
+});
+const { actions, selectors, reducer } = createSlice<
+  Actions,
+  HiSliceState,
+  IState
+>({
+  slice: 'hi',
+  cases: {
     set: (state, payload) => payload,
     reset: (state) => defaultState,
   },
@@ -66,10 +82,10 @@ const initialState: AuthSliceState = {
   error: null,
 };
 
-const auth = robodux({
+const auth = createSlice({
   slice: 'auth',
   initialState,
-  actions: {
+  cases: {
     authFail: (state, error: Error, _: IState) => {
       state.error = error;
       state.authenticating = false;
@@ -91,7 +107,7 @@ const auth = robodux({
 
 export const authReducer2 = createReducer({
   initialState,
-  actions: {
+  cases: {
     authFail: (state, error: Error) => {
       state.error = error;
       state.authenticating = false;
@@ -131,10 +147,10 @@ const initialStateOeds: IordersReducerState = {
   error: null,
 };
 
-const ordersRobodux = robodux({
+const orderSlice = createSlice({
   slice: 'ords',
   initialState: initialStateOeds,
-  actions: {
+  cases: {
     setOrders: (state, orders: IDbOrders) => {
       state.error = null;
       state.orders = orders;
@@ -155,7 +171,7 @@ export const {
   reducer: ordersReducer,
   actions: ordersActions,
   selectors: ordersSelectors,
-} = ordersRobodux;
+} = orderSlice;
 
 const rootReducer = combineReducers<IState>({
   hi: reducer,

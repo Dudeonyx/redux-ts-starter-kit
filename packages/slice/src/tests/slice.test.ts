@@ -1,15 +1,15 @@
-import robodux from '../slice';
+import createSlice from '../slice';
 import { combineReducers } from 'redux';
 
-describe('robodux', () => {
+describe('createSlice', () => {
   describe('when slice is empty', () => {
     type State = number;
     interface Actions {
       increment: never;
       multiply: number;
     }
-    const { actions, reducer, selectors } = robodux<State, Actions>({
-      actions: {
+    const { actions, reducer, selectors } = createSlice<Actions, State>({
+      cases: {
         increment: (state) => state + 1,
         multiply: (state, payload) => state * payload,
       },
@@ -60,8 +60,8 @@ describe('robodux', () => {
   });
 
   describe('when passing slice', () => {
-    const { actions, reducer, selectors } = robodux({
-      actions: {
+    const { actions, reducer, selectors } = createSlice({
+      cases: {
         increment: (state) => state + 1,
         multiply: (state: number, payload: number) => state * payload,
       },
@@ -105,9 +105,9 @@ describe('robodux', () => {
     });
   });
 
-  describe('robodux when initialState is an object', () => {
-    const { selectors } = robodux({
-      actions: {
+  describe('createSlice when initialState is an object', () => {
+    const { selectors } = createSlice({
+      cases: {
         setName: (state, name: string) => {
           state.name = name;
         },
@@ -162,8 +162,8 @@ describe('robodux', () => {
   });
 
   describe('when mutating state object', () => {
-    const { actions, reducer } = robodux({
-      actions: {
+    const { actions, reducer } = createSlice({
+      cases: {
         setUserName: (state, payload: string) => {
           state.user = payload;
         },
@@ -179,38 +179,45 @@ describe('robodux', () => {
   });
 });
 
-describe('multiple robodux slices used to create a redux store', () => {
+describe('multiple createSlice slices used to create a redux store', () => {
   interface IState {
+    // The interface of the combined state
     hi: HiSliceState;
     auth: AuthSliceState;
     form: FormState;
   }
 
   interface HiSliceState {
+    // The interface of the state slice the reducer will manage
     greeting: string;
     waves: number;
   }
-  interface Actions {
-    setGreeting: string;
-    setWaves: number;
-    resetHi: never;
+  interface HiActions {
+    // The interface used to type the actions
+    setWaves: number; // payload is number
+    setGreeting: string; //  payload is string
+    resetHi: never; // never indicates no payload expected
   }
 
   const hiInitialState: HiSliceState = {
+    // The initial State
     greeting: '',
     waves: 0,
   };
 
-  const hiSlice = robodux<HiSliceState, Actions, IState>({
-    slice: 'hi',
-    actions: {
-      setGreeting: (state, payload) => {
-        state.greeting = payload;
-      },
+  const hiSlice = createSlice<HiActions, HiSliceState, IState>({
+    // interfaces supplied to createSlice
+    slice: 'hi', // The key/name of the slice, it is type checked to ensure it is a key in IState
+    cases: {
       setWaves: (state, payload) => {
         state.waves = payload;
       },
-      resetHi: (_state) => hiInitialState,
+      setGreeting: (state, payload) => {
+        state.greeting = payload;
+      },
+      resetHi: (state) => {
+        return hiInitialState;
+      },
     },
     initialState: hiInitialState,
   });
@@ -227,8 +234,8 @@ describe('multiple robodux slices used to create a redux store', () => {
     middlename: '',
   };
 
-  const formSlice = robodux({
-    actions: {
+  const formSlice = createSlice({
+    cases: {
       setName: (state, name: string, _: IState) => {
         state.name = name;
       },
@@ -259,10 +266,10 @@ describe('multiple robodux slices used to create a redux store', () => {
     userId: null,
   };
 
-  const authSlice = robodux<AuthSliceState, AuthActions, IState>({
+  const authSlice = createSlice<AuthActions, AuthSliceState, IState>({
     slice: 'auth',
     initialState: authInitialState,
-    actions: {
+    cases: {
       authLogout: (state) => {
         state.idToken = null;
         state.userId = null;

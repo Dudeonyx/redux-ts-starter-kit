@@ -3,7 +3,7 @@ import * as redux from 'redux';
 import * as devtools from 'redux-devtools-extension';
 
 import thunk from 'redux-thunk';
-import createSlice from '@redux-ts-starter-kit/slice';
+import { createSlice } from '@redux-ts-starter-kit/slice';
 // import immutableStateInvariant from 'redux-immutable-state-invariant'
 
 describe('getDefaultMiddleware', () => {
@@ -169,9 +169,9 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     waves: 0,
   };
 
-  const hiSlice = createSlice<HiSliceState, Actions, IState>({
+  const hiSlice = createSlice<Actions, HiSliceState, IState>({
     slice: 'hi',
-    actions: {
+    cases: {
       setGreeting: (state, payload) => {
         state.greeting = payload;
       },
@@ -196,7 +196,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
   };
 
   const formSlice = createSlice({
-    actions: {
+    cases: {
       setName: (state, name: string, _: IState) => {
         state.name = name;
       },
@@ -227,10 +227,10 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     userId: '',
   };
 
-  const authSlice = createSlice<AuthSliceState, AuthActions, IState>({
+  const authSlice = createSlice<AuthActions, AuthSliceState, IState>({
     slice: 'auth',
     initialState: authInitialState,
-    actions: {
+    cases: {
       authLogout: (state) => {
         state.idToken = '';
         state.userId = '';

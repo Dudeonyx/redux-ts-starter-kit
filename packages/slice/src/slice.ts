@@ -40,7 +40,7 @@ interface Slice<A = any, SS = any, S = SS, str = ""> {
     ? {
         getSlice: (state: S) => SS;
       }
-    : SS extends {}
+    : SS extends AnyState
     ? ({ [key in keyof SS]: (state: S) => SS[key] } & {
         getSlice: (state: S) => SS;
       })

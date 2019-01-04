@@ -4,3 +4,4 @@
 .pnp.js
 .rpt2_cache/
 lerna-debug.log
+.vscode/settings.json
