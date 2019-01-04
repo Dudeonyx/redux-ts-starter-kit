@@ -1,10 +1,9 @@
-# redux-ts-starter-kit [![Build Status](https://travis-ci.org/Dudeonyx/redux-ts-starter-kit.svg?branch=master)](https://travis-ci.org/Dudeonyx/redux-ts-starter-kit)
+# @redux-ts-starter-kit/core [![Build Status](https://travis-ci.org/Dudeonyx/redux-ts-starter-kit.svg?branch=master)](https://travis-ci.org/Dudeonyx/redux-ts-starter-kit)
 
 **A simple set of tools to make using Redux easier**
 
-`npm install redux-starter-kit`
+`npm install @redux-starter-kit/core`
 
-(Special thanks to Github user @shotak for donating to the package name.)
 
 ### Purpose
 
