@@ -1,6 +1,6 @@
 {
   "name": "@redux-ts-starter-kit/core",
-  "version": "0.0.1",
+  "version": "0.0.2-alpha.0",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "license": "MIT",
@@ -51,7 +51,7 @@
     "typescript": "^3.2.2"
   },
   "dependencies": {
-    "@redux-ts-starter-kit/slice": "^4.0.0-alpha.8",
+    "@redux-ts-starter-kit/slice": "^0.0.2-alpha.0",
     "immer": "^1.9.3",
     "redux": "^4.0.1",
     "redux-devtools-extension": "^2.13.7",
