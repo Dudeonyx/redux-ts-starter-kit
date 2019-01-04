@@ -4,7 +4,7 @@
     "rootDir": "src",
     "outDir": "lib"
   },
-  "exclude": ["./src/tests/","./examples/","./lib/"],
+  "exclude": ["./src/tests/","./src/examples/","./lib/"],
   "references": [
     { "path": "../slice" }
   ]

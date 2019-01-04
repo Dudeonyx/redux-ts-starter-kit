@@ -1,6 +1,6 @@
-import { createSlice } from '../src/';
+import { createSlice } from '../';
 import { IordersReducerState, IDbOrders } from './types.d';
-import configureStore from '../src';
+import { configureStore } from '../configureStore';
 
 interface HiSliceState {
   test: string;

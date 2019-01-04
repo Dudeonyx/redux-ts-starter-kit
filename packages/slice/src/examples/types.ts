@@ -1,8 +1,8 @@
-import robodux from '../src/slice';
+import robodux from '../slice';
 import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
-import createReducer from 'src/reducer';
+import createReducer from '../reducer';
 
 interface HiSliceState {
   test: string;
