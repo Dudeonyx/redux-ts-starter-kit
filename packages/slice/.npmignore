@@ -1,6 +1,7 @@
 src/
 test/
 examples/
+.vscode/
 jest.config.js
 prettier.config.js
 tsconfig.json
