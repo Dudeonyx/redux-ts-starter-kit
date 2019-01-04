@@ -1,7 +1,7 @@
-import createAction from './action';
-import createReducer from './reducer';
-import { createSubSelector, createSelector } from './selector';
-import { Action } from './types';
+import createAction from "./action";
+import createReducer, { NoEmptyArray } from "./reducer";
+import { createSubSelector, createSelector } from "./selector";
+import { Action } from "./types";
 
 interface ActionReducer<SS = any, A = any> {
   (state: SS, payload: A): SS | void | undefined;
@@ -33,10 +33,10 @@ export interface ReduceM<SS, A = Action> {
   [Action: string]: ActionReducer<SS, A>;
 }
 
-interface Slice<A = any, SS = any, S = SS, str = keyof S> {
-  slice: SS extends S ? '' : str;
+interface Slice<A = any, SS = any, S = SS, str = ""> {
+  slice: SS extends S ? "" : str;
   reducer: Reducer<SS, Action>;
-  selectors: SS extends {}
+  selectors: SS extends AnyState
     ? ({ [key in keyof SS]: (state: S) => SS[key] } & {
         getSlice: (state: S) => SS;
       })
@@ -54,23 +54,28 @@ interface Slice<A = any, SS = any, S = SS, str = keyof S> {
 
 interface InputWithSlice<SS = any, Ax = ActionsAny, S = any> {
   initialState: SS;
-  actions: ActionsObjWithSlice<SS, Ax, S>;
+  cases: ActionsObjWithSlice<SS, Ax, S>;
   slice: keyof S;
 }
 interface InputWithoutSlice<SS = any, Ax = ActionsAny> {
   initialState: SS;
-  actions: ActionsObj<SS, Ax>;
+  cases: ActionsObj<SS, Ax>;
+}
+interface InputWithBlankSlice<SS = any, Ax = ActionsAny> {
+  initialState: SS;
+  cases: ActionsObj<SS, Ax>;
+  slice: "";
 }
 interface InputWithOptionalSlice<SS = any, Ax = ActionsAny, S = any> {
   initialState: SS;
-  actions: ActionsObjWithSlice<SS, Ax, S>;
+  cases: ActionsObjWithSlice<SS, Ax, S>;
   slice?: keyof S;
 }
 
 const allCapsSnakeCase = (string: string) =>
   string
-    .replace(/(\w)([A-Z])/g, '$1_$2')
-    .replace(/(\w)/g, (w) => w.toUpperCase());
+    .replace(/(\w)([A-Z])/g, "$1_$2")
+    .replace(/(\w)/g, w => w.toUpperCase());
 
 const actionTypeBuilder = (slice: string) => (action: string) =>
   slice ? `${slice}/${allCapsSnakeCase(action)}` : allCapsSnakeCase(action);
@@ -78,44 +83,59 @@ const actionTypeBuilder = (slice: string) => (action: string) =>
 //#region
 
 export default function createSlice<
-  SliceState,
   Actions extends ActionsAny,
+  SliceState,
   State extends AnyState
 >({
   slice,
-  actions,
-  initialState,
-}: InputWithSlice<SliceState, Actions, State>): Slice<
+  cases,
+  initialState
+}: InputWithSlice<NoEmptyArray<SliceState>, Actions, State>): Slice<
   Actions,
-  SliceState,
+  NoEmptyArray<SliceState>,
   State,
   typeof slice
 >;
-export default function createSlice<SliceState, Actions extends ActionsAny>({
-  actions,
+
+export default function createSlice<Actions extends ActionsAny, SliceState>({
+  cases,
   initialState,
-}: InputWithoutSlice<SliceState, Actions>): Slice<Actions, SliceState>;
+  slice
+}: InputWithBlankSlice<NoEmptyArray<SliceState>, Actions>): Slice<
+  Actions,
+  NoEmptyArray<SliceState>,
+  NoEmptyArray<SliceState>,
+  typeof slice
+>;
+
+export default function createSlice<Actions extends ActionsAny, SliceState>({
+  cases,
+  initialState
+}: InputWithoutSlice<NoEmptyArray<SliceState>, Actions>): Slice<
+  Actions,
+  NoEmptyArray<SliceState>
+>;
 
 export default function createSlice<
-  SliceState,
   Actions extends ActionsAny,
+  SliceState,
   State extends AnyState
 >({
-  actions,
+  cases,
   initialState,
-  slice = '',
-}: InputWithOptionalSlice<SliceState, Actions, State>) {
-  const actionKeys = Object.keys(actions) as (keyof Actions)[];
+  slice = ""
+}: InputWithOptionalSlice<NoEmptyArray<SliceState>, Actions, State>) {
+  const actionKeys = Object.keys(cases) as (keyof Actions)[];
   const createActionType = actionTypeBuilder(<string>slice);
 
   const reducerMap = actionKeys.reduce<ReduceM<SliceState>>((map, action) => {
-    (map as any)[createActionType(<string>action)] = actions[action];
+    (map as any)[createActionType(<string>action)] = cases[action];
     return map;
   }, {});
   const reducer = createReducer<SliceState>({
     initialState,
-    actions: reducerMap,
-    slice: <string>slice,
+    cases: reducerMap,
+    slice: <string>slice
   });
 
   const actionMap = actionKeys.reduce<
@@ -132,11 +152,11 @@ export default function createSlice<
       (<any>map)[action] = createAction(type);
       return map;
     },
-    {} as any,
+    {} as any
   );
 
   let initialStateKeys: (keyof SliceState)[] = [];
-  if (typeof initialState === 'object' && !Array.isArray(initialState)) {
+  if (typeof initialState === "object" && !Array.isArray(initialState)) {
     initialStateKeys = <any>Object.keys(initialState);
   }
   const otherSelectors = initialStateKeys.reduce<
@@ -145,20 +165,20 @@ export default function createSlice<
     (map, key) => {
       map[key] = createSubSelector<State, SliceState>(
         slice as keyof State,
-        key,
+        key
       );
       return map;
     },
-    {} as any,
+    {} as any
   );
   const selectors = {
     getSlice: createSelector<State, SliceState>(<string>slice),
-    ...otherSelectors,
+    ...otherSelectors
   };
   return {
     actions: actionMap,
     reducer,
     slice,
-    selectors,
+    selectors
   };
 }
