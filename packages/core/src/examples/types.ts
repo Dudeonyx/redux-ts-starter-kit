@@ -27,9 +27,9 @@ export const {
   actions: { resetHi, setHi },
   selectors: { getSlice: getHi, test: getTest, wow: getWow },
   reducer: hiReducer,
-} = createSlice<HiSliceState, Actions, IState>({
+} = createSlice<Actions, HiSliceState, IState>({
   slice: 'hi',
-  actions: {
+  cases: {
     setHi: (state, payload) => payload,
     resetHi: (state) => defaultState,
   },
@@ -70,7 +70,7 @@ const initialState: AuthSliceState = {
 export const auth = createSlice({
   slice: 'auth',
   initialState,
-  actions: {
+  cases: {
     authFail: (state, error: Error, _: IState) => {
       state.error = error;
       state.authenticating = false;
@@ -113,7 +113,7 @@ const initialStateOeds: IordersReducerState = {
 const ordersRobodux = createSlice({
   slice: 'ords',
   initialState: initialStateOeds,
-  actions: {
+  cases: {
     setOrders: (state, orders: IDbOrders, _: IState) => {
       state.error = false;
       state.orders = orders;

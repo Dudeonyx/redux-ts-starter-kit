@@ -33,7 +33,7 @@ export interface ReduceM<SS, A = Action> {
   [Action: string]: ActionReducer<SS, A>;
 }
 
-interface Slice<A = any, SS = any, S = SS, str = ''> {
+export interface Slice<A = any, SS = any, S = SS, str = ''> {
   slice: SS extends S ? '' : str;
   reducer: Reducer<SS, Action>;
   selectors: SS extends any[]

@@ -28,7 +28,7 @@
     "prepublish": "yarn build",
     "alpha": "yarn publish --tag alpha",
     "prettier": "prettier --write src/**/*.ts",
-    "example": "rimraf ./examples/test/ && tsc -p ./examples/ && node ./examples/test/examples/sample.js"
+    "example": "ts-node ./src/examples/sample.ts"
   },
   "keywords": [
     "react",
@@ -57,6 +57,7 @@
     "rollup-plugin-replace": "^2.1.0",
     "rollup-plugin-typescript2": "^0.18.1",
     "ts-jest": "^23.10.5",
+    "ts-node": "^7.0.1",
     "tslib": "^1.9.3",
     "typescript": "^3.2.2"
   },
