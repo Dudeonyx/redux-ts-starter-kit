@@ -25,7 +25,7 @@
     "build": "yarn clean && rollup -c",
     "clean": "rimraf lib .rpt2_cache",
     "test": "yarn run jest",
-    "prepublish": "yarn build",
+    "prepublish": "yarn test && yarn build",
     "alpha": "yarn publish --tag alpha",
     "prettier": "prettier --write src/**/*.ts",
     "example": "ts-node ./src/examples/sample.ts"
