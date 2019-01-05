@@ -4,15 +4,22 @@ import { AnyAction } from 'redux';
 
 export function isPlain(
   val: any,
-): val is undefined | string | boolean | number | any[] | null | { [x: string]: any } {
+): val is
+  | undefined
+  | string
+  | boolean
+  | number
+  | any[]
+  | null
+  | { [x: string]: any } {
   return (
     typeof val === 'undefined' ||
     typeof val === 'string' ||
     typeof val === 'boolean' ||
     typeof val === 'number' ||
     Array.isArray(val) ||
-    val === null ||
-    isPlainObject(val)
+    isPlainObject(val) ||
+    val === null
   );
 }
 

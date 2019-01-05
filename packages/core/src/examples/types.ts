@@ -1,4 +1,4 @@
-import { createSlice } from '../';
+import { createSlice } from '@redux-ts-starter-kit/slice';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { configureStore } from '../configureStore';
 
@@ -51,6 +51,7 @@ interface AuthSliceState {
   userId: string;
   authenticating: boolean;
   error: Error | false;
+  nullk: null;
 }
 type AuthSuccess = { idToken: string; userId: string };
 export interface AuthActions {
@@ -65,6 +66,7 @@ const initialState: AuthSliceState = {
   userId: '',
   authenticating: false,
   error: false,
+  nullk: null,
 };
 
 export const auth = createSlice({
@@ -146,10 +148,5 @@ export const [store] = configureStore({
     hi: hiReducer,
     auth: authReducer,
     ords: ordersReducer,
-  },
-  preloadedState: {
-    auth: {
-      idToken: 'Preloaded Yeah',
-    },
   },
 });
