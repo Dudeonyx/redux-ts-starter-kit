@@ -1,6 +1,6 @@
 {
   "name": "@redux-ts-starter-kit/core",
-  "version": "1.0.1-alpha.1",
+  "version": "1.0.2-alpha.0",
   "main": "./lib/index.cjs.js",
   "module": "./lib/index.esm.js",
   "types": "./lib/index.d.ts",
@@ -61,7 +61,7 @@
     "typescript": "^3.2.2"
   },
   "dependencies": {
-    "@redux-ts-starter-kit/slice": "^1.0.1-alpha.1",
+    "@redux-ts-starter-kit/slice": "^1.0.2-alpha.0",
     "redux": "^4.0.1",
     "redux-devtools-extension": "^2.13.7",
     "redux-immutable-state-invariant": "^2.1.0",
@@ -69,10 +69,10 @@
     "reselect": "^4.0.0"
   },
   "husky": {
-     "hooks": {  
+    "hooks": {
       "pre-commit": "lint-staged"
-     }
-   },
+    }
+  },
   "lint-staged": {
     "*.ts": [
       "prettier --write",
