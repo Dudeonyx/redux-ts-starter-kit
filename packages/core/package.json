@@ -23,8 +23,9 @@
   },
   "scripts": {
     "build": "yarn clean && yarn prettier && rollup -c",
+    "build:tsc": "yarn clean && yarn prettier && tsc -b",
     "clean": "rimraf lib .rpt2_cache",
-    "test": "yarn tsc --noEmit && yarn run jest",
+    "test": "yarn run jest",
     "prepublish": "yarn build",
     "alpha": "yarn publish --tag alpha",
     "precommit": "lint-staged",
