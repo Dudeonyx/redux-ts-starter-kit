@@ -99,6 +99,7 @@ const rootReducer = combineReducers<State>({
   user: user.reducer,
 })
 
+const store = createStore(rootReducer);
 
 store.dispatch(counter.actions.increment());
 // New State -> { counter: 1, user: { name: '' } }
