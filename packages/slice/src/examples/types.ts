@@ -1,8 +1,8 @@
-import createSlice from '../slice';
+import { createSlice } from '../slice';
 import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
-import createReducer from '../reducer';
+import { createReducer } from '../reducer';
 
 interface HiSliceState {
   test: string;

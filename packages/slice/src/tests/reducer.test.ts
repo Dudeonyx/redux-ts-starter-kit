@@ -1,4 +1,4 @@
-import createReducer from '../reducer';
+import { createReducer } from '../reducer';
 import { Reducer } from '../slice';
 
 describe('createReducer', () => {

@@ -10,7 +10,7 @@ type CreateReducer<SS = any> = {
 };
 export type NoEmptyArray<State> = State extends never[] ? any[] : State;
 
-export default function createReducer<S, SS extends S = any>({
+export function createReducer<S, SS extends S = any>({
   initialState,
   cases,
   slice = '',

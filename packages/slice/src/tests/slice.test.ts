@@ -1,4 +1,4 @@
-import createSlice from '../slice';
+import { createSlice } from '../slice';
 import { combineReducers } from 'redux';
 
 describe('createSlice', () => {

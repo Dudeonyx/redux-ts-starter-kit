@@ -1,5 +1,5 @@
-import createAction from './action';
-import createReducer, { NoEmptyArray } from './reducer';
+import { createAction } from './action';
+import { createReducer, NoEmptyArray } from './reducer';
 import { createSubSelector, createSelector } from './selector';
 import { Action } from './types';
 
@@ -86,7 +86,7 @@ const actionTypeBuilder = (slice: string) => (action: string) =>
 
 //#region
 
-export default function createSlice<
+export function createSlice<
   Actions extends ActionsAny,
   SliceState,
   State extends AnyState
@@ -101,7 +101,7 @@ export default function createSlice<
   typeof slice
 >;
 
-export default function createSlice<Actions extends ActionsAny, SliceState>({
+export function createSlice<Actions extends ActionsAny, SliceState>({
   cases,
   initialState,
   slice,
@@ -112,7 +112,7 @@ export default function createSlice<Actions extends ActionsAny, SliceState>({
   typeof slice
 >;
 
-export default function createSlice<Actions extends ActionsAny, SliceState>({
+export function createSlice<Actions extends ActionsAny, SliceState>({
   cases,
   initialState,
 }: InputWithoutSlice<NoEmptyArray<SliceState>, Actions>): Slice<
@@ -120,7 +120,7 @@ export default function createSlice<Actions extends ActionsAny, SliceState>({
   NoEmptyArray<SliceState>
 >;
 
-export default function createSlice<
+export function createSlice<
   Actions extends ActionsAny,
   SliceState,
   State extends AnyState
