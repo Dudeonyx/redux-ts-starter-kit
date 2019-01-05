@@ -1,11 +1,8 @@
 {
-  "extends": "../../tsconfig.settings.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "lib"
   },
-  "exclude": ["./src/tests/","./src/examples/","./lib/"],
-  "references": [
-    { "path": "../slice" }
-  ]
+  "exclude": ["./src/tests/","./src/examples","./lib"],
 }

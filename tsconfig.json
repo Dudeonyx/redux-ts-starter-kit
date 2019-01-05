@@ -1,4 +1,17 @@
 {
-  "files": [],
-  "references": [{ "path": "packages/slice" }, { "path": "packages/core" }]
-}
+    "compilerOptions": {
+      "target": "es5",
+      "module": "commonjs",
+      "declaration": true,
+      "declarationMap": true,
+      "sourceMap": true,
+      "strict": true,
+      "composite": true,
+      "noImplicitAny": true,
+      "noUnusedLocals": true,
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "lib": ["es2016"],
+      "esModuleInterop": true
+    }
+  }
