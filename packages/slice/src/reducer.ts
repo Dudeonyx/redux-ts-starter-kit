@@ -1,13 +1,12 @@
 import createNextState from 'immer';
-
 import { Action } from './types';
 import { ReduceM } from './slice';
 
-type CreateReducer<SS = any> = {
+export interface CreateReducer<SS = any> {
   initialState: SS;
   cases: ReduceM<SS, any>;
   slice?: string;
-};
+}
 export type NoEmptyArray<State> = State extends never[] ? any[] : State;
 
 export function createReducer<S, SS extends S = any>({
