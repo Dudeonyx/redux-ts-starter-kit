@@ -1,5 +1,7 @@
 import { AnyState } from './slice';
 
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
 export function createSelector<
   State extends AnyState = AnyState,
   SliceState = any
@@ -26,7 +28,8 @@ export function createSelector<
   if (slice === '') {
     return (state: State) => {
       if (state == null) {
-        console.error(`A selector was called with a null or undefined state`);
+        IS_PRODUCTION ||
+          console.error(`A selector was called with a null or undefined state`);
         return state;
       }
       return <any>state;
@@ -34,13 +37,15 @@ export function createSelector<
   }
   return (state: State) => {
     if (state == null) {
-      console.error(
-        `${String(slice)} selector was called with a null or undefined state`,
-      );
+      IS_PRODUCTION ||
+        console.error(
+          `${String(slice)} selector was called with a null or undefined state`,
+        );
       return state;
     }
     if (!state.hasOwnProperty(slice)) {
-      console.error(`${String(slice)} was not found in the given State,
+      IS_PRODUCTION ||
+        console.error(`${String(slice)} was not found in the given State,
       This selector was either called with a bad state argument or
       an incorrect slice name was given when instantiating the parent reducer,
       check for spelling errors`);
@@ -95,11 +100,12 @@ export function createSubSelector<
   if (!slice) {
     return function(state: State) {
       if (state == null) {
-        console.error(
-          `${String(
-            subSlice,
-          )} sub-selector was called with a null or undefined state`,
-        );
+        IS_PRODUCTION ||
+          console.error(
+            `${String(
+              subSlice,
+            )} sub-selector was called with a null or undefined state`,
+          );
         return <any>state;
       }
       return state[subSlice as keyof State];
@@ -107,26 +113,29 @@ export function createSubSelector<
   }
   return (state: State) => {
     if (state == null) {
-      console.error(
-        `${String(slice)}/${String(
-          subSlice,
-        )} sub-selector was called with a null or undefined state`,
-      );
+      IS_PRODUCTION ||
+        console.error(
+          `${String(slice)}/${String(
+            subSlice,
+          )} sub-selector was called with a null or undefined state`,
+        );
       return state;
     }
     if (!state.hasOwnProperty(slice)) {
-      console.error(`${String(slice)} was not found in the given State,
+      IS_PRODUCTION ||
+        console.error(`${String(slice)} was not found in the given State,
       This selector was either called with a bad state argument or
       an incorrect slice name was given when instantiating the parent reducer,
       check for spelling errors`);
       return undefined;
     }
     if (!state[slice].hasOwnProperty(subSlice)) {
-      console.error(
-        `${String(subSlice)} was not found in the given State[${String(
-          slice,
-        )}] slice,\nThis selector was either called with a bad state argument or\nan incorrect subSlice name was given when instantiating the parent reducer,\ncheck for spelling errors`,
-      );
+      IS_PRODUCTION ||
+        console.error(
+          `${String(subSlice)} was not found in the given State[${String(
+            slice,
+          )}] slice,\nThis selector was either called with a bad state argument or\nan incorrect subSlice name was given when instantiating the parent reducer,\ncheck for spelling errors`,
+        );
       return undefined;
     }
     return (<SliceState>(<unknown>state[slice]))[subSlice];
