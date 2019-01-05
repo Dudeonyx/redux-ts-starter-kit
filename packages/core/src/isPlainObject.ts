@@ -4,9 +4,6 @@
  */
 export default function isPlainObject(obj?: any): obj is object {
   if (typeof obj !== 'object') return false;
-  if (obj === null) {
-    return true;
-  }
 
   let proto = obj;
   while (Object.getPrototypeOf(proto) !== null) {
