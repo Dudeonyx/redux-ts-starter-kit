@@ -23,12 +23,10 @@ export function createSelector<
   ) {
     throw new Error('slice argument must be a string or number or symbol');
   }
-  if (slice == null || slice === '') {
+  if (slice === '') {
     return (state: State) => {
       if (state == null) {
-        console.error(
-          `This selector was called with a null or undefined state`,
-        );
+        console.error(`A selector was called with a null or undefined state`);
         return state;
       }
       return <any>state;
@@ -36,7 +34,9 @@ export function createSelector<
   }
   return (state: State) => {
     if (state == null) {
-      console.error(`This selector was called with a null or undefined state`);
+      console.error(
+        `${String(slice)} selector was called with a null or undefined state`,
+      );
       return state;
     }
     if (!state.hasOwnProperty(slice)) {
@@ -89,14 +89,16 @@ export function createSubSelector<
     )
   ) {
     throw new Error(
-      'SubSlice must not be blank, and slice/subSlice must be a string or number or symbol',
+      'SubSlice must not be blank, and slice & subSlice must be a string or number or symbol',
     );
   }
   if (!slice) {
-    return (state: State) => {
+    return function(state: State) {
       if (state == null) {
         console.error(
-          `This selector was called with a null or undefined state`,
+          `${String(
+            subSlice,
+          )} sub-selector was called with a null or undefined state`,
         );
         return <any>state;
       }
@@ -105,7 +107,11 @@ export function createSubSelector<
   }
   return (state: State) => {
     if (state == null) {
-      console.error(`This selector was called with a null or undefined state`);
+      console.error(
+        `${String(slice)}/${String(
+          subSlice,
+        )} sub-selector was called with a null or undefined state`,
+      );
       return state;
     }
     if (!state.hasOwnProperty(slice)) {
