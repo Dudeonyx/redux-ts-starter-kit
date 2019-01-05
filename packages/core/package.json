@@ -22,13 +22,11 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn prettier && rollup -c",
-    "build:tsc": "yarn clean && yarn prettier && tsc -b",
+    "build": "yarn clean && rollup -c",
     "clean": "rimraf lib .rpt2_cache",
     "test": "yarn run jest",
     "prepublish": "yarn build",
     "alpha": "yarn publish --tag alpha",
-    "precommit": "lint-staged",
     "prettier": "prettier --write src/**/*.ts",
     "example": "rimraf ./examples/test/ && tsc -p ./examples/ && node ./examples/test/examples/sample.js"
   },
@@ -70,8 +68,13 @@
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0"
   },
+  "husky": {
+     "hooks": {  
+      "pre-commit": "lint-staged"
+     }
+   },
   "lint-staged": {
-    "*.{js}": [
+    "*.ts": [
       "prettier --write",
       "git add"
     ]

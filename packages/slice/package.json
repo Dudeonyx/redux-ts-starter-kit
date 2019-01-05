@@ -27,7 +27,6 @@
     "test": "yarn run jest",
     "prepublish": "yarn build",
     "alpha": "yarn publish --tag alpha",
-    "precommit": "lint-staged",
     "prettier": "prettier --write src/**/*.ts"
   },
   "keywords": [
@@ -62,8 +61,13 @@
   "dependencies": {
     "immer": "^1.9.3"
   },
+  "husky": {
+    "hooks": {  
+     "pre-commit": "lint-staged"
+    }
+  },
   "lint-staged": {
-    "*.{js}": [
+    "*.ts": [
       "prettier --write",
       "git add"
     ]
