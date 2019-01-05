@@ -1,5 +1,21 @@
-import { createSlice } from '../slice';
+import { createSlice, actionTypeBuilder } from '../slice';
 import { combineReducers } from 'redux';
+
+describe('actionTypeBuilder', () => {
+  const createActionType = actionTypeBuilder('');
+  const createActionType2 = actionTypeBuilder('test');
+  it('Snakes cases correctly', () => {
+    expect(createActionType('setName')).toEqual('SET_NAME');
+    expect(createActionType('set-Name')).toEqual('SET-NAME');
+    expect(createActionType('SET_NAME')).toEqual('SET_NAME');
+    expect(createActionType('SET-NAME')).toEqual('SET-NAME');
+    expect(createActionType('SeT-NAME')).toEqual('SE_T-NAME');
+  });
+  it('Snakes cases correctly with a slice', () => {
+    expect(createActionType2('SEtName')).toEqual('test/SET_NAME');
+    expect(createActionType2('SET_NAME')).toEqual('test/SET_NAME');
+  });
+});
 
 describe('createSlice', () => {
   describe('when slice is empty', () => {

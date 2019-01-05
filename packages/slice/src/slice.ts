@@ -77,11 +77,9 @@ interface InputWithOptionalSlice<SS = any, Ax = ActionsAny, S = any> {
 }
 
 const allCapsSnakeCase = (string: string) =>
-  string
-    .replace(/(\w)([A-Z])/g, '$1_$2')
-    .replace(/(\w)/g, (w) => w.toUpperCase());
+  string.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
 
-const actionTypeBuilder = (slice: string) => (action: string) =>
+export const actionTypeBuilder = (slice: string) => (action: string) =>
   slice ? `${slice}/${allCapsSnakeCase(action)}` : allCapsSnakeCase(action);
 
 //#region
