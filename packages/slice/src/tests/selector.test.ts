@@ -12,6 +12,11 @@ describe('createSelector', () => {
       userId: 'a user id',
     },
   };
+
+  beforeEach(() => {
+    console.error = jest.fn();
+  });
+
   const select = createSelector('');
   const selectForm = createSelector('form');
   const selectAuth = createSelector('auth');
@@ -29,15 +34,18 @@ describe('createSelector', () => {
       createSelector(<any>['slice']);
     }).toThrow(/must be a string or number or symbol/);
   });
-  it('throws when instantiated with an slice not present in the state', () => {
-    expect(() => {
-      selectInvalid(<any>state);
-    }).toThrow(/was not found in the given State/);
+  it('throws when slice not present in the state', () => {
+    selectInvalid(<any>state);
+    expect(console.error).toHaveBeenCalled();
+    const [message] = (<any>console.error).mock.calls[0];
+    expect(message).toContain('invalid was not found in the given State');
   });
   it('throws when called with an invalid state', () => {
-    expect(() => {
-      selectAuth(<any>{ form: {} });
-    }).toThrow(/ was not found in the given State/);
+    selectAuth(<any>{ form: {} });
+
+    expect(console.error).toHaveBeenCalled();
+    const [message] = (<any>console.error).mock.calls[0];
+    expect(message).toContain('auth was not found in the given State');
   });
 });
 describe('createSubSelector', () => {

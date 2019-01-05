@@ -24,14 +24,27 @@ export function createSelector<
     throw new Error('slice argument must be a string or number or symbol');
   }
   if (slice == null || slice === '') {
-    return (state: State) => <any>state;
+    return (state: State) => {
+      if (state == null) {
+        console.error(
+          `This selector was called with a null or undefined state`,
+        );
+        return state;
+      }
+      return <any>state;
+    };
   }
   return (state: State) => {
+    if (state == null) {
+      console.error(`This selector was called with a null or undefined state`);
+      return state;
+    }
     if (!state.hasOwnProperty(slice)) {
-      throw new Error(`${String(slice)} was not found in the given State,
+      console.error(`${String(slice)} was not found in the given State,
       This selector was either called with a bad state argument or
       an incorrect slice name was given when instantiating the parent reducer,
       check for spelling errors`);
+      return undefined;
     }
     return state[slice];
   };
@@ -80,22 +93,35 @@ export function createSubSelector<
     );
   }
   if (!slice) {
-    return (state: State) => state[subSlice as keyof State];
+    return (state: State) => {
+      if (state == null) {
+        console.error(
+          `This selector was called with a null or undefined state`,
+        );
+        return <any>state;
+      }
+      return state[subSlice as keyof State];
+    };
   }
   return (state: State) => {
+    if (state == null) {
+      console.error(`This selector was called with a null or undefined state`);
+      return state;
+    }
     if (!state.hasOwnProperty(slice)) {
-      throw new Error(`${String(slice)} was not found in the given State,
+      console.error(`${String(slice)} was not found in the given State,
       This selector was either called with a bad state argument or
       an incorrect slice name was given when instantiating the parent reducer,
       check for spelling errors`);
+      return undefined;
     }
     if (!state[slice].hasOwnProperty(subSlice)) {
-      throw new Error(`${String(
-        subSlice,
-      )} was not found in the given State[${String(slice)}] slice,
-      This selector was either called with a bad state argument or
-      an incorrect subSlice name was given when instantiating the parent reducer,
-      check for spelling errors`);
+      console.error(
+        `${String(subSlice)} was not found in the given State[${String(
+          slice,
+        )}] slice,\nThis selector was either called with a bad state argument or\nan incorrect subSlice name was given when instantiating the parent reducer,\ncheck for spelling errors`,
+      );
+      return undefined;
     }
     return (<SliceState>(<unknown>state[slice]))[subSlice];
   };
