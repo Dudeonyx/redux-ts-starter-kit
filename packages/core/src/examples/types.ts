@@ -1,6 +1,7 @@
 import { createSlice } from '@redux-ts-starter-kit/slice';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { configureStore } from '../configureStore';
+// import {} from '../index';
 
 interface HiSliceState {
   test: string;

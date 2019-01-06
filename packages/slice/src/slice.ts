@@ -2,6 +2,7 @@ import { createAction } from './action';
 import { createReducer, NoEmptyArray } from './reducer';
 import { createSubSelector, createSelector } from './selector';
 import { Action } from './types';
+import { actionTypeBuilder } from './actionTypeBuilder';
 
 type ActionReducer<SS = any, A = any> = (
   state: SS,
@@ -14,7 +15,7 @@ type ActionReducerWithSlice<SS = any, A = any, S = any> = (
   _FullState: S,
 ) => SS | void | undefined;
 
-export type Reducer<SS = any, A = Action> = (
+export type Reducer<SS = any, A extends Action = Action> = (
   state: SS | undefined,
   payload: A,
 ) => SS;
@@ -33,7 +34,7 @@ export interface AnyState {
   [slice: string]: any;
 }
 
-export interface ReduceM<SS, A = Action> {
+export interface ReducerMap<SS, A = Action> {
   [Action: string]: ActionReducer<SS, A>;
 }
 
@@ -80,12 +81,6 @@ interface InputWithOptionalSlice<SS = any, Ax = ActionsAny, S = any> {
   cases: ActionsObjWithSlice<SS, Ax, S>;
   slice?: keyof S;
 }
-
-const allCapsSnakeCase = (string: string) =>
-  string.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
-
-export const actionTypeBuilder = (slice: string) => (action: string) =>
-  slice ? `${slice}/${allCapsSnakeCase(action)}` : allCapsSnakeCase(action);
 
 //#region
 
@@ -135,10 +130,13 @@ export function createSlice<
   const actionKeys = Object.keys(cases) as Array<keyof Actions>;
   const createActionType = actionTypeBuilder(slice as string);
 
-  const reducerMap = actionKeys.reduce<ReduceM<SliceState>>((map, action) => {
-    (map as any)[createActionType(action as string)] = cases[action];
-    return map;
-  }, {});
+  const reducerMap = actionKeys.reduce<ReducerMap<SliceState>>(
+    (map, action) => {
+      (map as any)[createActionType(action as string)] = cases[action];
+      return map;
+    },
+    {},
+  );
   const reducer = createReducer<SliceState>({
     initialState,
     cases: reducerMap,

@@ -1,5 +1,6 @@
-import { createSlice, actionTypeBuilder } from '../slice';
+import { createSlice } from '../slice';
 import { combineReducers } from 'redux';
+import { actionTypeBuilder } from '../actionTypeBuilder';
 
 describe('actionTypeBuilder', () => {
   const createActionType = actionTypeBuilder('');

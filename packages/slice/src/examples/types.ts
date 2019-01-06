@@ -107,6 +107,19 @@ const auth = createSlice({
     },
   },
 });
+// You can destructure and export the reducer, action creators and selectors
+export const {
+  reducer: authReducer,
+  slice: authSlice,
+  actions: { authFail, authStart, authSuccess, authLogout },
+  selectors: {
+    getSlice: getAuth,
+    authenticating: getAuthAuthenticating,
+    error: getAuthError,
+    idToken: getAuthIdToken,
+    userId: getAuthUserId,
+  },
+} = auth;
 
 export const authReducer2 = createReducer({
   initialState,
@@ -129,20 +142,6 @@ export const authReducer2 = createReducer({
     },
   },
 });
-
-// You can destructure and export the reducer, action creators and selectors
-export const {
-  reducer: authReducer,
-  slice: authSlice,
-  actions: { authFail, authStart, authSuccess, authLogout },
-  selectors: {
-    getSlice: getAuth,
-    authenticating: getAuthAuthenticating,
-    error: getAuthError,
-    idToken: getAuthIdToken,
-    userId: getAuthUserId,
-  },
-} = auth;
 
 const initialStateOeds: IordersReducerState = {
   orders: null,
