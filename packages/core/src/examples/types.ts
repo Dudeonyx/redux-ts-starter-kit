@@ -53,7 +53,10 @@ interface AuthSliceState {
   error: Error | false;
   nullk: null;
 }
-type AuthSuccess = { idToken: string; userId: string };
+interface AuthSuccess {
+  idToken: string;
+  userId: string;
+}
 export interface AuthActions {
   authSuccess: AuthSuccess;
   authStart: never;
@@ -143,7 +146,7 @@ export const {
   },
 } = ordersRobodux;
 
-export const [store] = configureStore({
+export const [store,] = configureStore({
   reducer: {
     hi: hiReducer,
     auth: authReducer,

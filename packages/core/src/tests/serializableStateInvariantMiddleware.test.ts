@@ -12,7 +12,7 @@ describe('findNonSerializableValue', () => {
       b: {
         b1: 'test',
       },
-      c: [99, { d: 123 }],
+      c: [99, { d: 123 },],
     };
 
     const result = findNonSerializableValue(obj);
@@ -21,6 +21,7 @@ describe('findNonSerializableValue', () => {
   });
 
   it('Should return a keypath and the value if it finds a non-serializable value', () => {
+    // tslint:disable-next-line: no-empty
     function testFunction() {}
 
     const obj = {
@@ -28,7 +29,7 @@ describe('findNonSerializableValue', () => {
       b: {
         b1: testFunction,
       },
-      c: [99, { d: 123 }],
+      c: [99, { d: 123 },],
     };
 
     const result = findNonSerializableValue(obj);
@@ -46,7 +47,7 @@ describe('findNonSerializableValue', () => {
       b: {
         b1: 1,
       },
-      c: [99, { d: 123 }, map, symbol, 'test'],
+      c: [99, { d: 123 }, map, symbol, 'test',],
       d: symbol,
     };
 
@@ -69,13 +70,13 @@ describe('serializableStateInvariantMiddleware', () => {
   });
 
   it('Should log an error when a non-serializable action is dispatched', () => {
-    const reducer = (state = 0, action: Action) => state + 1;
+    const reducer = (state = 0, _action: Action) => state + 1;
 
     const serializableStateInvariantMiddleware = createSerializableStateInvariantMiddleware();
 
-    const [store] = configureStore({
+    const [store,] = configureStore({
       reducer,
-      middleware: [serializableStateInvariantMiddleware],
+      middleware: [serializableStateInvariantMiddleware,],
     });
 
     const type = Symbol.for('SOME_CONSTANT');
@@ -85,9 +86,12 @@ describe('serializableStateInvariantMiddleware', () => {
 
     expect(console.error).toHaveBeenCalled();
 
-    const [message, keyPath, value, action] = (<any>(
-      console.error
-    )).mock.calls[0];
+    const [
+      message,
+      keyPath,
+      value,
+      action,
+    ] = (console.error as any).mock.calls[0];
     expect(message).toContain('detected in an action, in the path: `%s`');
     expect(keyPath).toBe('type');
     expect(value).toBe(type);
@@ -119,20 +123,23 @@ describe('serializableStateInvariantMiddleware', () => {
 
     const serializableStateInvariantMiddleware = createSerializableStateInvariantMiddleware();
 
-    const [store] = configureStore({
+    const [store,] = configureStore({
       reducer: {
         testSlice: reducer,
       },
-      middleware: [serializableStateInvariantMiddleware],
+      middleware: [serializableStateInvariantMiddleware,],
     });
 
     store.dispatch({ type: ACTION_TYPE });
 
     expect(console.error).toHaveBeenCalled();
 
-    const [message, keyPath, value, actionType] = (<any>(
-      console.error
-    )).mock.calls[0];
+    const [
+      message,
+      keyPath,
+      value,
+      actionType,
+    ] = (console.error as any).mock.calls[0];
     expect(message).toContain('detected in the state, in the path: `%s`');
     expect(keyPath).toBe('testSlice.a');
     expect(value).toBe(badValue);

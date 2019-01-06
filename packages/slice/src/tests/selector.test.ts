@@ -28,23 +28,23 @@ describe('createSelector', () => {
   });
   it('throws when instantiated with an invalid slice', () => {
     expect(() => {
-      createSelector(<any>{ slice: 'slice' });
+      createSelector({ slice: 'slice' } as any);
     }).toThrow(/must be a string or number or symbol/);
     expect(() => {
-      createSelector(<any>['slice']);
+      createSelector(['slice',] as any);
     }).toThrow(/must be a string or number or symbol/);
   });
   it('throws when slice not present in the state', () => {
-    selectInvalid(<any>state);
+    selectInvalid(state as any);
     expect(console.error).toHaveBeenCalled();
-    const [message] = (<any>console.error).mock.calls[0];
+    const [message,] = (console.error as any).mock.calls[0];
     expect(message).toContain('invalid was not found in the given State');
   });
   it('throws when called with an invalid state', () => {
-    selectAuth(<any>{ form: {} });
+    selectAuth({ form: {} } as any);
 
     expect(console.error).toHaveBeenCalled();
-    const [message] = (<any>console.error).mock.calls[0];
+    const [message,] = (console.error as any).mock.calls[0];
     expect(message).toContain('auth was not found in the given State');
   });
 });
@@ -71,16 +71,16 @@ describe('createSubSelector', () => {
       createSubSelector('', '');
     }).toThrow(/SubSlice must not be blank/);
     expect(() => {
-      createSubSelector(<any>{ gf: 'dfdf' }, '');
+      createSubSelector({ gf: 'dfdf' } as any, '');
     }).toThrow(/must be a string or number or symbol/);
     expect(() => {
-      createSubSelector(<any>{ slice: 'slice' }, 'subSlice');
+      createSubSelector({ slice: 'slice' } as any, 'subSlice');
     }).toThrow(/must be a string or number or symbol/);
     expect(() => {
-      createSubSelector(<any>['slice'], '');
+      createSubSelector(['slice',] as any, '');
     }).toThrow(/must be a string or number or symbol/);
     expect(() => {
-      createSubSelector(<any>['slice'], 'subSlice');
+      createSubSelector(['slice',] as any, 'subSlice');
     }).toThrow(/must be a string or number or symbol/);
   });
   it('should select the correct subSlice', () => {

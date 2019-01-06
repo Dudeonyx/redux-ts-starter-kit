@@ -34,7 +34,7 @@ describe('createReducer', () => {
       const { newTodo } = payload;
 
       // Updates the state immutably without relying on immer
-      return [...state, { ...newTodo, completed: false }];
+      return [...state, { ...newTodo, completed: false },];
     }
 
     function toggleTodo(state: any, payload: any) {
@@ -42,7 +42,9 @@ describe('createReducer', () => {
 
       // Updates the todo object immutably withot relying on immer
       return state.map((todo: any, i: number) => {
-        if (i !== index) return todo;
+        if (i !== index) {
+          return todo;
+        }
         return { ...todo, completed: !todo.completed };
       });
     }

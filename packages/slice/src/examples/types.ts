@@ -33,7 +33,7 @@ export const {
   slice: 'hi',
   cases: {
     set: (state, payload: any[]) => payload,
-    reset: (state) => ['defaultState', 'jhj'],
+    reset: (state) => ['defaultState', 'jhj',],
   },
   initialState: [],
 });
@@ -67,7 +67,10 @@ interface AuthSliceState {
   authenticating: boolean;
   error: Error | null;
 }
-type AuthSuccess = { idToken: string | null; userId: string | null };
+interface AuthSuccess {
+  idToken: string | null;
+  userId: string | null;
+}
 export interface AuthActions {
   authSuccess: AuthSuccess;
   authStart: never;
@@ -184,7 +187,7 @@ const store = createStore(rootReducer, applyMiddleware(thunk));
 const thunkAuthLogout = () => (dispatch: Dispatch, getState: () => IState) => {
   setTimeout(() => {
     dispatch(authLogout());
-    console.log("\n\nThunk!!!\n\n You've been logged out!");
+    console.log('\n\nThunk!!!\n\n You\'ve been logged out!');
   }, 15000);
 };
 
@@ -211,7 +214,7 @@ console.log('[authLogout action creator]\n', authLogout(), '\n');
 
 console.log(
   '[authSuccess actionCreator]\n',
-  authSuccess({ idToken: 'really Long Token', userId: "It's Me" }),
+  authSuccess({ idToken: 'really Long Token', userId: 'It\'s Me' }),
   '\n',
 );
 /* 
@@ -255,7 +258,7 @@ console.log(
   '\n[start: authSuccess action dispatched]\n',
   'Action: ',
   store.dispatch(
-    authSuccess({ idToken: 'really Long Token', userId: "It's Me" }),
+    authSuccess({ idToken: 'really Long Token', userId: 'It\'s Me' }),
   ),
   '\nNew Auth State: ',
   getAuth(store.getState()),
@@ -263,7 +266,7 @@ console.log(
   getAuthIdToken(store.getState()),
   '\nAuth userId selector: ',
   getAuthUserId(store.getState()),
-  "\n*** You've logged in successfully!***\n",
+  '\n*** You\'ve logged in successfully!***\n',
 );
 
 /* 

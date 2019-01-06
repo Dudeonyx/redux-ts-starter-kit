@@ -19,7 +19,7 @@ export function createReducer<S, SS extends S = any>({
       const caseReducer = cases[action.type];
 
       if (caseReducer) {
-        return caseReducer(<NoEmptyArray<SS>>draft, action.payload);
+        return caseReducer(draft as NoEmptyArray<SS>, action.payload);
       }
 
       return draft;

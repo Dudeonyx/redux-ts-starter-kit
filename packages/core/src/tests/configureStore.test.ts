@@ -8,7 +8,7 @@ import { createSlice } from '@redux-ts-starter-kit/slice';
 
 describe('getDefaultMiddleware', () => {
   it('returns an array with only redux-thunk in production', () => {
-    expect(getDefaultMiddleware(true)).toEqual([thunk]);
+    expect(getDefaultMiddleware(true)).toEqual([thunk,]);
   });
 
   it('returns an array with additional middleware in development', () => {
@@ -25,6 +25,7 @@ describe('configureStore', () => {
   jest.spyOn(redux, 'createStore');
   jest.spyOn(devtools, 'composeWithDevTools');
 
+// tslint:disable-next-line: no-empty
   function reducer() {}
 
   beforeEach(() => jest.clearAllMocks());
@@ -44,13 +45,13 @@ describe('configureStore', () => {
 
   describe('given an object of reducers', () => {
     it('calls createStore with the combined reducers', () => {
-      const reducer = {
+      const reducer2 = {
         reducer() {
           return true;
         },
       };
-      expect(configureStore({ reducer })).toBeInstanceOf(Object);
-      expect(redux.combineReducers).toHaveBeenCalledWith(reducer);
+      expect(configureStore({ reducer: reducer2 })).toBeInstanceOf(Object);
+      expect(redux.combineReducers).toHaveBeenCalledWith(reducer2);
       expect(redux.applyMiddleware).toHaveBeenCalled();
       expect(devtools.composeWithDevTools).toHaveBeenCalled();
       expect(redux.createStore).toHaveBeenCalledWith(
@@ -89,7 +90,7 @@ describe('configureStore', () => {
       const thank = (store: any) => (next: (arg0: any) => any) => (
         action: any,
       ) => next(action);
-      expect(configureStore({ middleware: [thank], reducer })).toBeInstanceOf(
+      expect(configureStore({ middleware: [thank,], reducer })).toBeInstanceOf(
         Object,
       );
       expect(redux.applyMiddleware).toHaveBeenCalledWith(thank);
@@ -133,7 +134,7 @@ describe('configureStore', () => {
   describe('given enhancers', () => {
     it('calls createStore with enhancers', () => {
       const enhancer = (next: any) => next;
-      expect(configureStore({ enhancers: [enhancer], reducer })).toBeInstanceOf(
+      expect(configureStore({ enhancers: [enhancer,], reducer })).toBeInstanceOf(
         Object,
       );
       expect(redux.applyMiddleware).toHaveBeenCalled();
@@ -216,7 +217,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     idToken: string;
     userId: string;
   }
-  type AuthSuccess = { idToken: string; userId: string };
+  interface AuthSuccess { idToken: string; userId: string }
   interface AuthActions {
     authLogin: AuthSuccess;
     authLogout: never;
@@ -242,7 +243,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     },
   });
 
-  const [store, rootReducer] = configureStore({
+  const [store, rootReducer,] = configureStore({
     reducer: {
       auth: authSlice.reducer,
       form: formSlice.reducer,

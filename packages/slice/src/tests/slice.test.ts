@@ -121,6 +121,7 @@ describe('createSlice', () => {
     });
   });
 
+  // tslint:disable: no-shadowed-variable
   describe('createSlice when initialState is an object', () => {
     const { selectors } = createSlice({
       cases: {
@@ -271,7 +272,10 @@ describe('multiple createSlice slices used to create a redux store', () => {
     idToken: string | null;
     userId: string | null;
   }
-  type AuthSuccess = { idToken: string | null; userId: string | null };
+  interface AuthSuccess {
+    idToken: string | null;
+    userId: string | null;
+  }
   interface AuthActions {
     authLogin: AuthSuccess;
     authLogout: never;

@@ -19,7 +19,7 @@ import isPlainObject from './isPlainObject';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 export function getDefaultMiddleware(isProduction = IS_PRODUCTION) {
-  let middlewareArray = [thunk];
+  const middlewareArray = [thunk,];
   let middlewareArrayPlus;
 
   if (!isProduction) {
@@ -42,7 +42,7 @@ export function configureStore<S, DP extends DeepPartial<S> = DeepPartial<S>>(
     middleware?: Middleware[];
     devTools?: boolean;
     enhancers?: StoreEnhancer[];
-  } = <any>{},
+  } = {} as any,
 ) {
   const {
     reducer,
@@ -65,10 +65,12 @@ export function configureStore<S, DP extends DeepPartial<S> = DeepPartial<S>>(
 
   const middlewareEnhancer = applyMiddleware(...middleware);
 
-  const storeEnhancers = [middlewareEnhancer, ...enhancers];
+  const storeEnhancers = [middlewareEnhancer, ...enhancers,];
 
-  let finalCompose: (...funcs: Function[]) => StoreEnhancer =
-    devTools !== false
+  const finalCompose: (
+    ...funcs: Array<(...args: any[]) => any>
+  ) => StoreEnhancer =
+    devTools === true
       ? composeWithDevTools({
           // Enable capture of stack traces for dispatched Redux actions
           trace: !IS_PRODUCTION,
@@ -79,5 +81,5 @@ export function configureStore<S, DP extends DeepPartial<S> = DeepPartial<S>>(
 
   const store = createStore(rootReducer, preloadedState, composedEnhancer);
 
-  return [store, rootReducer] as [typeof store, typeof rootReducer];
+  return [store, rootReducer,] as [typeof store, typeof rootReducer];
 }

@@ -46,7 +46,7 @@ export function findNonSerializableValue<O extends { [x: string]: any }>(
     return { keyPath: path.join('.') || '<root>', value: obj };
   }
 
-  for (let property in obj) {
+  for (const property in obj) {
     if (obj.hasOwnProperty(property)) {
       const nestedPath = path.concat(property);
       const nestedValue = obj[property];
@@ -62,7 +62,7 @@ export function findNonSerializableValue<O extends { [x: string]: any }>(
         );
 
         if (foundNestedSerializable) {
-          return <any>foundNestedSerializable;
+          return foundNestedSerializable as any;
         }
       }
     }

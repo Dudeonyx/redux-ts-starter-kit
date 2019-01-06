@@ -28,15 +28,17 @@ export function createSelector<
   if (slice === '') {
     return (state: State) => {
       if (state == null) {
+        // tslint:disable-next-line: no-unused-expression
         IS_PRODUCTION ||
           console.error(`A selector was called with a null or undefined state`);
         return state;
       }
-      return <any>state;
+      return state as any;
     };
   }
   return (state: State) => {
     if (state == null) {
+      // tslint:disable-next-line: no-unused-expression
       IS_PRODUCTION ||
         console.error(
           `${String(slice)} selector was called with a null or undefined state`,
@@ -44,6 +46,7 @@ export function createSelector<
       return state;
     }
     if (!state.hasOwnProperty(slice)) {
+      // tslint:disable-next-line: no-unused-expression
       IS_PRODUCTION ||
         console.error(`${String(slice)} was not found in the given State,
       This selector was either called with a bad state argument or
@@ -98,21 +101,23 @@ export function createSubSelector<
     );
   }
   if (!slice) {
-    return function(state: State) {
+    return (state: State) => {
       if (state == null) {
+        // tslint:disable-next-line: no-unused-expression
         IS_PRODUCTION ||
           console.error(
             `${String(
               subSlice,
             )} sub-selector was called with a null or undefined state`,
           );
-        return <any>state;
+        return state as any;
       }
       return state[subSlice as keyof State];
     };
   }
   return (state: State) => {
     if (state == null) {
+      // tslint:disable-next-line: no-unused-expression
       IS_PRODUCTION ||
         console.error(
           `${String(slice)}/${String(
@@ -122,6 +127,7 @@ export function createSubSelector<
       return state;
     }
     if (!state.hasOwnProperty(slice)) {
+      // tslint:disable-next-line: no-unused-expression
       IS_PRODUCTION ||
         console.error(`${String(slice)} was not found in the given State,
       This selector was either called with a bad state argument or
@@ -130,6 +136,7 @@ export function createSubSelector<
       return undefined;
     }
     if (!state[slice].hasOwnProperty(subSlice)) {
+      // tslint:disable-next-line: no-unused-expression
       IS_PRODUCTION ||
         console.error(
           `${String(subSlice)} was not found in the given State[${String(
@@ -138,6 +145,6 @@ export function createSubSelector<
         );
       return undefined;
     }
-    return (<SliceState>(<unknown>state[slice]))[subSlice];
+    return ((state[slice] as unknown) as SliceState)[subSlice];
   };
 }

@@ -3,17 +3,21 @@ import { createReducer, NoEmptyArray } from './reducer';
 import { createSubSelector, createSelector } from './selector';
 import { Action } from './types';
 
-interface ActionReducer<SS = any, A = any> {
-  (state: SS, payload: A): SS | void | undefined;
-}
+type ActionReducer<SS = any, A = any> = (
+  state: SS,
+  payload: A,
+) => SS | void | undefined;
 
-interface ActionReducerWithSlice<SS = any, A = any, S = any> {
-  (state: SS, payload: A, _FullState: S): SS | void | undefined;
-}
+type ActionReducerWithSlice<SS = any, A = any, S = any> = (
+  state: SS,
+  payload: A,
+  _FullState: S,
+) => SS | void | undefined;
 
-export interface Reducer<SS = any, A = Action> {
-  (state: SS | undefined, payload: A): SS;
-}
+export type Reducer<SS = any, A = Action> = (
+  state: SS | undefined,
+  payload: A,
+) => SS;
 
 type ActionsObj<SS = any, Ax = any> = {
   [K in keyof Ax]: ActionReducer<SS, Ax[K]>
@@ -48,6 +52,7 @@ export interface Slice<A = any, SS = any, S = SS, str = ''> {
         getSlice: (state: S) => SS;
       };
   actions: {
+    // tslint:disable-next-line: ban-types
     [key in keyof A]: Object extends A[key] // ensures payload isn't inferred as {}
       ? (payload?: any) => Action
       : A[key] extends never
@@ -127,21 +132,22 @@ export function createSlice<
   initialState,
   slice = '',
 }: InputWithOptionalSlice<NoEmptyArray<SliceState>, Actions, State>) {
-  const actionKeys = Object.keys(cases) as (keyof Actions)[];
-  const createActionType = actionTypeBuilder(<string>slice);
+  const actionKeys = Object.keys(cases) as Array<keyof Actions>;
+  const createActionType = actionTypeBuilder(slice as string);
 
   const reducerMap = actionKeys.reduce<ReduceM<SliceState>>((map, action) => {
-    (map as any)[createActionType(<string>action)] = cases[action];
+    (map as any)[createActionType(action as string)] = cases[action];
     return map;
   }, {});
   const reducer = createReducer<SliceState>({
     initialState,
     cases: reducerMap,
-    slice: <string>slice,
+    slice: slice as string,
   });
 
   const actionMap = actionKeys.reduce<
     {
+      // tslint:disable-next-line: ban-types
       [key in keyof Actions]: Object extends Actions[key]
         ? (payload?: any) => Action
         : Actions[key] extends never
@@ -150,16 +156,20 @@ export function createSlice<
     }
   >(
     (map, action) => {
-      const type = createActionType(<string>action);
-      (<any>map)[action] = createAction(type);
+      const type = createActionType(action as string);
+      (map as any)[action] = createAction(type);
       return map;
     },
     {} as any,
   );
 
-  let initialStateKeys: (keyof SliceState)[] = [];
-  if (typeof initialState === 'object' && !Array.isArray(initialState)) {
-    initialStateKeys = <any>Object.keys(initialState);
+  let initialStateKeys: Array<keyof SliceState> = [];
+  if (
+    typeof initialState === 'object' &&
+    initialState !== null &&
+    !Array.isArray(initialState)
+  ) {
+    initialStateKeys = Object.keys(initialState) as any;
   }
   const otherSelectors = initialStateKeys.reduce<
     { [key in keyof SliceState]: (state: State) => SliceState[key] }
@@ -174,7 +184,7 @@ export function createSlice<
     {} as any,
   );
   const selectors = {
-    getSlice: createSelector<State, SliceState>(<string>slice),
+    getSlice: createSelector<State, SliceState>(slice as string),
     ...otherSelectors,
   };
   return {
