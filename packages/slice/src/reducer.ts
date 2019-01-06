@@ -6,6 +6,7 @@ export interface CreateReducer<SS = any> {
   initialState: SS;
   cases: ReducerMap<SS, any>;
   slice?: string;
+  defaultCase?: (state: SS) => SS | void | undefined;
 }
 export type NoEmptyArray<State> = State extends never[] ? any[] : State;
 
@@ -13,6 +14,7 @@ export function createReducer<S, SS extends S = any>({
   initialState,
   cases,
   slice = '',
+  defaultCase,
 }: CreateReducer<NoEmptyArray<SS>>) {
   const reducer = (state = initialState, action: Action<any>) => {
     return createNextState(state, (draft) => {
@@ -21,7 +23,9 @@ export function createReducer<S, SS extends S = any>({
       if (caseReducer) {
         return caseReducer(draft as NoEmptyArray<SS>, action.payload);
       }
-
+      if (defaultCase && typeof defaultCase === 'function') {
+        return defaultCase(draft as NoEmptyArray<SS>);
+      }
       return draft;
     });
   };

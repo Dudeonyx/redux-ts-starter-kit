@@ -29,6 +29,46 @@ describe('createReducer', () => {
     behavesLikeReducer(todosReducer);
   });
 
+  describe('Behave like a reducer and handle specified defaultCase', () => {
+    function addTodo(state: any, payload: any) {
+      const { newTodo } = payload;
+
+      // Can safely call state.push() here
+      state.push({ ...newTodo, completed: false });
+    }
+
+    function toggleTodo(state: any, payload: any) {
+      const { index } = payload;
+
+      const todo = state[index];
+      // Can directly modify the todo object
+      todo.completed = !todo.completed;
+    }
+
+    const todosReducer = createReducer({
+      initialState: [],
+      cases: {
+        ADD_TODO: addTodo,
+        TOGGLE_TODO: toggleTodo,
+      },
+      defaultCase: (state) => [{ text: 'Default Case', completed: true },],
+    });
+
+    it('Handles the default case correctly', () => {
+      expect(
+        todosReducer(
+          [
+            {
+              text: 'Run the tests',
+              completed: false,
+            },
+          ],
+          { type: 'any' },
+        ),
+      ).toEqual([{ text: 'Default Case', completed: true },]);
+    });
+  });
+
   describe('given pure reducers with immutable updates', () => {
     function addTodo(state: any, payload: any) {
       const { newTodo } = payload;
