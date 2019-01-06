@@ -1,24 +1,9 @@
-0 silly argv { _: [ 'add' ],
-0 silly argv   D: true,
-0 silly argv   dev: true,
-0 silly argv   globs: [],
-0 silly argv   lernaVersion: '3.8.4',
-0 silly argv   '$0':
-0 silly argv    'C:\\Users\\Dudeonyx\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\lerna\\cli.js',
-0 silly argv   pkg: 'rimraf@2.6.3' }
-1 notice cli v3.8.4
-2 verbose rootPath C:\github\redux-ts-starter-kit
-3 error TypeError: Invalid comparator: latest
-3 error     at Comparator.parse (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:701:11)
-3 error     at new Comparator (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:685:8)
-3 error     at Range.<anonymous> (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:859:12)
-3 error     at Array.map (<anonymous>)
-3 error     at Range.parseRange (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:858:13)
-3 error     at Range.<anonymous> (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:801:17)
-3 error     at Array.map (<anonymous>)
-3 error     at new Range (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:800:40)
-3 error     at Function.intersects (C:\github\redux-ts-starter-kit\node_modules\semver\semver.js:1333:8)
-3 error     at getRangeToReference (C:\github\redux-ts-starter-kit\node_modules\@lerna\add\lib\get-range-to-reference.js:18:35)
-3 error     at result.filter.pkg (C:\github\redux-ts-starter-kit\node_modules\@lerna\add\index.js:136:14)
-3 error     at Array.filter (<anonymous>)
-3 error     at AddCommand.collectPackagesToChange (C:\github\redux-ts-starter-kit\node_modules\@lerna\add\index.js:128:21)
+41 error Error: Command failed: git commit -m v0.1.10
+41 error On branch master
+41 error Your branch is ahead of 'origin/master' by 1 commit.
+41 error   (use "git push" to publish your local commits)
+41 error
+41 error nothing to commit, working tree clean
+41 error
+41 error     at makeError (C:\github\redux-ts-starter-kit\node_modules\execa\index.js:174:9)
+41 error     at Promise.all.then.arr (C:\github\redux-ts-starter-kit\node_modules\execa\index.js:278:16)
