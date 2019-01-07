@@ -4,6 +4,8 @@ import { createSubSelector, createSelector } from './selector';
 import { Action } from './types';
 import { actionTypeBuilder } from './actionTypeBuilder';
 
+type NoBadState<S> = S extends {[x:string]: {}} ? AnyState : S
+
 type ActionReducer<SS = any, A = any> = (
   state: SS,
   payload: A,
@@ -43,14 +45,14 @@ export interface Slice<A = any, SS = any, S = SS, str = ''> {
   reducer: Reducer<SS, Action>;
   selectors: SS extends any[]
     ? {
-        getSlice: (state: S) => SS;
+        getSlice: (state: NoBadState<S>) => SS;
       }
     : SS extends AnyState
-    ? ({ [key in keyof SS]: (state: S) => SS[key] } & {
-        getSlice: (state: S) => SS;
+    ? ({ [key in keyof SS]: (state: NoBadState<S>) => SS[key] } & {
+        getSlice: (state: NoBadState<S>) => SS;
       })
     : {
-        getSlice: (state: S) => SS;
+        getSlice: (state: NoBadState<S>) => SS;
       };
   actions: {
     // tslint:disable-next-line: ban-types
@@ -84,6 +86,17 @@ interface InputWithOptionalSlice<SS = any, Ax = ActionsAny, S = any> {
 
 //#region
 
+export function createSlice<Actions extends ActionsAny, SliceState, State extends SliceState>({
+  cases,
+  initialState,
+  slice,
+}: InputWithBlankSlice<NoEmptyArray<SliceState>, Actions>): Slice<
+  Actions,
+  NoEmptyArray<SliceState>,
+  State,
+  typeof slice
+>;
+
 export function createSlice<
   Actions extends ActionsAny,
   SliceState,
@@ -99,18 +112,9 @@ export function createSlice<
   typeof slice
 >;
 
-export function createSlice<Actions extends ActionsAny, SliceState>({
-  cases,
-  initialState,
-  slice,
-}: InputWithBlankSlice<NoEmptyArray<SliceState>, Actions>): Slice<
-  Actions,
-  NoEmptyArray<SliceState>,
-  NoEmptyArray<SliceState>,
-  typeof slice
->;
 
-export function createSlice<Actions extends ActionsAny, SliceState>({
+
+export function createSlice<Actions extends ActionsAny, SliceState, State extends SliceState>({
   cases,
   initialState,
 }: InputWithoutSlice<NoEmptyArray<SliceState>, Actions>): Slice<
@@ -174,7 +178,7 @@ export function createSlice<
   >(
     (map, key) => {
       map[key] = createSubSelector<State, SliceState>(
-        slice as keyof State,
+        slice,
         key,
       );
       return map;

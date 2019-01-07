@@ -1,5 +1,11 @@
 # CHANGES
 
-## v1.2.0 (12-29-2018)
+## v0.1.12
 
-* :sparkles: map slice helper
+* :sparkles: fixed issues occurring when `slice` is initialised outside `createSlice` with `let`
+
+* `createSlice` now requires three type params rather than 2 - 3. Note: It can still be used without type params
+
+## v0.1.11
+
+* :sparkles: fixed issues with exported Dispatch type

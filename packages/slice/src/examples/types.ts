@@ -120,6 +120,85 @@ export const {
     userId: getAuthUserId,
   },
 } = auth;
+export interface AuthActions$ {
+  authSuccess$: AuthSuccess;
+  authStart$: never;
+  authFail$: Error;
+  authLogout$: never;
+}
+
+const slice = 'auth';
+const auth$ = createSlice<AuthActions$, AuthSliceState, IState>({
+  slice,
+  initialState,
+  cases: {
+    authFail$: (state, error) => {
+      state.error = error;
+      state.authenticating = false;
+    },
+    authLogout$: (state, _n: never) => {
+      state.idToken = null;
+      state.userId = null;
+    },
+    authStart$: (state) => {
+      state.authenticating = true;
+    },
+    authSuccess$: (state, payload) => {
+      state.authenticating = false;
+      state.idToken = payload.idToken;
+      state.userId = payload.userId;
+    },
+  },
+});
+// You can destructure and export the reducer, action creators and selectors
+export const {
+  reducer: authReducer$,
+  slice: authSlice$,
+  actions: { authFail$, authStart$, authSuccess$, authLogout$ },
+  selectors: {
+    getSlice: getAuth$,
+    authenticating: getAuthAuthenticating$,
+    error: getAuthError$,
+    idToken: getAuthIdToken$,
+    userId: getAuthUserId$,
+  },
+} = auth$;
+
+const auth$NoInterface = createSlice({
+  slice: 'auth',
+  initialState,
+  cases: {
+    authFail$2: (state, error: Error) => {
+      state.error = error;
+      state.authenticating = false;
+    },
+    authLogout$2: (state, _n: never) => {
+      state.idToken = null;
+      state.userId = null;
+    },
+    authStart$2: (state) => {
+      state.authenticating = true;
+    },
+    authSuccess$2: (state, payload: AuthSuccess) => {
+      state.authenticating = false;
+      state.idToken = payload.idToken;
+      state.userId = payload.userId;
+    },
+  },
+});
+// You can destructure and export the reducer, action creators and selectors
+export const {
+  reducer: authReducer$2,
+  slice: authSlice$2,
+  actions: { authFail$2, authStart$2, authSuccess$2, authLogout$2 },
+  selectors: {
+    getSlice: getAuth$2,
+    authenticating: getAuthAuthenticating$2,
+    error: getAuthError$2,
+    idToken: getAuthIdToken$2,
+    userId: getAuthUserId$2,
+  },
+} = auth$NoInterface;
 
 export const authReducer2 = createReducer({
   initialState,

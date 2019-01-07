@@ -138,6 +138,8 @@ A function that accepts an initial state, an object full of reducer functions, a
 
 The reducers will be wrapped in the `createReducer()` utility, and so they can safely "mutate" the state they are given.
 
+#### Please use `const` if initialising `slice` outside createSlice
+
 ```js
 function createSlice<Actions, SliceState, State>({
     // A object of function that will be used as cases for the returned reducer,

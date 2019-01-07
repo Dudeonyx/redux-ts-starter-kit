@@ -38,7 +38,7 @@ This package is _not_ intended to solve every possible complaint about Redux, an
 - When stringifying action creators they return the action type
 - Helper functions for manually creating actions and reducers
 - Reducers do not receive entire action object, only payload
-- Advanced type inferrence, minimizing the need to create one-off interfaces. _Note: supplying interfaces is largely not required but highly recommended_
+- Advanced type inferrence, minimizing the need to create one-off interfaces. _Note: supplying interfaces is largely not required but recommended as good practice_
 
 ## Why not X
 
@@ -275,6 +275,8 @@ Currently it returns an array with redux-thunk.
 A function that accepts an initial state, an object full of reducer functions, and optionally a "slice name", and automatically generates action creators, action types, and selectors that correspond to the reducers and state.
 
 The reducers will be wrapped in the `createReducer()` utility, and so they can safely "mutate" the state they are given.
+
+#### Please use `const` if initialising `slice` outside createSlice
 
 ```js
 function createSlice<Actions, SliceState, State>({
