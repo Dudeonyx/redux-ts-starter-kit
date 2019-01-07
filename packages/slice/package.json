@@ -26,7 +26,7 @@
     "clean": "rimraf lib .rpt2_cache",
     "typecheck:tests": "yarn run tsc -p ./src/tests --noEmit",
     "test": "yarn run typecheck:tests && yarn run jest",
-    "prepublish": "yarn test && yarn build",
+    "prepublish": "yarn build",
     "prettier": "prettier --write src/**/*.ts",
     "example": "ts-node ./src/examples/types.ts"
   },

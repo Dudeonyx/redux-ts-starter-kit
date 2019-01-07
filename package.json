@@ -6,6 +6,7 @@
     "bootstrap": "lerna bootstrap",
     "clean": "lerna run clean",
     "build": "lerna run build",
+    "prepublish": "yarn test",
     "publish": "lerna publish"
   },
 
