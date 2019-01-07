@@ -25,7 +25,7 @@ describe('createSlice', () => {
       increment: never;
       multiply: number;
     }
-    const { actions, reducer, selectors } = createSlice<Actions, State>({
+    const { actions, reducer, selectors } = createSlice<Actions, State, State>({
       cases: {
         increment: (state) => state + 1,
         multiply: (state, payload) => state * payload,

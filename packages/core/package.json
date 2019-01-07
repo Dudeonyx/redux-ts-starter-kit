@@ -24,9 +24,9 @@
   "scripts": {
     "build": "yarn clean && rollup -c",
     "clean": "rimraf lib .rpt2_cache",
-    "test": "yarn run jest",
+    "test": "yarn run typecheck:tests && yarn run jest",
     "prepublish": "yarn test && yarn build",
-    "alpha": "yarn publish --tag alpha",
+    "typecheck:tests": "yarn run tsc -p ./src/tests --noEmit",
     "prettier": "prettier --write src/**/*.ts",
     "example": "ts-node ./src/examples/sample.ts"
   },
