@@ -35,10 +35,12 @@ export function getDefaultMiddleware(isProduction = IS_PRODUCTION) {
     : middlewareArrayPlus;
 }
 
-export function configureStore<S, DP extends DeepPartial<S> = DeepPartial<S>>(
+// type PS<S, P extends S =  S> = DeepPartial<P>
+
+export function configureStore<S, PS extends S = S>(
   options: {
     reducer: Reducer<S> | ReducersMapObject<S>;
-    preloadedState?: DP; // ensures preloadedState's inferred type does not overide S
+    preloadedState?: DeepPartial<PS>; // ensures preloadedState's inferred type does not overide S
     middleware?: Middleware[];
     devTools?: boolean;
     enhancers?: StoreEnhancer[];
@@ -79,7 +81,11 @@ export function configureStore<S, DP extends DeepPartial<S> = DeepPartial<S>>(
 
   const composedEnhancer = finalCompose(...storeEnhancers);
 
-  const store = createStore(rootReducer, preloadedState, composedEnhancer);
+  const store = createStore(
+    rootReducer,
+    preloadedState as DeepPartial<S>,
+    composedEnhancer,
+  );
 
   return [store, rootReducer,] as [typeof store, typeof rootReducer];
 }

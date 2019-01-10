@@ -31,9 +31,10 @@ export default function generateConfig({
       terser(),
     ],
   };
-  if (!name) {
+  if (!name || !pkg.browser) {
     return [cjsEs];
   }
+
   const umd = {
     input,
     output: {
