@@ -3,94 +3,227 @@ import { createReducer, NoEmptyArray } from './reducer';
 import { createSubSelector, createSelector } from './selector';
 import { Action } from './types';
 import { actionTypeBuilder } from './actionTypeBuilder';
-
-type NoBadState<S> = S extends {[x:string]: {}} ? AnyState : S
-
-type ActionReducer<SS = any, A = any> = (
+/** fix for `let` initialised `slice` */
+type NoBadState<S> = S extends { [x: string]: {} } ? AnyState : S;
+/** Type alias for case reducers when `slice` is blank or undefined */
+type CaseReducer<SS = any, A = any> = (
   state: SS,
   payload: A,
 ) => SS | void | undefined;
-
-type ActionReducerWithSlice<SS = any, A = any, S = any> = (
+/** Type alias for case reducers when `slice` is defined */
+type CaseReducerWithSlice<SS = any, A = any, S = any> = (
   state: SS,
   payload: A,
   _FullState: S,
 ) => SS | void | undefined;
-
+/** Type alias for the generated reducer */
 export type Reducer<SS = any, A extends Action = Action> = (
   state: SS | undefined,
   payload: A,
 ) => SS;
-
-type ActionsObj<SS = any, Ax = any> = {
-  [K in keyof Ax]: ActionReducer<SS, Ax[K]>
+/** Map of `cases` */
+type CasesWithoutSlice<SS = any, Ax = any> = {
+  [K in keyof Ax]: CaseReducer<SS, Ax[K]>
 };
-type ActionsObjWithSlice<SS = any, Ax = any, S = any> = {
-  [K in keyof Ax]: ActionReducerWithSlice<SS, Ax[K], S>
+/** Map of `cases` */
+type CasesWithSlice<SS = any, Ax = any, S = any> = {
+  [K in keyof Ax]: CaseReducerWithSlice<SS, Ax[K], S>
 };
-
+/** Generic Actions interface */
 interface ActionsAny<P = any> {
   [Action: string]: P;
 }
+/** Generic State interface
+ * @export
+ */
 export interface AnyState {
   [slice: string]: any;
 }
 
+/**
+ * A map of case reducers for creating a standard reducer
+ * @export
+ * @template SS is the [SliceState] or [State]
+ * @template A  is the [Action]
+ */
 export interface ReducerMap<SS, A = Action> {
-  [Action: string]: ActionReducer<SS, A>;
+  [Action: string]: CaseReducer<SS, A>;
 }
+/** Type alias for generated selectors */
+export type Selectors<SS, S> = SS extends any[]
+  ? {
+      getSlice: (state: NoBadState<S>) => SS;
+    }
+  : SS extends AnyState
+  ? ({ [key in keyof SS]: (state: NoBadState<S>) => SS[key] } & {
+      getSlice: (state: NoBadState<S>) => SS;
+    })
+  : {
+      getSlice: (state: NoBadState<S>) => SS;
+    };
+/** Type alias for generated action creators */
+export type ActionCreators<A> = {
+  // tslint:disable-next-line: ban-types
+  [key in keyof A]: Object extends A[key] // ensures payload isn't inferred as {}
+    ? (payload?: any) => Action
+    : A[key] extends never // No payload when type is `never`
+    ? () => Action
+    : (payload: A[key]) => Action<A[key]>
+};
 
-export interface Slice<A = any, SS = any, S = SS, str = ''> {
-  slice: SS extends S ? '' : str;
+/** */
+/**
+ * @interface Slice
+ * @description The interface of the object returned by createSlice
+ * @template A - is the [Action] creator interface
+ * @template SS - [SliceState]
+ * @template S - [State]
+ * @template Slc - [slice]
+ */
+export interface Slice<A = any, SS = any, S = SS, Slc = ''> {
+  /**
+   * @description The name of the slice generated, i.e it's key in the redux state tree.
+   * @type {Slc}
+   * @memberof Slice
+   */
+  slice: Slc;
+  /**
+   * @description The generated reducer
+   *
+   * @type {Reducer<SS, Action>}
+   * @memberof Slice
+   */
   reducer: Reducer<SS, Action>;
-  selectors: SS extends any[]
-    ? {
-        getSlice: (state: NoBadState<S>) => SS;
-      }
-    : SS extends AnyState
-    ? ({ [key in keyof SS]: (state: NoBadState<S>) => SS[key] } & {
-        getSlice: (state: NoBadState<S>) => SS;
-      })
-    : {
-        getSlice: (state: NoBadState<S>) => SS;
-      };
-  actions: {
-    // tslint:disable-next-line: ban-types
-    [key in keyof A]: Object extends A[key] // ensures payload isn't inferred as {}
-      ? (payload?: any) => Action
-      : A[key] extends never
-      ? () => Action
-      : (payload: A[key]) => Action<A[key]>
-  };
+  /**
+   * The automatically generated selectors
+   *
+   * @memberof Slice
+   */
+  selectors: Selectors<SS, S>;
+  /**
+   * The automatically generated actions
+   *
+   * @memberof Slice
+   */
+  actions: ActionCreators<A>;
 }
 
 interface InputWithSlice<SS = any, Ax = ActionsAny, S = any> {
+  /**
+   * The initial State, same as standard reducer
+   *
+   * @type {SS}
+   * @memberof InputWithSlice
+   */
   initialState: SS;
-  cases: ActionsObjWithSlice<SS, Ax, S>;
+  /**
+   * @description - An object whose methods represent the cases the generated reducer handles,
+   * can be thought of as the equivalent of [switch-case] statements in a standard reducer.
+   *
+   * @type {CasesWithSlice<SS, Ax, S>}
+   * @memberof InputWithSlice
+   */
+  cases: CasesWithSlice<SS, Ax, S>;
+  /**
+   * @description An optional property representing the key of the generated slice in the redux state tree.
+   *
+   * @type {keyof S}
+   * @memberof InputWithSlice
+   */
   slice: keyof S;
 }
 interface InputWithoutSlice<SS = any, Ax = ActionsAny> {
+  /**
+   * The initial State, same as standard reducer
+   *
+   * @type {SS}
+   * @memberof InputWithoutSlice
+   */
   initialState: SS;
-  cases: ActionsObj<SS, Ax>;
+  /**
+   * @description - An object whose methods represent the cases the generated reducer handles,
+   * can be thought of as the equivalent of [switch-case] statements in a standard reducer.
+   *
+   * @type {CasesWithoutSlice<SS, Ax>}
+   * @memberof InputWithoutSlice
+   */
+  cases: CasesWithoutSlice<SS, Ax>;
 }
 interface InputWithBlankSlice<SS = any, Ax = ActionsAny> {
+  /**
+   * The initial State, same as standard reducer
+   *
+   * @type {SS}
+   * @memberof InputWithBlankSlice
+   */
   initialState: SS;
-  cases: ActionsObj<SS, Ax>;
+  /**
+   * @description - An object whose methods represent the cases the generated reducer handles,
+   * can be thought of as the equivalent of [switch-case] statements in a standard reducer.
+   *
+   * @type {CasesWithoutSlice<SS, Ax>}
+   * @memberof InputWithBlankSlice
+   */
+  cases: CasesWithoutSlice<SS, Ax>;
+  /**
+   * @description An optional property representing the key of the generated slice in the redux state tree.
+   *
+   * @type {''}
+   * @memberof InputWithBlankSlice
+   */
   slice: '';
 }
 interface InputWithOptionalSlice<SS = any, Ax = ActionsAny, S = any> {
+  /**
+   * The initial State, same as standard reducer
+   *
+   * @type {SS}
+   * @memberof InputWithOptionalSlice
+   */
   initialState: SS;
-  cases: ActionsObjWithSlice<SS, Ax, S>;
+  /**
+   * @description - An object whose methods represent the cases the generated reducer handles,
+   * can be thought of as the equivalent of [switch-case] statements in a standard reducer.
+   *
+   * @type {CasesWithSlice<SS, Ax, S>}
+   * @memberof InputWithOptionalSlice
+   */
+  cases: CasesWithSlice<SS, Ax, S>;
+  /**
+   * @description An optional property representing the key of the generated slice in the redux state tree.
+   *
+   * @type {keyof S}
+   * @memberof InputWithOptionalSlice
+   */
   slice?: keyof S;
 }
 
 //#region
 
-export function createSlice<Actions extends ActionsAny, SliceState, State extends SliceState>({
+export function createSlice<
+  Actions extends ActionsAny,
+  SliceState,
+  State extends SliceState
+>({
   cases,
   initialState,
   slice,
 }: InputWithBlankSlice<NoEmptyArray<SliceState>, Actions>): Slice<
+  Actions,
+  NoEmptyArray<SliceState>,
+  State,
+  ''
+>;
+
+export function createSlice<
+  Actions extends ActionsAny,
+  SliceState,
+  State extends AnyState
+>({
+  cases,
+  initialState,
+  slice,
+}: InputWithSlice<NoEmptyArray<SliceState>, Actions, State>): Slice<
   Actions,
   NoEmptyArray<SliceState>,
   State,
@@ -100,26 +233,15 @@ export function createSlice<Actions extends ActionsAny, SliceState, State extend
 export function createSlice<
   Actions extends ActionsAny,
   SliceState,
-  State extends AnyState
+  State extends SliceState
 >({
-  slice,
-  cases,
-  initialState,
-}: InputWithSlice<NoEmptyArray<SliceState>, Actions, State>): Slice<
-  Actions,
-  NoEmptyArray<SliceState>,
-  State,
-  typeof slice
->;
-
-
-
-export function createSlice<Actions extends ActionsAny, SliceState, State extends SliceState>({
   cases,
   initialState,
 }: InputWithoutSlice<NoEmptyArray<SliceState>, Actions>): Slice<
   Actions,
-  NoEmptyArray<SliceState>
+  NoEmptyArray<SliceState>,
+  NoEmptyArray<SliceState>,
+  ''
 >;
 
 export function createSlice<
@@ -132,31 +254,22 @@ export function createSlice<
   slice = '',
 }: InputWithOptionalSlice<NoEmptyArray<SliceState>, Actions, State>) {
   const actionKeys = Object.keys(cases) as Array<keyof Actions>;
-  const createActionType = actionTypeBuilder(slice as string);
+  const createActionType = actionTypeBuilder(slice);
 
-  const reducerMap = actionKeys.reduce<ReducerMap<SliceState>>(
+  const reducerMap = actionKeys.reduce<ReducerMap<NoEmptyArray<SliceState>>>(
     (map, action) => {
-      (map as any)[createActionType(action as string)] = cases[action];
+      (map as any)[createActionType(action)] = cases[action];
       return map;
     },
     {},
   );
-  const reducer = createReducer<SliceState>({
+  const reducer = createReducer({
     initialState,
     cases: reducerMap,
     slice: slice as string,
   });
 
-  const actionMap = actionKeys.reduce<
-    {
-      // tslint:disable-next-line: ban-types
-      [key in keyof Actions]: Object extends Actions[key]
-        ? (payload?: any) => Action
-        : Actions[key] extends never
-        ? () => Action
-        : (payload: Actions[key]) => Action<Actions[key]>
-    }
-  >(
+  const actionMap = actionKeys.reduce<ActionCreators<Action>>(
     (map, action) => {
       const type = createActionType(action as string);
       (map as any)[action] = createAction(type);
@@ -171,22 +284,19 @@ export function createSlice<
     initialState !== null &&
     !Array.isArray(initialState)
   ) {
-    initialStateKeys = Object.keys(initialState) as any;
+    initialStateKeys = Object.keys(initialState) as Array<keyof SliceState>;
   }
   const otherSelectors = initialStateKeys.reduce<
     { [key in keyof SliceState]: (state: State) => SliceState[key] }
   >(
     (map, key) => {
-      map[key] = createSubSelector<State, SliceState>(
-        slice,
-        key,
-      );
+      map[key] = createSubSelector<State, SliceState>(slice, key);
       return map;
     },
     {} as any,
   );
   const selectors = {
-    getSlice: createSelector<State, SliceState>(slice as string),
+    getSlice: createSelector<State, SliceState>(slice),
     ...otherSelectors,
   };
   return {
