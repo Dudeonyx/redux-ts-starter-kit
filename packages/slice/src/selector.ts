@@ -4,8 +4,8 @@ const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 export function createSelector<
   State extends AnyState = AnyState,
-  SliceState = any
->(slice: ''): (state: AnyState) => SliceState;
+  SliceState extends State = State
+>(slice: ''): (state: State) => SliceState;
 
 export function createSelector<
   State extends AnyState = AnyState,
