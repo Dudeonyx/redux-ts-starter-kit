@@ -72,9 +72,7 @@ describe('configureStore', () => {
 
   describe('given no middleware', () => {
     it('calls createStore without any middleware', () => {
-      expect(configureStore({ middleware: [], reducer })).toBeInstanceOf(
-        Object,
-      );
+      expect(configureStore({ middleware: [], reducer })).toBeInstanceOf(Array);
       expect(redux.applyMiddleware).toHaveBeenCalledWith();
       expect(devtools.composeWithDevTools).toHaveBeenCalled();
       expect(redux.createStore).toHaveBeenCalledWith(
@@ -91,7 +89,7 @@ describe('configureStore', () => {
         action: any,
       ) => next(action);
       expect(configureStore({ middleware: [thank,], reducer })).toBeInstanceOf(
-        Object,
+        Array,
       );
       expect(redux.applyMiddleware).toHaveBeenCalledWith(thank);
       expect(devtools.composeWithDevTools).toHaveBeenCalled();
@@ -106,7 +104,7 @@ describe('configureStore', () => {
   describe('with devTools disabled', () => {
     it('calls createStore without devTools enhancer', () => {
       expect(configureStore({ devTools: false, reducer })).toBeInstanceOf(
-        Object,
+        Array,
       );
       expect(redux.applyMiddleware).toHaveBeenCalled();
       expect(redux.compose).toHaveBeenCalled();
@@ -135,7 +133,7 @@ describe('configureStore', () => {
     it('calls createStore with enhancers', () => {
       const enhancer = (next: any) => next;
       expect(configureStore({ enhancers: [enhancer,], reducer })).toBeInstanceOf(
-        Object,
+        Array,
       );
       expect(redux.applyMiddleware).toHaveBeenCalled();
       expect(devtools.composeWithDevTools).toHaveBeenCalled();

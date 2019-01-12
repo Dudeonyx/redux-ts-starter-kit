@@ -31,7 +31,7 @@ export default function generateConfig({
       terser(),
     ],
   };
-  if (!name || !pkg.browser) {
+  if (!name || !pkg.unpkg) {
     return [cjsEs];
   }
 
@@ -39,11 +39,15 @@ export default function generateConfig({
     input,
     output: {
       name,
-      file: pkg.browser,
+      file: pkg.unpkg,
       format: 'umd',
       sourcemap: true,
     },
     plugins: [
+      babel({
+        // extentions: '',
+        exclude: 'node_modules/**',
+      }),
       resolve(),
       commonjs({
         namedExports: {
@@ -53,9 +57,6 @@ export default function generateConfig({
       typescript({
         typescript: require('typescript'),
         rollupCommonJSResolveHack: true,
-      }),
-      babel({
-        exclude: 'node_modules/**',
       }),
       replace({
         'process.env.NODE_ENV': JSON.stringify('development'),
