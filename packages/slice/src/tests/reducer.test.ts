@@ -49,7 +49,7 @@ describe('createReducer', () => {
       });
     }
 
-    const todosReducer = createReducer({
+    const todosReducer = createReducer<any[]>({
       initialState: [],
       cases: {
         ADD_TODO: addTodo,

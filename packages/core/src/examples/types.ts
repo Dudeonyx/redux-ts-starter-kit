@@ -153,4 +153,9 @@ export const [store,] = configureStore({
     auth: authReducer,
     ords: ordersReducer,
   },
+  preloadedState: {
+    auth: {},
+    hi: {},
+    ords: {},
+  },
 });

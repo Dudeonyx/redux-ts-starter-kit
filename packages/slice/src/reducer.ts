@@ -38,12 +38,11 @@ export interface CreateReducer<S = any> {
 export type NoEmptyArray<State> = State extends never[] ? any[] : State;
 
 /**
- *
+ * Creates a simple reducer
  *
  * @export
  * @template S - The [State]
- * @template SS -
- * @param {CreateReducer<NoEmptyArray<SS>>} {
+ * @param {CreateReducer<NoEmptyArray<S>>} {
  *   initialState,
  *   cases,
  *   slice = '',
@@ -67,6 +66,6 @@ export function createReducer<S>({
     });
   };
 
-  reducer.toString = () => slice;
+  reducer.toString = () => String(slice);
   return reducer;
 }

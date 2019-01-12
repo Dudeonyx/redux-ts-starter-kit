@@ -89,11 +89,11 @@ const auth = createSlice({
   slice: 'auth',
   initialState,
   cases: {
-    authFail: (state, error: Error, _: IState) => {
+    authFail: (state, error: Error) => {
       state.error = error;
       state.authenticating = false;
     },
-    authLogout: (state, _n: never) => {
+    authLogout: (state, _: never) => {
       state.idToken = null;
       state.userId = null;
     },
@@ -136,7 +136,7 @@ const auth$ = createSlice<AuthActions$, AuthSliceState, IState>({
       state.error = error;
       state.authenticating = false;
     },
-    authLogout$: (state, _n: never) => {
+    authLogout$: (state) => {
       state.idToken = null;
       state.userId = null;
     },
