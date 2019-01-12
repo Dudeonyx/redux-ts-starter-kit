@@ -25,7 +25,7 @@ describe('configureStore', () => {
   jest.spyOn(redux, 'createStore');
   jest.spyOn(devtools, 'composeWithDevTools');
 
-// tslint:disable-next-line: no-empty
+  // tslint:disable-next-line: no-empty
   function reducer() {}
 
   beforeEach(() => jest.clearAllMocks());
@@ -198,7 +198,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
 
   const formSlice = createSlice({
     cases: {
-      setName: (state, name: string, _: IState) => {
+      setName: (state, name: string) => {
         state.name = name;
       },
       setSurname: (state, surname: string) => {
@@ -217,7 +217,10 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     idToken: string;
     userId: string;
   }
-  interface AuthSuccess { idToken: string; userId: string }
+  interface AuthSuccess {
+    idToken: string;
+    userId: string;
+  }
   interface AuthActions {
     authLogin: AuthSuccess;
     authLogout: never;

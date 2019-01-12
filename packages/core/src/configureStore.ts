@@ -43,9 +43,10 @@ export function getDefaultMiddleware(isProduction = IS_PRODUCTION) {
  *
  * @interface ConfigureStoreOptions
  * @template S  The type of state to be held by the store.
+ * @template A The type of actions which may be dispatched.
  * @template PS The preloaded State, Same as `S`, The type of state to be held by the store.
  */
-interface ConfigureStoreOptions<S, PS> {
+interface ConfigureStoreOptions<S, A extends Action, PS> {
   /**
    * @param reducer A function or an object of functions
    *  that returns the next state tree, given the
@@ -54,7 +55,7 @@ interface ConfigureStoreOptions<S, PS> {
    * @type {(Reducer<S> | ReducersMapObject<S>)}
    * @memberof ConfigureStoreOptions
    */
-  reducer: Reducer<S> | ReducersMapObject<S>;
+  reducer: Reducer<S, A> | ReducersMapObject<S, A>;
   /**
    * @param [preloadedState] The initial state. You may optionally specify it to
    *   hydrate the state from the server in universal apps, or to restore a
@@ -113,7 +114,7 @@ export function configureStore<
   Ext,
   StateExt,
   PS extends S = S
->(options: ConfigureStoreOptions<S, PS> = {} as any) {
+>(options: ConfigureStoreOptions<S, A, PS> = {} as any) {
   const {
     reducer,
     middleware = getDefaultMiddleware(),

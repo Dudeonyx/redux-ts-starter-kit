@@ -1,6 +1,6 @@
 import isPlainObject from './isPlainObject';
 import { Action } from '@redux-ts-starter-kit/slice';
-import { AnyAction } from 'redux';
+import { AnyAction, Middleware } from 'redux';
 
 export function isPlain(
   val: any,
@@ -73,19 +73,9 @@ export function findNonSerializableValue<O extends { [x: string]: any }>(
 
 export default function createSerializableStateInvariantMiddleware(
   options: {
-    isSerializable?:
-      | ((
-          val: any,
-        ) => val is
-          | string
-          | number
-          | boolean
-          | any[]
-          | { [x: string]: any }
-          | undefined)
-      | undefined;
+    isSerializable?: typeof isPlain;
   } = {},
-) {
+): Middleware {
   const { isSerializable = isPlain } = options;
 
   return (storeAPI: { getState: () => any }) => (
