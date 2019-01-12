@@ -254,7 +254,7 @@ describe('multiple createSlice slices used to create a redux store', () => {
 
   const formSlice = createSlice({
     cases: {
-      setName: (state, name: string, _: IState) => {
+      setName: (state, name: string) => {
         state.name = name;
       },
       setSurname: (state, surname: string) => {
