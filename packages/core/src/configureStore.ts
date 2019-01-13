@@ -29,8 +29,6 @@ export function getDefaultMiddleware(isProduction = IS_PRODUCTION) {
       ];
 }
 
-// type PS<S, P extends S =  S> = DeepPartial<P>
-
 /**
  * An options object which [configureStore] accepts as it's sole argument.
  *
@@ -39,7 +37,7 @@ export function getDefaultMiddleware(isProduction = IS_PRODUCTION) {
  * @template A The type of actions which may be dispatched.
  * @template PS The preloaded State, Same as `S`, The type of state to be held by the store.
  */
-interface ConfigureStoreOptions<S, A extends Action, PS> {
+interface ConfigureStoreOptions<S, A extends Action> {
   /**
    * @param reducer A function or an object of functions
    *  that returns the next state tree, given the
@@ -56,10 +54,10 @@ interface ConfigureStoreOptions<S, A extends Action, PS> {
    *   the `reducer` param, this must be an object with the same
    *   shape as `reducer` keys.
    *
-   * @type {DeepPartial<PS>}
+   * @type {DeepPartial<S>}
    * @memberof ConfigureStoreOptions
    */
-  preloadedState?: DeepPartial<PS>; // ensures preloadedState's inferred type does not overide S
+  preloadedState?: DeepPartial<S extends any ? S : S>; // ensures preloadedState's inferred type does not overide S
   /**
    * @param [middleware] An array of middlewares. A middleware is a higher-order function that
    *  composes a dispatch function
@@ -99,18 +97,23 @@ interface ConfigureStoreOptions<S, A extends Action, PS> {
  * @template StateExt State extension that is mixed into the state type.
  * @template PS The preloaded State, Same as `S`, The type of state to be held by the store.
  * @param {ConfigureStoreOptions<S,PS>} [options={} as any]
- * @returns {[Store<S & StateExt, A> & Ext, Reducer<S, AnyAction>]} [store,rootReducer]
+ * @returns {Store<S & StateExt, A> & Ext} store
  */
-export function configureStore<S, A extends Action = Action, PS extends S = S>(
-  options: ConfigureStoreOptions<S, A, PS> = {} as any,
-) {
-  const {
+export function configureStore<
+  S,
+  A extends Action = Action,
+  Ext extends {} = {},
+  StateExt = {}
+>(
+  {
     reducer,
     middleware = getDefaultMiddleware(),
     devTools = true,
     preloadedState,
     enhancers = [],
-  } = options;
+  }: ConfigureStoreOptions<S, A> = {} as any,
+) {
+  // const  = options;
   let rootReducer;
 
   if (typeof reducer === 'function') {
@@ -129,7 +132,7 @@ export function configureStore<S, A extends Action = Action, PS extends S = S>(
 
   const finalCompose: (
     ...funcs: Array<(...args: any[]) => any>
-  ) => StoreEnhancer =
+  ) => StoreEnhancer<Ext, StateExt> =
     devTools === true
       ? composeWithDevTools({
           // Enable capture of stack traces for dispatched Redux actions
@@ -139,11 +142,10 @@ export function configureStore<S, A extends Action = Action, PS extends S = S>(
 
   const composedEnhancer = finalCompose(...storeEnhancers);
 
-  const store = createStore(
+  const store = createStore<S, A, Ext, StateExt>(
     rootReducer,
-    preloadedState as DeepPartial<S>,
+    preloadedState,
     composedEnhancer,
   );
-
-  return [store, rootReducer,] as [typeof store, typeof rootReducer];
+  return store;
 }

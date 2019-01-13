@@ -64,3 +64,8 @@ console.log(
   getAuth(store.getState()),
   '\n***************\n',
 );
+
+// console.log(
+//   '\n\n\nrootReducer Check: ',
+//   store.rootReducer(store.getState(), { type: 'dfdf' }),
+// );
