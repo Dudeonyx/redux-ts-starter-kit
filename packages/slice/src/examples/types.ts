@@ -27,16 +27,18 @@ const defaultState = {
 
 export const {
   actions: fhjk,
-  selectors: sgjfgkfl,
+  selectors: hiSelector,
   reducer: rgsgsggf,
+  slice: sfdf,
 } = createSlice({
   slice: 'hi',
   cases: {
     set: (state, payload: any[]) => payload,
-    reset: (state) => ['defaultState', 'jhj',],
+    reset: () => ['defaultState', 'jhj',],
   },
-  initialState: [],
+  initialState: [] as string[],
 });
+
 const { actions, selectors, reducer } = createSlice<
   Actions,
   HiSliceState,
@@ -52,6 +54,12 @@ const { actions, selectors, reducer } = createSlice<
 
 const val = selectors.getSlice({
   hi: defaultState,
+  auth: {} as AuthSliceState,
+  ords: {} as IordersReducerState,
+});
+
+hiSelector.getSlice({
+  hi: ['',],
   auth: {} as AuthSliceState,
   ords: {} as IordersReducerState,
 });
@@ -128,7 +136,7 @@ export interface AuthActions$ {
 }
 
 const slice = 'auth';
-const auth$ = createSlice<AuthActions$, AuthSliceState, IState>({
+const auth$ = createSlice<AuthActions$, AuthSliceState, any>({
   slice,
   initialState,
   cases: {
@@ -163,7 +171,7 @@ export const {
     userId: getAuthUserId$,
   },
 } = auth$;
-
+// getAuth$({auth: {} as AuthSliceState,})
 const auth$NoInterface = createSlice({
   slice: 'auth',
   initialState,

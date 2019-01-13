@@ -1,11 +1,11 @@
 import { createAction } from './action';
-import { createReducer, NoEmptyArray } from './reducer';
+import { createReducer } from './reducer';
 import { createSubSelector, createSelector } from './selector';
 import { Action } from './types';
 import { actionTypeBuilder } from './actionTypeBuilder';
 
 /** fix for `let` initialised `slice` */
-type NoBadState<S> = S extends { [x: string]: {} } ? AnyState : S;
+type NoBadState<S> = { [x: string]: {} } extends S ? AnyState : S;
 
 /** Type alias for case reducers when `slice` is blank or undefined */
 type CaseReducer<SS = any, A = any> = (
@@ -152,8 +152,14 @@ interface InputWithOptionalSlice<SS = any, Ax = ActionsAny, S = any>
   slice?: keyof S;
 }
 
+type InferState<Slc extends keyof S, S, SS> = unknown extends S
+  ? AnyState
+  : unknown extends S[Slc]
+  ? ({ [key in Slc]: SS } & AnyState)
+  : S;
+
 /**
- * @description Generates a redux state tree slice, complete with a r`educer]`,
+ * @description Generates a redux state tree slice, complete with a `reducer`,
  *  `action creators` and `selectors`
  *
  * @export
@@ -166,11 +172,11 @@ interface InputWithOptionalSlice<SS = any, Ax = ActionsAny, S = any>
  *
  * @template State - The interface of the entire redux state tree
  *
- * @param {{cases: Cases<SS, Ax>, initialState: SS, slice: string}} {{
+ * @param {{cases: Cases<SS, Ax>, initialState: SS, slice: string}} {
  *   cases,
  *   initialState,
  *   slice
- * }}
+ * }
  *
  * @returns {Slice<
  *   Actions,
@@ -192,9 +198,9 @@ export function createSlice<
   cases,
   initialState,
   slice,
-}: InputWithBlankSlice<NoEmptyArray<SliceState>, Actions>): Slice<
+}: InputWithBlankSlice<SliceState, Actions>): Slice<
   Actions,
-  NoEmptyArray<SliceState>,
+  SliceState,
   State,
   ''
 >;
@@ -207,10 +213,10 @@ export function createSlice<
   cases,
   initialState,
   slice,
-}: InputWithSlice<NoEmptyArray<SliceState>, Actions, State>): Slice<
+}: InputWithSlice<SliceState, Actions, State>): Slice<
   Actions,
-  NoEmptyArray<SliceState>,
-  State,
+  SliceState,
+  InferState<typeof slice, State, SliceState>,
   typeof slice
 >;
 
@@ -221,10 +227,10 @@ export function createSlice<
 >({
   cases,
   initialState,
-}: InputWithoutSlice<NoEmptyArray<SliceState>, Actions>): Slice<
+}: InputWithoutSlice<SliceState, Actions>): Slice<
   Actions,
-  NoEmptyArray<SliceState>,
-  NoEmptyArray<SliceState>,
+  SliceState,
+  SliceState,
   ''
 >;
 
@@ -236,11 +242,11 @@ export function createSlice<
   cases,
   initialState,
   slice = '',
-}: InputWithOptionalSlice<NoEmptyArray<SliceState>, Actions, State>) {
+}: InputWithOptionalSlice<SliceState, Actions, State>) {
   const actionKeys = Object.keys(cases) as Array<keyof Actions>;
   const createActionType = actionTypeBuilder(slice);
 
-  const reducerMap = actionKeys.reduce<ReducerMap<NoEmptyArray<SliceState>>>(
+  const reducerMap = actionKeys.reduce<ReducerMap<SliceState>>(
     (map, action) => {
       map[createActionType(action)] = cases[action];
       return map;
