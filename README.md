@@ -38,7 +38,7 @@ This package is _not_ intended to solve every possible complaint about Redux, an
 - When stringifying action creators they return the action type
 - Helper functions for manually creating actions and reducers
 - Reducers do not receive entire action object, only payload
-- Advanced type inferrence, minimizing the need to create one-off interfaces. _Note: supplying interfaces is largely not required but recommended as good practice_
+- Advanced type inferrence, minimizing the need to create one-off interfaces. _Note: supplying interfaces is largely not required but highly recommended_
 
 ## Why not X
 
@@ -48,7 +48,7 @@ This library was heavily inspired by [autodux](https://github.com/ericelliott/au
 
 ## Example
 
-```js
+```typescript
 import { configureStore, createSlice } from '@redux-ts-starter-kit/core';
 
 
@@ -99,8 +99,7 @@ const user = createSlice<UserActions, User, State>({
 })
 
 
-// configureStore returns an array, with the store in first index and the created rootReducer in the second,
-const [store, rootReducer] = configureStore({  
+const store = configureStore({  
     reducer: {            // <- can be a single reducer or an object of reducers
       counter: counter.reducer,  
       user: user.reducer,
@@ -137,7 +136,7 @@ console.log(user.selectors.name(state));
 
   A friendlier abstraction over the standard Redux createStore function. Takes a single configuration object parameter, with the following options:
 
-```js
+```typescript
 function configureStore({
     // A single reducer function that will be used as the root reducer,
     // or an object of slice reducers that will be passed to combineReducers()
@@ -147,65 +146,24 @@ function configureStore({
     // Built-in support for devtools. Defaults to true.
     devTools: boolean,
     // Same as current createStore.
-    preloadedState : State,
+    preloadedState: State,
     // Same as current createStore.
-    enhancer : ReduxStoreEnhancer,
+    enhancer: ReduxStoreEnhancer,
 })
 ```
 
-### IMPORTANT
+### ~~IMPORTANT~~
 
-  **Note: A key difference between `configureStore` from `redux-starter-kit` and this `configureStore` from `@redux-ts-starter-kit/core` is that while `redux-starter-kit`'s `configureStore` returns only the created `store`, `@redux-ts-starter-kit/core`'s `configureStore` returns a tuple array containing the created store and the final root reducer.**
-  **This was inspired by react hooks api and enables the user to access and unit test the root reducer**
-  **Index 0 (i.e the first element of the array) is the store, and the second(index 1) is the root reducer**
+  ~~**Note: A key difference between `configureStore` from `redux-starter-kit` and this `configureStore` from `@redux-ts-starter-kit/core` is that while `redux-starter-kit`'s `configureStore` returns only the created `store`, `@redux-ts-starter-kit/core`'s `configureStore` returns a tuple array containing the created store and the final root reducer.**~~
+  ~~**This was inspired by react hooks api and enables the user to access and unit test the root reducer**~~
+  ~~**Index 0 (i.e the first element of the array) is the store, and the second(index 1) is the root reducer**~~
 
-  ```js
-  import { configureStore } from '@redux-ts-starter-kit/core'
+  **Note: `configureStore` no longer returns a tuple array as of `v1.0.0`**
 
-  const [store, rootReducer] = configureStore({
-    //.....
-    //.....
-  });
-
-  const state = store.getState();
-  ```
-
-Much like react hooks, array destructuring means you can use any name for the store / root reducer
-i.e the following is still valid
-
-```js
-  const [myStore, myRootReducer] = configureStore({
-    //.....
-    //.....
-  });
-  const [custom, name] = configureStore({
-    //.....
-    //.....
-  });
-
-```
-
-You can even leave out the second element i.e the root reducer
-
-```js
-  const [store] = configureStore({
-    //.....
-    //.....
-  });
-```
-
-Or the first element(i.e the store) *note the starting comma*
-
-```js
-  const [,rootReducer] = configureStore({
-    //.....
-    //.....
-  });
-```
 
 ### Basic Usage
 
-```js
+```typescript
 import { configureStore } from '@redux-ts-starter-kit/core'
 
 import rootReducer from './reducers'
@@ -216,7 +174,7 @@ const store = configureStore({ reducer: rootReducer })
 
 ### Full Example
 
-```js
+```typescript
 import { configureStore, getDefaultMiddleware } from '@redux-ts-starter-kit/core'
 
 // We'll use redux-logger just as an example of adding another middleware
@@ -249,7 +207,7 @@ const preloadedState = {
   visibilityFilter: 'SHOW_COMPLETED'
 }
 
-const [store] = configureStore({
+const store = configureStore({
   reducer,
   middleware,
   devTools: NODE_ENV !== 'production',
@@ -276,9 +234,9 @@ A function that accepts an initial state, an object full of reducer functions, a
 
 The reducers will be wrapped in the `createReducer()` utility, and so they can safely "mutate" the state they are given.
 
-#### Please use `const` if initialising `slice` outside createSlice
+**IMPORTANT: For proper typing support please use `const` if initialising `slice` outside `createSlice`**
 
-```js
+```typescript
 function createSlice<Actions, SliceState, State>({
     // A object of function that will be used as cases for the returned reducer,
     // is used to generate action creators that trigger the corresponding case
@@ -292,7 +250,7 @@ function createSlice<Actions, SliceState, State>({
 
 ### General Usage
 
-```js
+```typescript
 import { createSlice } from '@redux-ts-starter-kit/slice';
 
   interface IState {
@@ -337,9 +295,9 @@ import { createSlice } from '@redux-ts-starter-kit/slice';
   });
 ```
 
-OR leveraging it's type inferrence if you're feeling lazy. Not recommended.
+OR leveraging it's type inferrence if you're feeling lazy.
 
-```js
+```typescript
   import { createSlice } from '@redux-ts-starter-kit/slice';
 
   interface IState {
@@ -421,7 +379,7 @@ Note:
 
 - The returned action creators accept only a single argument as payload, i.e a case in the form `(state,payload1,payload2)=>{}` is invalid. If you need to pass multple arguments use an object or array to pass them.
 
-```js
+```typescript
 const hiSlice = createSlice({
     slice: 'hi',
     initialState: hiInitialState,
@@ -465,7 +423,7 @@ A reducer function, works exactly the same as a standard reducer
 An object of action creators with the same name as the corresponding case.
 You can see this in action in the hiSlice example above, it's actions object has the following type signature
 
-```js
+```typescript
 
   {
     setGreeting: (payload: string) => ({type: 'hi/SET_GREETING', payload: string})
@@ -481,7 +439,7 @@ You can see this in action in the hiSlice example above, it's actions object has
 
 An object containing the generated selector(s), always includes a selector called getSlice that selects it's slice state from the state, if the initial state is an object additional selectors are generated with the same names as the corresponding initial state keys
 
-```js
+```typescript
 import { createSlice } from '@redux-ts-starter-kit/core';
 import { SliceState, Actions, State } from './types';
 
@@ -540,7 +498,7 @@ when not using createSlice because when stringifying the function it will return
 This allows developers to not have to worry about passing around action types, instead they simply
 pass around action creators for reducers, sagas, etc.
 
-```js
+```typescript
 import { createAction } from '@redux-ts-starter-kit/core';
 
 const increment = createAction('INCREMENT');
@@ -550,10 +508,12 @@ console.log(increment(2));
 ->> { type: 'INCREMENT', payload: 2 };
 
 const storeDetails = createAction('STORE_DETAILS');
+
 console.log(storeDetails);
 ->> 'STORE_DETAILS'
+
 console.log(storeDetails({ name: 'John', surname: 'Doe' }));
- ->> { type: 'INCREMENT', payload: {name: 'John', surname: 'Doe'} };
+ ->> { type: 'STORE_DETAILS', payload: {name: 'John', surname: 'Doe'} };
 ```
 
 ### createReducer
@@ -561,7 +521,7 @@ console.log(storeDetails({ name: 'John', surname: 'Doe' }));
 This is the helper function that `createSlice` uses to create a reducer. This function maps action types
 to reducer functions. It will return a reducer.
 
-```js
+```typescript
 import { createReducer } from '@redux-ts-starter-kit/core';
 
 const counter = createReducer({

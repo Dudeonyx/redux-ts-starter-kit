@@ -2,7 +2,7 @@
   "name": "@redux-ts-starter-kit/slice",
   "version": "0.3.0-alpha.1",
   "main": "lib/redux-ts-starter-kit-slice.cjs.js",
-  "module": "lib/redux-ts-starter-kit-slice.es.js",
+  "module": "lib/redux-ts-starter-kit-slice.esm.js",
   "types": "lib/index.d.ts",
   "files": [
     "lib"
@@ -43,8 +43,10 @@
   "devDependencies": {
     "@types/jest": "^23.3.11",
     "@types/node": "^10.12.18",
+    "@types/redux-thunk": "^2.1.0",
     "babel-core": "^6.0.0 || ^7.0.0-0",
     "babel-jest": "^23.0.0 || ^24.0.0",
+    "cpx": "^1.5.0",
     "husky": "^1.3.1",
     "jest": "^23.6.0",
     "lint-staged": "^8.1.0",

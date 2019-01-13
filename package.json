@@ -6,6 +6,7 @@
     "bootstrap": "lerna bootstrap",
     "clean": "lerna run clean",
     "build": "lerna run build",
+    "copyReadMe": "yarn run cpx ./packages/core/README.md .",
     "prepublish": "yarn test",
     "publish": "lerna publish"
   },
