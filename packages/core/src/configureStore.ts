@@ -20,20 +20,13 @@ import isPlainObject from './isPlainObject';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 export function getDefaultMiddleware(isProduction = IS_PRODUCTION) {
-  const middlewareArray = [thunk,];
-  let middlewareArrayPlus;
-
-  if (!isProduction) {
-    middlewareArrayPlus = [
-      createImmutableStateInvariantMiddleware(),
-      thunk,
-      createSerializableStateInvariantMiddleware(),
-    ];
-  }
-
-  return middlewareArrayPlus === undefined
-    ? middlewareArray
-    : middlewareArrayPlus;
+  return isProduction
+    ? [thunk,]
+    : [
+        createImmutableStateInvariantMiddleware(),
+        thunk,
+        createSerializableStateInvariantMiddleware(),
+      ];
 }
 
 // type PS<S, P extends S =  S> = DeepPartial<P>
