@@ -1,9 +1,15 @@
-41 error Error: Command failed: git commit -m v0.1.10
-41 error On branch master
-41 error Your branch is ahead of 'origin/master' by 1 commit.
-41 error   (use "git push" to publish your local commits)
-41 error
-41 error nothing to commit, working tree clean
-41 error
-41 error     at makeError (C:\github\redux-ts-starter-kit\node_modules\execa\index.js:174:9)
-41 error     at Promise.all.then.arr (C:\github\redux-ts-starter-kit\node_modules\execa\index.js:278:16)
+0 silly argv { _: [ 'add' ],
+0 silly argv   globs: [],
+0 silly argv   lernaVersion: '3.8.5',
+0 silly argv   '$0':
+0 silly argv    'C:\\Users\\Dudeonyx\\AppData\\Local\\Yarn\\Data\\global\\node_modules\\lerna\\cli.js',
+0 silly argv   pkg: 'cpx' }
+1 notice cli v3.8.5
+2 verbose rootPath C:\github\redux-ts-starter-kit
+3 error FetchError: request to https://registry.npmjs.org/cpx failed, reason: getaddrinfo ENOTFOUND registry.npmjs.org registry.npmjs.org:443
+3 error     at ClientRequest.req.on.err (C:\github\redux-ts-starter-kit\node_modules\node-fetch-npm\src\index.js:68:14)
+3 error     at ClientRequest.emit (events.js:182:13)
+3 error     at TLSSocket.socketErrorListener (_http_client.js:391:9)
+3 error     at TLSSocket.emit (events.js:182:13)
+3 error     at emitErrorNT (internal/streams/destroy.js:82:8)
+3 error     at emitErrorAndCloseNT (internal/streams/destroy.js:50:3)
