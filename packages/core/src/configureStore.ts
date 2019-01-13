@@ -35,7 +35,6 @@ export function getDefaultMiddleware(isProduction = IS_PRODUCTION) {
  * @interface ConfigureStoreOptions
  * @template S  The type of state to be held by the store.
  * @template A The type of actions which may be dispatched.
- * @template PS The preloaded State, Same as `S`, The type of state to be held by the store.
  */
 interface ConfigureStoreOptions<S, A extends Action> {
   /**
@@ -95,7 +94,6 @@ interface ConfigureStoreOptions<S, A extends Action> {
  * @template A The type of actions which may be dispatched.
  * @template Ext Store extension that is mixed in to the Store type.
  * @template StateExt State extension that is mixed into the state type.
- * @template PS The preloaded State, Same as `S`, The type of state to be held by the store.
  * @param {ConfigureStoreOptions<S,PS>} [options={} as any]
  * @returns {Store<S & StateExt, A> & Ext} store
  */
