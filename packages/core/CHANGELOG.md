@@ -1,5 +1,9 @@
 # CHANGES
 
+## v0.1.14
+
+* :sparkles: fixed `store` becoming type `any` when the `rootReducer` is also destructured
+
 ## v0.1.13
 
 * :sparkles: fixed preloadedState type inference
