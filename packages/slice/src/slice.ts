@@ -5,7 +5,7 @@ import { Action } from './types';
 import { actionTypeBuilder } from './actionTypeBuilder';
 
 /** fix for `let` initialised `slice` */
-type NoBadState<S> = S extends { [x: string]: {} } ? AnyState : S;
+type NoBadState<S> = { [x: string]: {} } extends S ? AnyState : S;
 
 /** Type alias for case reducers when `slice` is blank or undefined */
 type CaseReducer<SS = any, A = any> = (
