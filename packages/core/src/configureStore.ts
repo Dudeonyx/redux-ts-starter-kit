@@ -108,13 +108,9 @@ interface ConfigureStoreOptions<S, A extends Action, PS> {
  * @param {ConfigureStoreOptions<S,PS>} [options={} as any]
  * @returns {[Store<S & StateExt, A> & Ext, Reducer<S, AnyAction>]} [store,rootReducer]
  */
-export function configureStore<
-  S,
-  A extends Action,
-  Ext,
-  StateExt,
-  PS extends S = S
->(options: ConfigureStoreOptions<S, A, PS> = {} as any) {
+export function configureStore<S, A extends Action = Action, PS extends S = S>(
+  options: ConfigureStoreOptions<S, A, PS> = {} as any,
+) {
   const {
     reducer,
     middleware = getDefaultMiddleware(),
@@ -150,10 +146,10 @@ export function configureStore<
 
   const composedEnhancer = finalCompose(...storeEnhancers);
 
-  const store = createStore<S, A, Ext, StateExt>(
+  const store = createStore(
     rootReducer,
     preloadedState as DeepPartial<S>,
-    composedEnhancer as StoreEnhancer<Ext, StateExt>,
+    composedEnhancer,
   );
 
   return [store, rootReducer,] as [typeof store, typeof rootReducer];

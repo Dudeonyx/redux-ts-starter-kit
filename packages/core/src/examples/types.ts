@@ -77,7 +77,7 @@ export const auth = createSlice({
   slice: 'auth',
   initialState,
   cases: {
-    authFail: (state, error: Error, _: IState) => {
+    authFail: (state, error: Error) => {
       state.error = error;
       state.authenticating = false;
     },
@@ -120,7 +120,7 @@ const ordersRobodux = createSlice({
   slice: 'ords',
   initialState: initialStateOeds,
   cases: {
-    setOrders: (state, orders: IDbOrders, _: IState) => {
+    setOrders: (state, orders: IDbOrders) => {
       state.error = false;
       state.orders = orders;
       state.loading = false;
@@ -147,7 +147,7 @@ export const {
   },
 } = ordersRobodux;
 
-export const [store,] = configureStore({
+export const [store, dfdf,] = configureStore({
   reducer: {
     hi: hiReducer,
     auth: authReducer,
