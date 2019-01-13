@@ -155,7 +155,7 @@ interface InputWithOptionalSlice<SS = any, Ax = ActionsAny, S = any>
 type InferState<Slc extends keyof S, S, SS> = unknown extends S
   ? AnyState
   : unknown extends S[Slc]
-  ? ({ [key in Slc]: SS } & AnyState)
+  ? { [key in Slc]: SS }
   : S;
 
 /**
