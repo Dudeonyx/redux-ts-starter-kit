@@ -8,7 +8,7 @@
       "composite": true,
       "noImplicitAny": true,
       "noUnusedLocals": true,
-      "removeComments": true,
+      "removeComments": false,
       "preserveConstEnums": true,
       "lib": ["es2016"],
       "esModuleInterop": true
