@@ -1,5 +1,10 @@
 import { createSlice } from '../slice';
-import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
+import {
+  combineReducers,
+  createStore,
+  applyMiddleware,
+  Dispatch,
+} from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { createReducer } from '../reducer';
@@ -27,7 +32,7 @@ const defaultState = {
 
 export const {
   actions: fhjk,
-  selectors: hiSelector,
+  selectors: hiSelector$,
   reducer: rgsgsggf,
   slice: sfdf,
 } = createSlice({
@@ -38,12 +43,18 @@ export const {
   },
   initialState: [] as string[],
 });
+const hiArray = {
+  hi: ['',],
+  auth: { error: null, authenticating: false } as AuthSliceState,
+  ords: {} as IordersReducerState,
+};
+hiSelector$.getSlice(hiArray);
 
-const { actions, selectors, reducer } = createSlice<
-  Actions,
-  HiSliceState,
-  IState
->({
+export const {
+  actions: hiActions,
+  selectors: hiSelectors,
+  reducer: hiReducer,
+} = createSlice<Actions, HiSliceState, IState>({
   slice: 'hi',
   cases: {
     set: (state, payload) => payload,
@@ -52,20 +63,15 @@ const { actions, selectors, reducer } = createSlice<
   initialState: defaultState,
 });
 
-const val = selectors.getSlice({
+const val = hiSelectors.getSlice({
   hi: defaultState,
   auth: {} as AuthSliceState,
   ords: {} as IordersReducerState,
 });
 
-hiSelector.getSlice({
-  hi: ['',],
-  auth: {} as AuthSliceState,
-  ords: {} as IordersReducerState,
-});
-actions.set({ test: 'ok', wow: 0 });
-actions.reset();
-const red = reducer;
+hiActions.set({ test: 'ok', wow: 0 });
+hiActions.reset();
+const red = hiReducer;
 
 console.log('\nHi selector: ', val, '\nHi reducer', red);
 
@@ -263,14 +269,14 @@ export const {
 } = orderSlice;
 
 const rootReducer = combineReducers<IState>({
-  hi: reducer,
+  hi: hiReducer,
   auth: authReducer,
   ords: ordersReducer,
 });
 
-const store = createStore(rootReducer, applyMiddleware(thunk));
+export const store = createStore(rootReducer, applyMiddleware(thunk));
 
-const thunkAuthLogout = () => (dispatch: Dispatch, getState: () => IState) => {
+const thunkAuthLogout = async () => async (dispatch: Dispatch, getState: () => IState) => {
   setTimeout(() => {
     dispatch(authLogout());
     console.log('\n\nThunk!!!\n\n You\'ve been logged out!');
@@ -278,41 +284,14 @@ const thunkAuthLogout = () => (dispatch: Dispatch, getState: () => IState) => {
 };
 
 console.log('\n\n[auth object]\n', auth, '\n\n');
-/* 
-[auth object]
- { 
-   actions: { 
-     authFail: { [Function: action] toString: [Function] },
-     authLogout: { [Function: action] toString: [Function] },
-     authStart: { [Function: action] toString: [Function] },
-     authSuccess: { [Function: action] toString: [Function] } 
-    },
-  reducer: { [Function: reducer] toString: [Function] },
-  slice: 'auth',
-  selectors: { getAuth: [Function] }
- }
- */
+
 console.log('[authLogout action creator]\n', authLogout(), '\n');
-/* 
-[authLogout action creator]
-{ type: 'auth/authLogout', payload: undefined }
-*/
 
 console.log(
   '[authSuccess actionCreator]\n',
   authSuccess({ idToken: 'really Long Token', userId: 'It\'s Me' }),
   '\n',
 );
-/* 
-[authSuccess actionCreator] 
-{ 
-  type: 'auth/authSuccess',
-  payload: { 
-    idToken: 'really Long Token',
-    userId: 'It's Me'
-    } 
-} 
-  */
 
 console.log(
   '\n[authStart action dispatched]\n',
@@ -325,20 +304,6 @@ console.log(
   getAuthAuthenticating(store.getState()),
   '\n',
 );
-/* 
-   [authStart action dispatched]
-
-   Action: { type: 'auth/authStart', payload: undefined }
-   
-   New Auth State: { 
-     idToken: '',
-     userId: '',
-     authenticating: true, <- modified by authStart action
-     error: null 
-    }
-
-    authenticating selector:  true
-    */
 
 console.log(
   '\n[start: authSuccess action dispatched]\n',
@@ -355,58 +320,11 @@ console.log(
   '\n*** You\'ve logged in successfully!***\n',
 );
 
-/* 
-[start: authSuccess action dispatched]
- Action:  { 
-  type: 'auth/authSuccess',
-  payload: {
-    idToken: 'really Long Token',
-    userId: 'It's Me'
-  }
-}
-
-New Auth State:  {
-  idToken: 'really Long Token',
-  userId: 'It's Me',
-  authenticating: false,
-  error: null
-}
-
-Auth idToken selector:  'really Long Token'
-
-Auth userId selector:  'It's Me'
-
-*** You've logged in successfully!***
-*/
-
 console.log(
-  '\n[Thunk dispatched]\n',
+  '\n[Logout Thunk dispatched]\n',
   '\nAction: ',
   store.dispatch(thunkAuthLogout() as any),
   '\nUnchanged Auth State: ',
   getAuth(store.getState()),
   '\n***************\n',
 );
-/* 
-[Thunk dispatched]
-
-Action:  undefined
-
-Unchanged Auth State: {
-  idToken: 'really Long Token',
-  userId: 'It's Me',
-  authenticating: false,
-  error: null
-}
-
-***************
-
-
-**AFTER A DELAY OF 15 SECONDS**
-
-
-Thunk!!!
-
- You've been logged out!
- 
-  */
