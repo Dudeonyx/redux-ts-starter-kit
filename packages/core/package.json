@@ -25,9 +25,10 @@
     "build": "yarn clean && rollup -c",
     "clean": "rimraf lib .rpt2_cache",
     "test": "yarn run typecheck:tests && yarn run jest",
+    "test:watch": "yarn run typecheck:tests && yarn run jest --watch",
     "prepublish": "yarn build",
     "typecheck:tests": "yarn run tsc -p ./src/tests --noEmit",
-    "prettier": "prettier --write src/**/*.ts",
+    "lint": "prettier-tslint fix src/**/*.ts",
     "example": "ts-node ./src/examples/sample.ts"
   },
   "keywords": [
@@ -53,6 +54,7 @@
     "jest": "^23.6.0",
     "lint-staged": "^8.1.0",
     "prettier": "1.15.3",
+    "prettier-tslint": "^0.4.2",
     "rimraf": "^2.6.3",
     "rollup": "^1.0.1",
     "rollup-plugin-babel": "^3.0.3",
@@ -82,9 +84,15 @@
       "pre-commit": "lint-staged"
     }
   },
+  "prettier": {
+    "arrowParens": "always",
+    "singleQuote": true,
+    "printWidth": 80,
+    "trailingComma": "all"
+  },
   "lint-staged": {
-    "*.ts": [
-      "prettier --write",
+    "*.{ts}": [
+      "prettier-tslint fix",
       "git add"
     ]
   }
