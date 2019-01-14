@@ -35,14 +35,14 @@ export interface CreateReducer<S = any> {
   slice?: string;
 }
 /** fix for `never[]` */
-export type NoEmptyArray<State> = State extends never[] ? any[] : State;
+// export type NoEmptyArray<State> = State extends never[] ? any[] : State;
 
 /**
  * Creates a simple reducer
  *
  * @export
  * @template S - The [State]
- * @param {CreateReducer<NoEmptyArray<S>>} {
+ * @param {CreateReducer<S>} {
  *   initialState,
  *   cases,
  *   slice = '',
@@ -53,13 +53,13 @@ export function createReducer<S>({
   initialState,
   cases,
   slice = '',
-}: CreateReducer<NoEmptyArray<S>>) {
+}: CreateReducer<S>) {
   const reducer = (state = initialState, action: Action<any>) => {
     return createNextState(state, (draft) => {
       const caseReducer = cases[action.type];
 
       if (caseReducer) {
-        return caseReducer(draft as NoEmptyArray<S>, action.payload);
+        return caseReducer(draft as S, action.payload);
       }
 
       return draft;

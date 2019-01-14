@@ -4,15 +4,20 @@ import * as devtools from 'redux-devtools-extension';
 
 import thunk from 'redux-thunk';
 import { createSlice } from '@redux-ts-starter-kit/slice';
-// import immutableStateInvariant from 'redux-immutable-state-invariant'
 
 describe('getDefaultMiddleware', () => {
+  const ORIGINAL_NODE_ENV = process.env.NODE_ENV;
+
+  afterEach(() => {
+    process.env.NODE_ENV = ORIGINAL_NODE_ENV;
+  });
   it('returns an array with only redux-thunk in production', () => {
-    expect(getDefaultMiddleware(true)).toEqual([thunk,]);
+    process.env.NODE_ENV = 'production';
+    expect(getDefaultMiddleware()).toEqual([thunk,]);
   });
 
   it('returns an array with additional middleware in development', () => {
-    const middleware = getDefaultMiddleware(false);
+    const middleware = getDefaultMiddleware();
     expect(middleware).toContain(thunk);
     expect(middleware.length).toBeGreaterThan(1);
   });
@@ -72,7 +77,9 @@ describe('configureStore', () => {
 
   describe('given no middleware', () => {
     it('calls createStore without any middleware', () => {
-      expect(configureStore({ middleware: [], reducer })).toBeInstanceOf(Array);
+      expect(configureStore({ middleware: [], reducer })).toBeInstanceOf(
+        Object,
+      );
       expect(redux.applyMiddleware).toHaveBeenCalledWith();
       expect(devtools.composeWithDevTools).toHaveBeenCalled();
       expect(redux.createStore).toHaveBeenCalledWith(
@@ -89,7 +96,7 @@ describe('configureStore', () => {
         action: any,
       ) => next(action);
       expect(configureStore({ middleware: [thank,], reducer })).toBeInstanceOf(
-        Array,
+        Object,
       );
       expect(redux.applyMiddleware).toHaveBeenCalledWith(thank);
       expect(devtools.composeWithDevTools).toHaveBeenCalled();
@@ -104,7 +111,7 @@ describe('configureStore', () => {
   describe('with devTools disabled', () => {
     it('calls createStore without devTools enhancer', () => {
       expect(configureStore({ devTools: false, reducer })).toBeInstanceOf(
-        Array,
+        Object,
       );
       expect(redux.applyMiddleware).toHaveBeenCalled();
       expect(redux.compose).toHaveBeenCalled();
@@ -133,7 +140,7 @@ describe('configureStore', () => {
     it('calls createStore with enhancers', () => {
       const enhancer = (next: any) => next;
       expect(configureStore({ enhancers: [enhancer,], reducer })).toBeInstanceOf(
-        Array,
+        Object,
       );
       expect(redux.applyMiddleware).toHaveBeenCalled();
       expect(devtools.composeWithDevTools).toHaveBeenCalled();
@@ -244,7 +251,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     },
   });
 
-  const [store, rootReducer,] = configureStore({
+  const store = configureStore({
     reducer: {
       auth: authSlice.reducer,
       form: formSlice.reducer,
@@ -252,258 +259,6 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     },
   });
 
-  it('returns the combined initial states', () => {
-    expect(rootReducer(undefined, { type: '@@invalid@@' })).toEqual({
-      form: {
-        name: '',
-        surname: '',
-        middlename: '',
-      },
-      hi: {
-        greeting: '',
-        waves: 0,
-      },
-      auth: {
-        idToken: '',
-        userId: '',
-      },
-    });
-  });
-
-  describe('rootReducer consumes actions correctly', () => {
-    describe('Actions in hiSlice', () => {
-      it('sets greeting in hi', () => {
-        expect(
-          rootReducer(undefined, hiSlice.actions.setGreeting('Kaydo!')),
-        ).toEqual({
-          form: {
-            name: '',
-            surname: '',
-            middlename: '',
-          },
-          hi: {
-            greeting: 'Kaydo!',
-            waves: 0,
-          },
-          auth: {
-            idToken: '',
-            userId: '',
-          },
-        });
-      });
-      it('sets waves in hi', () => {
-        expect(rootReducer(undefined, hiSlice.actions.setWaves(5))).toEqual({
-          form: {
-            name: '',
-            surname: '',
-            middlename: '',
-          },
-          hi: {
-            greeting: '',
-            waves: 5,
-          },
-          auth: {
-            idToken: '',
-            userId: '',
-          },
-        });
-      });
-      it('resets hi', () => {
-        expect(
-          rootReducer(
-            {
-              form: {
-                name: 'John',
-                surname: 'Doe',
-                middlename: 'Wayne',
-              },
-              hi: {
-                greeting: 'Kaydo!',
-                waves: 5,
-              },
-              auth: {
-                idToken: 'a random token',
-                userId: 'a user id',
-              },
-            },
-            hiSlice.actions.resetHi(),
-          ),
-        ).toEqual({
-          form: {
-            name: 'John',
-            surname: 'Doe',
-            middlename: 'Wayne',
-          },
-          hi: {
-            greeting: '',
-            waves: 0,
-          },
-          auth: {
-            idToken: 'a random token',
-            userId: 'a user id',
-          },
-        });
-      });
-    });
-    describe('Actions in formSlice', () => {
-      it('sets name in form', () => {
-        expect(
-          rootReducer(undefined, formSlice.actions.setName('John')),
-        ).toEqual({
-          form: {
-            name: 'John',
-            surname: '',
-            middlename: '',
-          },
-          hi: {
-            greeting: '',
-            waves: 0,
-          },
-          auth: {
-            idToken: '',
-            userId: '',
-          },
-        });
-      });
-      it('sets surname in form', () => {
-        expect(
-          rootReducer(undefined, formSlice.actions.setSurname('Wayne')),
-        ).toEqual({
-          form: {
-            name: '',
-            surname: 'Wayne',
-            middlename: '',
-          },
-          hi: {
-            greeting: '',
-            waves: 0,
-          },
-          auth: {
-            idToken: '',
-            userId: '',
-          },
-        });
-      });
-      it('sets name in form', () => {
-        expect(
-          rootReducer(undefined, formSlice.actions.setMiddlename('Doe')),
-        ).toEqual({
-          form: {
-            name: '',
-            surname: '',
-            middlename: 'Doe',
-          },
-          hi: {
-            greeting: '',
-            waves: 0,
-          },
-          auth: {
-            idToken: '',
-            userId: '',
-          },
-        });
-      });
-      it('resets form', () => {
-        expect(
-          rootReducer(
-            {
-              form: {
-                name: 'John',
-                surname: 'Wayne',
-                middlename: 'Doe',
-              },
-              hi: {
-                greeting: `S'up`,
-                waves: 5,
-              },
-              auth: {
-                idToken: 'a random token',
-                userId: 'a user id',
-              },
-            },
-            formSlice.actions.resetForm(),
-          ),
-        ).toEqual({
-          form: {
-            name: '',
-            surname: '',
-            middlename: '',
-          },
-          hi: {
-            greeting: `S'up`,
-            waves: 5,
-          },
-          auth: {
-            idToken: 'a random token',
-            userId: 'a user id',
-          },
-        });
-      });
-    });
-    describe('Actions in authSlice', () => {
-      it('sets userId and idToken in auth', () => {
-        expect(
-          rootReducer(
-            undefined,
-            authSlice.actions.authLogin({
-              idToken: 'a random token',
-              userId: 'a user id',
-            }),
-          ),
-        ).toEqual({
-          form: {
-            name: '',
-            surname: '',
-            middlename: '',
-          },
-          hi: {
-            greeting: '',
-            waves: 0,
-          },
-          auth: {
-            idToken: 'a random token',
-            userId: 'a user id',
-          },
-        });
-      });
-      it('resets userId and idToken in auth', () => {
-        expect(
-          rootReducer(
-            {
-              form: {
-                name: 'John',
-                surname: 'Wayne',
-                middlename: 'Doe',
-              },
-              hi: {
-                greeting: 'Kaydo!',
-                waves: 5,
-              },
-              auth: {
-                idToken: 'a random token',
-                userId: 'a user id',
-              },
-            },
-            authSlice.actions.authLogout(),
-          ),
-        ).toEqual({
-          form: {
-            name: 'John',
-            surname: 'Wayne',
-            middlename: 'Doe',
-          },
-          hi: {
-            greeting: 'Kaydo!',
-            waves: 5,
-          },
-          auth: {
-            idToken: '',
-            userId: '',
-          },
-        });
-      });
-    });
-  });
   describe('store dispatches actions correctly', () => {
     describe('Actions in hiSlice', () => {
       it('sets greeting in hi', () => {

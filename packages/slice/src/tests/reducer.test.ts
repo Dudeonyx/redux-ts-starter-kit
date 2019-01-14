@@ -19,7 +19,7 @@ describe('createReducer', () => {
     }
 
     const todosReducer = createReducer({
-      initialState: [],
+      initialState: [] as object[],
       cases: {
         ADD_TODO: addTodo,
         TOGGLE_TODO: toggleTodo,
@@ -49,8 +49,8 @@ describe('createReducer', () => {
       });
     }
 
-    const todosReducer = createReducer<any[]>({
-      initialState: [],
+    const todosReducer = createReducer({
+      initialState: [] as object[],
       cases: {
         ADD_TODO: addTodo,
         TOGGLE_TODO: toggleTodo,

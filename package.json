@@ -2,11 +2,15 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "test": "yarn build && lerna run test",
+    "test": "lerna run test",
+    "test:watch": "yarn run jest --watch",
+    "pretest": "yarn build",
     "bootstrap": "lerna bootstrap",
     "clean": "lerna run clean",
     "build": "lerna run build",
+    "copyReadMe": "yarn run cpx ./packages/core/README.md .",
     "prepublish": "yarn test",
+    "lint":"lerna run lint",
     "publish": "lerna publish"
   },
 

@@ -43,7 +43,7 @@ Note: This started as fork of robodux that was supposed to merged in a PR, but t
 
 ## Example
 
-```js
+```typescript
 import { createSlice } from '@redux-ts-starter-kit/slice';
 import { combineReducers, createStore} from 'redux';
 
@@ -138,9 +138,9 @@ A function that accepts an initial state, an object full of reducer functions, a
 
 The reducers will be wrapped in the `createReducer()` utility, and so they can safely "mutate" the state they are given.
 
-#### Please use `const` if initialising `slice` outside createSlice
+**IMPORTANT: For proper typing support please use `const` if initialising `slice` outside `createSlice`**
 
-```js
+```typescript
 function createSlice<Actions, SliceState, State>({
     // A object of function that will be used as cases for the returned reducer,
     // is used to generate action creators that trigger the corresponding case
@@ -154,7 +154,7 @@ function createSlice<Actions, SliceState, State>({
 
 ### General Usage
 
-```js
+```typescript
 import { createSlice } from '@redux-ts-starter-kit/slice';
 
   interface IState {
@@ -201,7 +201,7 @@ import { createSlice } from '@redux-ts-starter-kit/slice';
 
 OR leveraging it's type inferrence if you're feeling lazy. Not recommended.
 
-```js
+```typescript
   import { createSlice } from '@redux-ts-starter-kit/slice';
 
   interface IState {
@@ -283,7 +283,7 @@ Note:
 
 * The returned action creators accept only a single argument as payload, i.e a case in the form `(state,payload1,payload2)=>{}` is invalid. If you need to pass multple arguments use an object or array to pass them.
 
-```js
+```typescript
 import { createSlice } from '@redux-ts-starter-kit/slice';
 
 const hiSlice = createSlice({
@@ -329,7 +329,7 @@ A reducer function, works exactly the same as a standard reducer
 An object of action creators with the same name as the corresponding case.
 You can see this in action in the hiSlice example above, it's actions object has the following type signature
 
-```js
+```typescript
 
   {
     setGreeting: (payload: string) => ({type: 'hi/SET_GREETING', payload: string})
@@ -345,7 +345,7 @@ You can see this in action in the hiSlice example above, it's actions object has
 
 An object containing the generated selector(s), always includes a selector called getSlice that selects it's slice state from the state, if the initial state is an object additional selectors are generated with the same names as the corresponding initial state keys
 
-```js
+```typescript
 import { createSlice } from '@redux-ts-starter-kit/slice';
 import { SliceState, Actions, State } from './types';
 
@@ -404,7 +404,7 @@ when not using createSlice because when stringifying the function it will return
 This allows developers to not have to worry about passing around action types, instead they simply
 pass around action creators for reducers, sagas, etc.
 
-```js
+```typescript
 import { createAction } from '@redux-ts-starter-kit/slice';
 
 const increment = createAction('INCREMENT');
@@ -425,7 +425,7 @@ console.log(storeDetails({ name: 'John', surname: 'Doe' }));
 This is the helper function that `createSlice` uses to create a reducer. This function maps action types
 to reducer functions. It will return a reducer.
 
-```js
+```typescript
 import { createReducer } from '@redux-ts-starter-kit/slice';
 
 const counter = createReducer({

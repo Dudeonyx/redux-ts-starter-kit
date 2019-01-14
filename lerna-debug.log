@@ -1,9 +1,0 @@
-41 error Error: Command failed: git commit -m v0.1.10
-41 error On branch master
-41 error Your branch is ahead of 'origin/master' by 1 commit.
-41 error   (use "git push" to publish your local commits)
-41 error
-41 error nothing to commit, working tree clean
-41 error
-41 error     at makeError (C:\github\redux-ts-starter-kit\node_modules\execa\index.js:174:9)
-41 error     at Promise.all.then.arr (C:\github\redux-ts-starter-kit\node_modules\execa\index.js:278:16)

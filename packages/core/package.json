@@ -1,6 +1,6 @@
 {
   "name": "@redux-ts-starter-kit/core",
-  "version": "0.2.1",
+  "version": "1.1.0-alpha.1",
   "main": "lib/redux-ts-starter-kit-core.cjs.js",
   "module": "lib/redux-ts-starter-kit-core.esm.js",
   "types": "lib/index.d.ts",
@@ -25,9 +25,10 @@
     "build": "yarn clean && rollup -c",
     "clean": "rimraf lib .rpt2_cache",
     "test": "yarn run typecheck:tests && yarn run jest",
+    "test:watch": "yarn run typecheck:tests && yarn run jest --watch",
     "prepublish": "yarn build",
     "typecheck:tests": "yarn run tsc -p ./src/tests --noEmit",
-    "prettier": "prettier --write src/**/*.ts",
+    "lint": "prettier-tslint fix src/**/*.ts",
     "example": "ts-node ./src/examples/sample.ts"
   },
   "keywords": [
@@ -48,10 +49,12 @@
     "@types/redux-immutable-state-invariant": "^2.1.0",
     "babel-core": "^6.0.0 || ^7.0.0-0",
     "babel-jest": "^23.0.0 || ^24.0.0",
+    "cpx": "^1.5.0",
     "husky": "^1.3.1",
     "jest": "^23.6.0",
     "lint-staged": "^8.1.0",
     "prettier": "1.15.3",
+    "prettier-tslint": "^0.4.2",
     "rimraf": "^2.6.3",
     "rollup": "^1.0.1",
     "rollup-plugin-babel": "^3.0.3",
@@ -69,7 +72,7 @@
     "typescript": "^3.2.2"
   },
   "dependencies": {
-    "@redux-ts-starter-kit/slice": "^0.2.1",
+    "@redux-ts-starter-kit/slice": "^1.1.0-alpha.1",
     "redux": "^4.0.1",
     "redux-devtools-extension": "^2.13.7",
     "redux-immutable-state-invariant": "^2.1.0",
@@ -81,9 +84,15 @@
       "pre-commit": "lint-staged"
     }
   },
+  "prettier": {
+    "arrowParens": "always",
+    "singleQuote": true,
+    "printWidth": 80,
+    "trailingComma": "all"
+  },
   "lint-staged": {
-    "*.ts": [
-      "prettier --write",
+    "*.{ts}": [
+      "prettier-tslint fix",
       "git add"
     ]
   }

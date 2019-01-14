@@ -1,6 +1,7 @@
 import { createSlice } from '@redux-ts-starter-kit/slice';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { configureStore } from '../configureStore';
+// import { Action } from 'redux';
 // import {} from '../index';
 
 interface HiSliceState {
@@ -147,15 +148,19 @@ export const {
   },
 } = ordersRobodux;
 
-export const [store, rootReducer,] = configureStore({
+export const store = configureStore({
   reducer: {
     hi: hiReducer,
     auth: authReducer,
     ords: ordersReducer,
   },
+  // enhancers:[],
   preloadedState: {
     auth: {},
     hi: {},
     ords: {},
   },
 });
+
+store.getState();
+// const {} = store;

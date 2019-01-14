@@ -4,5 +4,5 @@
 .pnp.js
 .rpt2_cache/
 lerna-debug.log
-.vscode/settings.json
+.vscode/
 packages/core/src/examples/builtcheck.ts
