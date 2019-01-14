@@ -137,7 +137,7 @@ export function configureStore<
 
   const composedEnhancer = finalCompose(...storeEnhancers);
 
-  const store = createStore(
+  const store = createStore<S, A, Ext, StateExt>(
     rootReducer,
     preloadedState,
     composedEnhancer,
