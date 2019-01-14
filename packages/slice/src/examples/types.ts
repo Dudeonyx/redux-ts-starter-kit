@@ -1,10 +1,5 @@
 import { createSlice } from '../slice';
-import {
-  combineReducers,
-  createStore,
-  applyMiddleware,
-  Dispatch,
-} from 'redux';
+import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { createReducer } from '../reducer';
@@ -276,7 +271,10 @@ const rootReducer = combineReducers<IState>({
 
 export const store = createStore(rootReducer, applyMiddleware(thunk));
 
-const thunkAuthLogout = async () => async (dispatch: Dispatch, getState: () => IState) => {
+const thunkAuthLogout = async () => async (
+  dispatch: Dispatch,
+  getState: () => IState,
+) => {
   setTimeout(() => {
     dispatch(authLogout());
     console.log('\n\nThunk!!!\n\n You\'ve been logged out!');

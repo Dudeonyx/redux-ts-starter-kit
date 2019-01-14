@@ -12,18 +12,15 @@ import {
 } from 'redux';
 import { composeWithDevTools, EnhancerOptions } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
-import createImmutableStateInvariantMiddleware from 'redux-immutable-state-invariant';
 import createSerializableStateInvariantMiddleware from './serializableStateInvariantMiddleware';
 
 import isPlainObject from './isPlainObject';
 
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-
-export function getDefaultMiddleware(isProduction = IS_PRODUCTION) {
-  return isProduction
+export function getDefaultMiddleware() {
+  return process.env.NODE_ENV === 'production'
     ? [thunk,]
     : [
-        createImmutableStateInvariantMiddleware(),
+        require('redux-immutable-state-invariant').default() as Middleware,
         thunk,
         createSerializableStateInvariantMiddleware(),
       ];
@@ -134,7 +131,7 @@ export function configureStore<
     devTools === true
       ? composeWithDevTools({
           // Enable capture of stack traces for dispatched Redux actions
-          trace: !IS_PRODUCTION,
+          trace: !(process.env.NODE_ENV === 'production'),
         } as EnhancerOptions)
       : compose;
 
