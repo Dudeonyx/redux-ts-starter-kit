@@ -18,5 +18,22 @@
   "devDependencies": {
     "lerna": "^3.8.4"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "prettier": {
+    "arrowParens": "always",
+    "singleQuote": true,
+    "printWidth": 80,
+    "trailingComma": "all"
+  },
+  "lint-staged": {
+    "*.{ts}": [
+      "prettier-tslint fix",
+      "git add"
+    ]
+  },
   "workspaces": ["packages/*"]
 }
