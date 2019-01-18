@@ -1,5 +1,9 @@
 # CHANGES
 
+## v1.0.1
+
+* moved `typings-checker` to devDependencies
+
 ## v1.0.0
 
 * merged changes from  `alpha`

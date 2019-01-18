@@ -67,7 +67,8 @@
     "tslint": "^5.12.0",
     "tslint-config-prettier": "^1.17.0",
     "tslint-react": "^3.6.0",
-    "typescript": "^3.2.2"
+    "typescript": "^3.2.2",
+    "typings-checker": "^2.0.0"
   },
   "dependencies": {
     "@redux-ts-starter-kit/slice": "^1.0.0",
@@ -75,8 +76,7 @@
     "redux-devtools-extension": "^2.13.7",
     "redux-immutable-state-invariant": "^2.1.0",
     "redux-thunk": "^2.3.0",
-    "reselect": "^4.0.0",
-    "typings-checker": "^2.0.0"
+    "reselect": "^4.0.0"
   },
   "husky": {
     "hooks": {
