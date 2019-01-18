@@ -2,8 +2,9 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "test": "lerna run test",
-    "test:watch": "yarn run jest --watch",
+    "test": "jest",
+    "pretest": "tsc -p ./tsconfig.tests.json --noEmit",
+    "test:watch": "jest --watch",
     "build": "lerna run --parallel build",
     "build:types": "lerna run --parallel build:types",
     "bootstrap": "lerna bootstrap",

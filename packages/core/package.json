@@ -25,10 +25,8 @@
     "build": "yarn clean && rollup -c && yarn build:types",
     "build:types": "tsc -p tsconfig.build.json",
     "clean": "rimraf lib .rpt2_cache",
-    "test": "yarn run typecheck:tests && yarn run jest",
-    "test:watch": "yarn run typecheck:tests && yarn run jest --watch",
     "prepublish": "yarn build",
-    "typecheck:tests": "yarn run tsc -p ./src/tests --noEmit",
+    "tsc:tests": "yarn run tsc -p ./src/tests --noEmit",
     "lint": "prettier-tslint fix src/**/*.ts",
     "example": "ts-node ./src/examples/sample.ts"
   },
