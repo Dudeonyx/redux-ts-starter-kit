@@ -19,36 +19,59 @@ describe('actionTypeBuilder', () => {
 
 describe('makeActionCreators', () => {
   describe('with slice', () => {
-    const actionsWithSlice = makeActionCreators(
+    const actions = makeActionCreators(
       ['setName', 'resetName',],
       'test',
     );
     it('creates an object of action creators', () => {
-      expect(Object.hasOwnProperty.call(actionsWithSlice, 'setName')).toBe(
+      expect(Object.hasOwnProperty.call(actions, 'setName')).toBe(
         true,
       );
-      expect(Object.hasOwnProperty.call(actionsWithSlice, 'resetName')).toBe(
+      expect(Object.hasOwnProperty.call(actions, 'resetName')).toBe(
         true,
       );
     });
 
     it('s action creators toString method returns the action type', () => {
-      expect(actionsWithSlice.setName.toString()).toEqual('test/SET_NAME');
-      expect(actionsWithSlice.resetName.toString()).toEqual('test/RESET_NAME');
+      expect(actions.setName.toString()).toEqual('test/SET_NAME');
+      expect(actions.resetName.toString()).toEqual('test/RESET_NAME');
     });
 
     it('s actions creators work as expected', () => {
-      expect(actionsWithSlice.setName('Paul')).toEqual({
+      expect(actions.setName('Paul')).toEqual({
         type: 'test/SET_NAME',
         payload: 'Paul',
       });
-      expect(actionsWithSlice.resetName()).toEqual({
+      expect(actions.resetName()).toEqual({
         type: 'test/RESET_NAME',
         payload: undefined,
       });
     });
   });
   describe('without slice', () => {
+    const actions = makeActionCreators(['setName', 'resetName',]);
+    it('creates an object of action creators', () => {
+      expect(Object.hasOwnProperty.call(actions, 'setName')).toBe(true);
+      expect(Object.hasOwnProperty.call(actions, 'resetName')).toBe(true);
+    });
+
+    it('s action creators toString method returns the action type', () => {
+      expect(actions.setName.toString()).toEqual('SET_NAME');
+      expect(actions.resetName.toString()).toEqual('RESET_NAME');
+    });
+
+    it('s actions creators work as expected', () => {
+      expect(actions.setName('Paul')).toEqual({
+        type: 'SET_NAME',
+        payload: 'Paul',
+      });
+      expect(actions.resetName()).toEqual({
+        type: 'RESET_NAME',
+        payload: undefined,
+      });
+    });
+  });
+  describe('with blank slice', () => {
     const actions = makeActionCreators(['setName', 'resetName',], '');
     it('creates an object of action creators', () => {
       expect(Object.hasOwnProperty.call(actions, 'setName')).toBe(true);

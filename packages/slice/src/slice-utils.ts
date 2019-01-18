@@ -14,7 +14,7 @@ import {
 
 export const makeActionCreators = <Actions extends ActionsAny>(
   actionKeys: Array<keyof Actions>,
-  slice: string | number | symbol,
+  slice: string | number | symbol = '',
 ): ActionCreators<Actions> => {
   return actionKeys.reduce(
     (map, action) => {
