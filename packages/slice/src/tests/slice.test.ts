@@ -19,17 +19,10 @@ describe('actionTypeBuilder', () => {
 
 describe('makeActionCreators', () => {
   describe('with slice', () => {
-    const actions = makeActionCreators(
-      ['setName', 'resetName',],
-      'test',
-    );
+    const actions = makeActionCreators(['setName', 'resetName',], 'test');
     it('creates an object of action creators', () => {
-      expect(Object.hasOwnProperty.call(actions, 'setName')).toBe(
-        true,
-      );
-      expect(Object.hasOwnProperty.call(actions, 'resetName')).toBe(
-        true,
-      );
+      expect(Object.hasOwnProperty.call(actions, 'setName')).toBe(true);
+      expect(Object.hasOwnProperty.call(actions, 'resetName')).toBe(true);
     });
 
     it('s action creators toString method returns the action type', () => {
