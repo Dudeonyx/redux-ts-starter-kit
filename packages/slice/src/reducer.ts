@@ -34,8 +34,8 @@ export interface CreateReducer<S = any> {
    */
   slice?: string;
 }
-/** fix for `never[]` */
-// export type NoEmptyArray<State> = State extends never[] ? any[] : State;
+// /** fix for `never[]` */
+// // export type NoEmptyArray<State> = State extends never[] ? any[] : State;
 
 /**
  * Creates a simple reducer
