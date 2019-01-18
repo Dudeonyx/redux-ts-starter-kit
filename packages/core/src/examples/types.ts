@@ -154,6 +154,8 @@ export const store = configureStore({
     auth: authReducer,
     ords: ordersReducer,
   },
+
+  // middleware: [thunk,],
   // enhancers:[],
   preloadedState: {
     auth: {},
