@@ -22,7 +22,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && rollup -c",
+    "build": "yarn clean && rollup -c && yarn build:types",
+    "build:types": "tsc -p tsconfig.build.json",
     "clean": "rimraf lib .rpt2_cache",
     "test": "yarn run typecheck:tests && yarn run jest",
     "test:watch": "yarn run typecheck:tests && yarn run jest --watch",
@@ -77,7 +78,8 @@
     "redux-devtools-extension": "^2.13.7",
     "redux-immutable-state-invariant": "^2.1.0",
     "redux-thunk": "^2.3.0",
-    "reselect": "^4.0.0"
+    "reselect": "^4.0.0",
+    "typings-checker": "^2.0.0"
   },
   "husky": {
     "hooks": {

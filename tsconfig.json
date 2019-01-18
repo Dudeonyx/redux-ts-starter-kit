@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+      "target": "es5",
+      "module": "esnext",
+      "declaration": false,
+      "moduleResolution": "node",
+      "sourceMap": true,
+      "strict": true,
+      "noImplicitAny": true,
+      "noUnusedLocals": true,
+      "removeComments": false,
+      "preserveConstEnums": true,
+      "lib": ["es2016"],
+      "esModuleInterop": true,
+      "baseUrl": "./",
+      "rootDir": "./",
+      "paths": {
+        "@redux-ts-starter-kit/*": ["packages/*/src"],
+      }
+    },
+    "include": ["./packages/**/*.ts"],
+    "exclude": ["node_modules","packages/**/lib","packages/**/src/tests/","packages/**/src/typing-tests/","packages/**/src/examples"]
+  }

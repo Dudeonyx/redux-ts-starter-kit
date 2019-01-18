@@ -1,0 +1,11 @@
+{
+    // "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "emitDeclarationOnly": true,
+        "declaration": true,
+        "declarationDir": "./lib",
+        "baseUrl": "./",
+        "lib": ["esnext"]
+    },
+    "include": ["./src/index.ts"]
+}

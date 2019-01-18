@@ -22,10 +22,12 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && rollup -c",
+    "build": "yarn clean && rollup -c && yarn build:types",
+    "build:types": "tsc -p tsconfig.build.json",
     "clean": "rimraf lib .rpt2_cache",
     "typecheck:tests": "yarn run tsc -p ./src/tests --noEmit",
     "test": "yarn run typecheck:tests && yarn run jest",
+    "test:types": "typings-checker -p ./src/examples/tsconfig.json ./src/examples/types.ts",
     "test:watch": "yarn run typecheck:tests && yarn run jest --watch",
     "prepublish": "yarn build",
     "lint": "prettier-tslint fix src/**/*.ts",
@@ -71,7 +73,8 @@
     "typescript": "^3.2.2"
   },
   "dependencies": {
-    "immer": "^1.9.3"
+    "immer": "^1.9.3",
+    "typings-checker": "^2.0.0"
   },
   "husky": {
     "hooks": {

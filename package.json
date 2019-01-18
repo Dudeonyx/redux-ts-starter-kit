@@ -4,13 +4,13 @@
   "scripts": {
     "test": "lerna run test",
     "test:watch": "yarn run jest --watch",
-    "pretest": "yarn build",
+    "build": "lerna run --parallel build",
+    "build:types": "lerna run --parallel build:types",
     "bootstrap": "lerna bootstrap",
-    "clean": "lerna run clean",
-    "build": "lerna run build",
+    "clean": "lerna run --parallel clean",
     "copyReadMe": "yarn run cpx ./packages/core/README.md .",
     "prepublish": "yarn test",
-    "lint":"lerna run lint",
+    "lint":"lerna run --parallel lint",
     "publish": "lerna publish"
   },
 
