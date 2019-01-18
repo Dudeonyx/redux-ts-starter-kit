@@ -1,20 +1,181 @@
 import { createSlice } from '../slice';
+import { makeActionCreators, makeSelectors } from '../slice-utils';
 import { combineReducers } from 'redux';
-import { actionTypeBuilder } from '../actionTypeBuilder';
+import { createActionType } from '../actionType';
 
 describe('actionTypeBuilder', () => {
-  const createActionType = actionTypeBuilder('');
-  const createActionType2 = actionTypeBuilder('test');
   it('Snakes cases correctly', () => {
-    expect(createActionType('setName')).toEqual('SET_NAME');
-    expect(createActionType('set-Name')).toEqual('SET-NAME');
-    expect(createActionType('SET_NAME')).toEqual('SET_NAME');
-    expect(createActionType('SET-NAME')).toEqual('SET-NAME');
-    expect(createActionType('SeT-NAME')).toEqual('SE_T-NAME');
+    expect(createActionType('', 'setName')).toEqual('SET_NAME');
+    expect(createActionType('', 'set-Name')).toEqual('SET-NAME');
+    expect(createActionType('', 'SET_NAME')).toEqual('SET_NAME');
+    expect(createActionType('', 'SET-NAME')).toEqual('SET-NAME');
+    expect(createActionType('', 'SeT-NAME')).toEqual('SE_T-NAME');
   });
   it('Snakes cases correctly with a slice', () => {
-    expect(createActionType2('SEtName')).toEqual('test/SET_NAME');
-    expect(createActionType2('SET_NAME')).toEqual('test/SET_NAME');
+    expect(createActionType('test', 'SEtName')).toEqual('test/SET_NAME');
+    expect(createActionType('test', 'SET_NAME')).toEqual('test/SET_NAME');
+  });
+});
+
+describe('makeActionCreators', () => {
+  describe('with slice', () => {
+    const actionsWithSlice = makeActionCreators(
+      ['setName', 'resetName',],
+      'test',
+    );
+    it('creates an object of action creators', () => {
+      expect(Object.hasOwnProperty.call(actionsWithSlice, 'setName')).toBe(
+        true,
+      );
+      expect(Object.hasOwnProperty.call(actionsWithSlice, 'resetName')).toBe(
+        true,
+      );
+    });
+
+    it('s action creators toString method returns the action type', () => {
+      expect(actionsWithSlice.setName.toString()).toEqual('test/SET_NAME');
+      expect(actionsWithSlice.resetName.toString()).toEqual('test/RESET_NAME');
+    });
+
+    it('s actions creators work as expected', () => {
+      expect(actionsWithSlice.setName('Paul')).toEqual({
+        type: 'test/SET_NAME',
+        payload: 'Paul',
+      });
+      expect(actionsWithSlice.resetName()).toEqual({
+        type: 'test/RESET_NAME',
+        payload: undefined,
+      });
+    });
+  });
+  describe('without slice', () => {
+    const actions = makeActionCreators(['setName', 'resetName',], '');
+    it('creates an object of action creators', () => {
+      expect(Object.hasOwnProperty.call(actions, 'setName')).toBe(true);
+      expect(Object.hasOwnProperty.call(actions, 'resetName')).toBe(true);
+    });
+
+    it('s action creators toString method returns the action type', () => {
+      expect(actions.setName.toString()).toEqual('SET_NAME');
+      expect(actions.resetName.toString()).toEqual('RESET_NAME');
+    });
+
+    it('s actions creators work as expected', () => {
+      expect(actions.setName('Paul')).toEqual({
+        type: 'SET_NAME',
+        payload: 'Paul',
+      });
+      expect(actions.resetName()).toEqual({
+        type: 'RESET_NAME',
+        payload: undefined,
+      });
+    });
+  });
+});
+
+describe('makeSelectors', () => {
+  describe('with slice', () => {
+    describe('initialState is not an object', () => {
+      const initialState = ['Foo',];
+      const state = { list: ['Foo', 'Bar', 'Baz',] };
+      const selectors = makeSelectors('list', initialState);
+      it('only creates a `getSlice` selector', () => {
+        expect(Object.hasOwnProperty.call(selectors, 'getSlice')).toBe(true);
+        expect(Object.hasOwnProperty.call(selectors, 'length')).toBe(false);
+        expect(Object.keys(selectors).length).toBe(1);
+      });
+
+      it('creates a working `getSlice` selector', () => {
+        expect(selectors.getSlice(state)).toEqual(['Foo', 'Bar', 'Baz',]);
+      });
+      it('can be called without giving the initialState', () => {
+        const selectors2 = makeSelectors('list');
+        expect(Object.hasOwnProperty.call(selectors2, 'getSlice')).toBe(true);
+        expect(Object.hasOwnProperty.call(selectors2, 'length')).toBe(false);
+        expect(Object.keys(selectors2).length).toBe(1);
+        expect(selectors2.getSlice(state)).toEqual(['Foo', 'Bar', 'Baz',]);
+      });
+    });
+    describe('initialState is an object', () => {
+      const initialState = {
+        name: '',
+        middlename: '',
+        surname: '',
+      };
+      const state = {
+        form: {
+          name: 'Foo',
+          middlename: 'Bar',
+          surname: 'Baz',
+        },
+      };
+
+      const selectors = makeSelectors('form', initialState);
+
+      it('creates a `getSlice` selector and additional selectors', () => {
+        expect(Object.hasOwnProperty.call(selectors, 'getSlice')).toBe(true);
+        expect(Object.hasOwnProperty.call(selectors, 'name')).toBe(true);
+        expect(Object.hasOwnProperty.call(selectors, 'middlename')).toBe(true);
+        expect(Object.hasOwnProperty.call(selectors, 'surname')).toBe(true);
+        expect(Object.hasOwnProperty.call(selectors, 'lastname')).toBe(false);
+        expect(Object.keys(selectors).length).toBe(4);
+      });
+
+      it('creates working selectors', () => {
+        expect(selectors.getSlice(state)).toEqual({
+          name: 'Foo',
+          middlename: 'Bar',
+          surname: 'Baz',
+        });
+        expect(selectors.name(state)).toEqual('Foo');
+        expect(selectors.middlename(state)).toEqual('Bar');
+        expect(selectors.surname(state)).toEqual('Baz');
+      });
+    });
+  });
+  describe('without slice', () => {
+    describe('state is not an object', () => {
+      const state = ['Foo', 'Bar', 'Baz',];
+      const selectors = makeSelectors('');
+      it('only creates a `getSlice` selector', () => {
+        expect(Object.hasOwnProperty.call(selectors, 'getSlice')).toBe(true);
+        expect(Object.hasOwnProperty.call(selectors, 'length')).toBe(false);
+        expect(Object.keys(selectors).length).toBe(1);
+      });
+
+      it('creates a working `getSlice` selector', () => {
+        expect(selectors.getSlice(state)).toEqual(['Foo', 'Bar', 'Baz',]);
+      });
+    });
+    describe('state is an object', () => {
+      const state = {
+        name: 'Foo',
+        middlename: 'Bar',
+        surname: 'Baz',
+      };
+
+      const selectors = makeSelectors('', state);
+
+      it('creates a `getSlice` selector and additional selectors', () => {
+        expect(Object.hasOwnProperty.call(selectors, 'getSlice')).toBe(true);
+        expect(Object.hasOwnProperty.call(selectors, 'name')).toBe(true);
+        expect(Object.hasOwnProperty.call(selectors, 'middlename')).toBe(true);
+        expect(Object.hasOwnProperty.call(selectors, 'surname')).toBe(true);
+        expect(Object.hasOwnProperty.call(selectors, 'lastname')).toBe(false);
+        expect(Object.keys(selectors).length).toBe(4);
+      });
+
+      it('creates working selectors', () => {
+        expect(selectors.getSlice(state)).toEqual({
+          name: 'Foo',
+          middlename: 'Bar',
+          surname: 'Baz',
+        });
+        expect(selectors.name(state)).toEqual('Foo');
+        expect(selectors.middlename(state)).toEqual('Bar');
+        expect(selectors.surname(state)).toEqual('Baz');
+      });
+    });
   });
 });
 

@@ -1,8 +1,5 @@
-import { createAction } from './action';
-import { createReducer } from './reducer';
-import { createSubSelector, createSelector } from './selector';
 import { Action } from './types';
-import { actionTypeBuilder } from './actionTypeBuilder';
+import { makeReducer, makeActionCreators, makeSelectors } from './slice-utils';
 
 /** fix for `let` initialised `slice` */
 type NoBadState<S> = { [x: string]: {} } extends S ? AnyState : S;
@@ -24,7 +21,7 @@ export type Cases<SS = any, Ax = any> = {
   [K in keyof Ax]: CaseReducer<SS, Ax[K]>
 };
 /** Generic Actions interface */
-interface ActionsAny<P = any> {
+export interface ActionsAny<P = any> {
   [Action: string]: P;
 }
 /** Generic State interface
@@ -152,7 +149,7 @@ interface InputWithOptionalSlice<SS = any, Ax = ActionsAny, S = any>
   slice?: keyof S;
 }
 
-type InferState<Slc extends keyof S, S, SS> = unknown extends S
+export type InferState<Slc extends keyof S, S, SS> = unknown extends S
   ? AnyState
   : unknown extends S[Slc]
   ? { [key in Slc]: SS }
@@ -244,53 +241,18 @@ export function createSlice<
   slice = '',
 }: InputWithOptionalSlice<SliceState, Actions, State>) {
   const actionKeys = Object.keys(cases) as Array<keyof Actions>;
-  const createActionType = actionTypeBuilder(slice);
 
-  const reducerMap = actionKeys.reduce<ReducerMap<SliceState>>(
-    (map, action) => {
-      map[createActionType(action)] = cases[action];
-      return map;
-    },
-    {},
-  );
-  const reducer = createReducer({
+  const reducer = makeReducer<Actions, SliceState, State>(
+    cases,
     initialState,
-    cases: reducerMap,
-    slice: slice as string,
-  });
-
-  const actionMap: ActionCreators<Action> = actionKeys.reduce(
-    (map, action) => {
-      const type = createActionType(action);
-      map[action] = createAction(type);
-      return map;
-    },
-    {} as any,
+    slice,
   );
 
-  let initialStateKeys: Array<keyof SliceState> = [];
-  if (
-    typeof initialState === 'object' &&
-    initialState !== null &&
-    !Array.isArray(initialState)
-  ) {
-    initialStateKeys = Object.keys(initialState) as Array<keyof SliceState>;
-  }
-  const otherSelectors = initialStateKeys.reduce<
-    { [key in keyof SliceState]: (state: State) => SliceState[key] }
-  >(
-    (map, key) => {
-      map[key] = createSubSelector<State, SliceState>(slice, key);
-      return map;
-    },
-    {} as any,
-  );
-  const selectors = {
-    getSlice: createSelector<State, SliceState>(slice),
-    ...otherSelectors,
-  };
+  const actions = makeActionCreators<Actions>(actionKeys, slice);
+
+  const selectors = makeSelectors<SliceState, State>(slice, initialState);
   return {
-    actions: actionMap,
+    actions,
     reducer,
     slice,
     selectors,
