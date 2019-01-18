@@ -1,6 +1,6 @@
 {
   "name": "@redux-ts-starter-kit/core",
-  "version": "1.1.1-alpha.0",
+  "version": "1.0.0",
   "main": "lib/redux-ts-starter-kit-core.cjs.js",
   "module": "lib/redux-ts-starter-kit-core.esm.js",
   "types": "lib/index.d.ts",
@@ -70,7 +70,7 @@
     "typescript": "^3.2.2"
   },
   "dependencies": {
-    "@redux-ts-starter-kit/slice": "^1.1.1-alpha.0",
+    "@redux-ts-starter-kit/slice": "^1.0.0",
     "redux": "^4.0.1",
     "redux-devtools-extension": "^2.13.7",
     "redux-immutable-state-invariant": "^2.1.0",

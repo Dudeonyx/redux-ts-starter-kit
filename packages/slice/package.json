@@ -1,6 +1,6 @@
 {
   "name": "@redux-ts-starter-kit/slice",
-  "version": "1.1.1-alpha.0",
+  "version": "1.0.0",
   "main": "lib/redux-ts-starter-kit-slice.cjs.js",
   "module": "lib/redux-ts-starter-kit-slice.esm.js",
   "types": "lib/index.d.ts",
