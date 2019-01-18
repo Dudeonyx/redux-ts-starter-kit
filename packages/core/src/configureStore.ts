@@ -113,10 +113,10 @@ export function configureStore<
   DispatchExt = {}
 >({
   reducer,
-  middleware,
   devTools,
   preloadedState,
   enhancers,
+  middleware,
 }: ConfigureStoreOptions<S, A, Ext, StateExt, DispatchExt>): Store<
   S & StateExt,
   A

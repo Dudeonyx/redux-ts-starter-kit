@@ -1,5 +1,11 @@
 # CHANGES
 
+## v1.0.0
+
+* merged changes from  `alpha`
+
+* minor internal changes for better unit testing
+
 ## v1.0.0-alpha.0
 
 * Experimental `State` type inference

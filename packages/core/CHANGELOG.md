@@ -1,5 +1,15 @@
 # CHANGES
 
+## v1.0.0
+
+* merged changes from  `alpha`
+
+* minor internal changes for better unit testing, no enduser effects
+
+* `configureStore` returns a `store` with `ThunkDispatch` by default
+
+* `configureStore` accepts 1~5 type params, `State` - `Action` - `Ext` - `StateExt` - `DispatchExt`
+
 ## v1.0.0-alpha.0
 
 * `configureStore` no longer returns a tuple array, just the `store`

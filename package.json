@@ -13,10 +13,9 @@
     "clean": "lerna run --parallel clean",
     "copyReadMe": "yarn run cpx ./packages/core/README.md .",
     "prepublish": "yarn test && yarn build",
-    "lint":"lerna run --parallel lint",
+    "lint": "lerna run --parallel lint",
     "publish": "lerna publish"
   },
-
   "devDependencies": {
     "lerna": "^3.8.4"
   },
@@ -37,5 +36,7 @@
       "git add"
     ]
   },
-  "workspaces": ["packages/*"]
+  "workspaces": [
+    "packages/*"
+  ]
 }
