@@ -26,18 +26,34 @@ const defaultState = {
 };
 
 export const {
-  actions: fhjk,
+  actions: hiActions$,
   selectors: hiSelector$,
-  reducer: rgsgsggf,
-  slice: sfdf,
+  reducer: hiReducer$,
+  slice: hiSlice$,
 } = createSlice({
   slice: 'hi',
   cases: {
-    set: (state, payload: any[]) => payload,
+    set: (state, payload: string[]) => payload,
     reset: () => ['defaultState', 'jhj',],
   },
   initialState: [] as string[],
 });
+
+// tslint:disable: no-unused-expression
+// $ExpectType ActionCreators<{ set: string[]; reset: {}; }>
+hiActions$;
+// $ExpectType (payload: string[]) => Action<string[]>
+hiActions$.set;
+// $ExpectType (payload?: any) => Action<any>
+hiActions$.reset;
+// $ExpectType { getSlice: (state: { hi: string[]; }) => string[]; }
+hiSelector$;
+// $ExpectType (state: { hi: string[]; }) => string[]
+hiSelector$.getSlice;
+// $ExpectType Reducer<string[], Action<any>>
+hiReducer$;
+
+// tslint:enable: no-unused-expression
 const hiArray = {
   hi: ['',],
   auth: { error: null, authenticating: false } as AuthSliceState,
@@ -49,6 +65,7 @@ export const {
   actions: hiActions,
   selectors: hiSelectors,
   reducer: hiReducer,
+  slice: hi_slice,
 } = createSlice<Actions, HiSliceState, IState>({
   slice: 'hi',
   cases: {
@@ -57,6 +74,29 @@ export const {
   },
   initialState: defaultState,
 });
+
+// tslint:disable: no-unused-expression
+// $ExpectType ActionCreators<Actions>
+hiActions;
+// $ExpectType (payload: HiSliceState) => Action<HiSliceState>
+hiActions.set;
+// $ExpectType () => Action<any>
+hiActions.reset;
+
+// $ExpectType Reducer<HiSliceState, Action<any>>
+hiReducer;
+// $ExpectType { test: (state: IState) => string; wow: (state: IState) => number; } & { getSlice: (state: IState) => HiSliceState; }
+hiSelectors;
+// $ExpectType (state: IState) => HiSliceState
+hiSelectors.getSlice;
+// $ExpectType (state: IState) => string
+hiSelectors.test;
+// $ExpectType (state: IState) => number
+hiSelectors.wow;
+// $ExpectType "hi" | "auth" | "ords"
+hi_slice;
+
+// tslint:enable: no-unused-expression
 
 const val = hiSelectors.getSlice({
   hi: defaultState,
