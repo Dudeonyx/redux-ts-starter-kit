@@ -184,7 +184,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
       setWaves: (state, payload) => {
         state.waves = payload;
       },
-      resetHi: (_state) => hiInitialState,
+      resetHi: () => hiInitialState,
     },
     initialState: hiInitialState,
   });

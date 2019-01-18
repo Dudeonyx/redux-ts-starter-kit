@@ -33,7 +33,7 @@ export const {
   slice: 'hi',
   cases: {
     setHi: (state, payload) => payload,
-    resetHi: (state) => defaultState,
+    resetHi: () => defaultState,
   },
   initialState: defaultState,
 });
