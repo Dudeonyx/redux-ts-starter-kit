@@ -9,7 +9,7 @@
     "bootstrap": "lerna bootstrap",
     "clean": "lerna run --parallel clean",
     "copyReadMe": "yarn run cpx ./packages/core/README.md .",
-    "prepublish": "yarn copyReadMe && yarn test",
+    "prepublish": "yarn test",
     "lint":"lerna run --parallel lint",
     "publish": "lerna publish"
   },
