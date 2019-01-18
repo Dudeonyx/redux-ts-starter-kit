@@ -6,7 +6,7 @@
     "pretest": "tsc -p ./tsconfig.tests.json --noEmit",
     "test:watch": "jest --watch",
     "build": "lerna run --parallel build",
-    "build:types": "lerna run --parallel build:types",
+    "build:declaration": "lerna run --parallel build:declaration",
     "bootstrap": "lerna bootstrap",
     "clean": "lerna run --parallel clean",
     "copyReadMe": "yarn run cpx ./packages/core/README.md .",
