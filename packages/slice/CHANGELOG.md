@@ -1,5 +1,11 @@
 # CHANGES
 
+## > @v1.0.1
+
+* changed re-exports to fix commonjs issue
+
+* Independent versioning
+
 ## v1.0.1
 
 * moved `typings-checker` to devDependencies
