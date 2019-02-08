@@ -1,14 +1,14 @@
 {
-  "extends": "../../../../tsconfig.json",
+  "extends": "../../../../tsconfig.base.json",
   "compilerOptions": {
     "target": "es5",
     "lib": ["esnext"],
-    "noEmit": true
+    "noEmit": true,
   },
   "exclude": [
     "node_modules",
   ],
   "include": [
-    "./",
+    "./types.ts",
   ]
 }

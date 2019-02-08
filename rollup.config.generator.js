@@ -23,12 +23,22 @@ export default function generateConfig({
         sourcemap: true,
       },
     ],
-    external: [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.peerDependencies || {})],
+    external: [
+      ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.peerDependencies || {}),
+    ],
     plugins: [
       typescript({
         typescript: require('typescript'),
+        rollupCommonJSResolveHack: true,
+        tsconfigOverride: {
+          compilerOptions: {
+            target: 'es5',
+            // module: 'commonJS',
+          },
+        },
       }),
-      terser(),
+      // terser(),
     ],
   };
   if (!name || !pkg.unpkg) {

@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "esnext",
+    "declaration": false,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "noEmit": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "lib": ["es2015"],
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "rootDir": ".",
+    "paths": {
+        "@redux-ts-starter-kit/*": ["packages/*/src"]
+      }
+  }
+}
