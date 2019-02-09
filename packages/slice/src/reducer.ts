@@ -25,17 +25,18 @@ export interface CreateReducer<S = any, A = any, SliceName = string> {
    * @memberof CreateReducer
    */
   cases: ReducerMap<S, A>;
+}
 
+interface CreateReducer2<S, A, SliceName>
+  extends CreateReducer<S, A, SliceName> {
   /**
    * @description An optional property representing the key of the generated slice in the redux state tree.
    *
    * @type {string}
    * @memberof CreateReducer
    */
-  slice?: SliceName;
+  slice: SliceName;
 }
-// /** fix for `never[]` */
-// // export type NoEmptyArray<State> = State extends never[] ? any[] : State;
 
 /**
  * Creates a simple reducer
@@ -56,8 +57,23 @@ export function createReducer<
 >({
   initialState,
   cases,
-  slice = '' as any,
-}: CreateReducer<S, A, SliceName>): Reducer<S, PayloadAction, SliceName> {
+  slice,
+}: CreateReducer2<S, A, SliceName>): Reducer<S, PayloadAction, SliceName>;
+
+export function createReducer<
+  S,
+  A extends ActionsMap = ActionsMap,
+  SliceName extends string = string
+>({
+  initialState,
+  cases,
+}: CreateReducer<S, A, SliceName>): Reducer<S, PayloadAction, ''>;
+
+export function createReducer<
+  S,
+  A extends ActionsMap = ActionsMap,
+  SliceName extends string = string
+>({ initialState, cases, slice = '' }: any): any {
   const reducer = (state = initialState, action: PayloadAction) => {
     return createNextState(state, (draft) => {
       const caseReducer = cases[action.type];
