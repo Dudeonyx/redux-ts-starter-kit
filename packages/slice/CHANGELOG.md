@@ -1,6 +1,6 @@
 # CHANGES
 
-## > @v1.0.1
+## > @v2.0.0
 
 * changed re-exports to fix commonjs issue
 
