@@ -74,7 +74,20 @@ interface ConfigureStoreDefaultOptions<S, A extends Action, Ext, StateExt> {
   enhancers?: Array<StoreEnhancer<Ext, StateExt>>;
 }
 
-interface ConfigureStoreOptions<
+interface ConfigureStoreOptions0<S, A extends Action, Ext, StateExt>
+  extends ConfigureStoreDefaultOptions<S, A, Ext, StateExt> {
+  /**
+   * @param [middleware] An array of middlewares. A middleware is a higher-order function that
+   *  composes a dispatch function
+   *  to return a new dispatch function. It often turns async actions into
+   *  actions.
+   *
+   * @type {Middleware[]}
+   * @memberof ConfigureStoreOptions
+   */
+  middleware: [];
+}
+interface ConfigureStoreOptions1<
   S,
   A extends Action,
   Ext,
@@ -109,6 +122,18 @@ export function configureStore<
   S,
   A extends Action = Action,
   Ext extends {} = {},
+  StateExt = {}
+>({
+  reducer,
+  devTools,
+  preloadedState,
+  enhancers,
+  middleware,
+}: ConfigureStoreOptions0<S, A, Ext, StateExt>): Store<S & StateExt, A> & Ext;
+export function configureStore<
+  S,
+  A extends Action = Action,
+  Ext extends {} = {},
   StateExt = {},
   DispatchExt = {}
 >({
@@ -117,11 +142,11 @@ export function configureStore<
   preloadedState,
   enhancers,
   middleware,
-}: ConfigureStoreOptions<S, A, Ext, StateExt, DispatchExt>): Store<
+}: ConfigureStoreOptions1<S, A, Ext, StateExt, DispatchExt>): Store<
   S & StateExt,
   A
 > &
-  Ext;
+  Ext & { dispatch: DispatchExt };
 
 export function configureStore<
   S,
