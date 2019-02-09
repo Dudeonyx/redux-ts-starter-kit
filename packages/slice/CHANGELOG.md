@@ -6,6 +6,18 @@
 
 * Independent versioning
 
+* Action types in createSlice are no longer automatically namespaced, This is to ensure better type safety because Typescript currently cannot concatenate string literal types, and this is a Typescript focused lib.
+
+* Removed dependence on redux state tree type param for better reusabilty
+
+* Replaced redux state type param with SliceName string literal param.
+
+* Tweaked type `ActionCreators`  to detect `any` and work well with makeActionCreators.
+
+* Added `type` property to action creators which returns a string literal
+
+* Renamed type `ActionsAny` to a less confusing `ActionsMap`
+
 ## v1.0.1
 
 * moved `typings-checker` to devDependencies
