@@ -1,6 +1,7 @@
 import { createSlice } from '@redux-ts-starter-kit/slice';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { configureStore } from '../configureStore';
+import thunk from 'redux-thunk';
 // import { Action } from 'redux';
 // import {} from '../index';
 
@@ -9,11 +10,11 @@ interface HiSliceState {
   wow: number;
 }
 
-interface IState {
-  hi: HiSliceState;
-  auth: AuthSliceState;
-  ords: IordersReducerState;
-}
+// interface IState {
+//   hi: HiSliceState;
+//   auth: AuthSliceState;
+//   ords: IordersReducerState;
+// }
 
 interface Actions {
   setHi: HiSliceState;
@@ -29,7 +30,7 @@ export const {
   actions: { resetHi, setHi },
   selectors: { getSlice: getHi, test: getTest, wow: getWow },
   reducer: hiReducer,
-} = createSlice<Actions, HiSliceState, IState>({
+} = createSlice<Actions, HiSliceState, 'hi'>({
   slice: 'hi',
   cases: {
     setHi: (state, payload) => payload,
@@ -40,8 +41,6 @@ export const {
 
 const val = getHi({
   hi: defaultState,
-  auth: {} as AuthSliceState,
-  ords: {} as IordersReducerState,
 });
 setHi({ test: 'ok', wow: 0 });
 resetHi();
@@ -155,7 +154,7 @@ export const store = configureStore({
     ords: ordersReducer,
   },
 
-  // middleware: [thunk,],
+  middleware: [thunk,],
   // enhancers:[],
   preloadedState: {
     auth: {},
@@ -165,4 +164,5 @@ export const store = configureStore({
 });
 
 store.getState();
+// store.dispatch({type:'fgfgfg'})
 // const {} = store;

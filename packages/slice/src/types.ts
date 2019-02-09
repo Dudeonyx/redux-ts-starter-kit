@@ -1,7 +1,8 @@
-export interface Action<P = any> {
-  readonly type: string;
-  readonly payload?: P;
+export interface Action<T extends string = string> {
+  readonly type: T;
 }
-export interface AnyAction<P = any> extends Action<P> {
-  [payload: string]: any;
+
+export interface PayloadAction<T extends string = string, P = any>
+  extends Action<T> {
+  readonly payload?: P;
 }

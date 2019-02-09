@@ -1,90 +1,27 @@
 import { createSlice } from '../slice';
 import { makeActionCreators, makeSelectors } from '../slice-utils';
 import { combineReducers } from 'redux';
-import { createActionType } from '../actionType';
-
-describe('actionTypeBuilder', () => {
-  it('Snakes cases correctly', () => {
-    expect(createActionType('', 'setName')).toEqual('SET_NAME');
-    expect(createActionType('', 'set-Name')).toEqual('SET-NAME');
-    expect(createActionType('', 'SET_NAME')).toEqual('SET_NAME');
-    expect(createActionType('', 'SET-NAME')).toEqual('SET-NAME');
-    expect(createActionType('', 'SeT-NAME')).toEqual('SE_T-NAME');
-  });
-  it('Snakes cases correctly with a slice', () => {
-    expect(createActionType('test', 'SEtName')).toEqual('test/SET_NAME');
-    expect(createActionType('test', 'SET_NAME')).toEqual('test/SET_NAME');
-  });
-});
 
 describe('makeActionCreators', () => {
-  describe('with slice', () => {
-    const actions = makeActionCreators(['setName', 'resetName',], 'test');
-    it('creates an object of action creators', () => {
-      expect(Object.hasOwnProperty.call(actions, 'setName')).toBe(true);
-      expect(Object.hasOwnProperty.call(actions, 'resetName')).toBe(true);
-    });
-
-    it('s action creators toString method returns the action type', () => {
-      expect(actions.setName.toString()).toEqual('test/SET_NAME');
-      expect(actions.resetName.toString()).toEqual('test/RESET_NAME');
-    });
-
-    it('s actions creators work as expected', () => {
-      expect(actions.setName('Paul')).toEqual({
-        type: 'test/SET_NAME',
-        payload: 'Paul',
-      });
-      expect(actions.resetName()).toEqual({
-        type: 'test/RESET_NAME',
-        payload: undefined,
-      });
-    });
+  const actions = makeActionCreators(['setName', 'resetName',]);
+  it('creates an object of action creators', () => {
+    expect(Object.hasOwnProperty.call(actions, 'setName')).toBe(true);
+    expect(Object.hasOwnProperty.call(actions, 'resetName')).toBe(true);
   });
-  describe('without slice', () => {
-    const actions = makeActionCreators(['setName', 'resetName',]);
-    it('creates an object of action creators', () => {
-      expect(Object.hasOwnProperty.call(actions, 'setName')).toBe(true);
-      expect(Object.hasOwnProperty.call(actions, 'resetName')).toBe(true);
-    });
 
-    it('s action creators toString method returns the action type', () => {
-      expect(actions.setName.toString()).toEqual('SET_NAME');
-      expect(actions.resetName.toString()).toEqual('RESET_NAME');
-    });
-
-    it('s actions creators work as expected', () => {
-      expect(actions.setName('Paul')).toEqual({
-        type: 'SET_NAME',
-        payload: 'Paul',
-      });
-      expect(actions.resetName()).toEqual({
-        type: 'RESET_NAME',
-        payload: undefined,
-      });
-    });
+  it('s action creators toString method returns the action type', () => {
+    expect(actions.setName.toString()).toEqual('setName');
+    expect(actions.resetName.toString()).toEqual('resetName');
   });
-  describe('with blank slice', () => {
-    const actions = makeActionCreators(['setName', 'resetName',], '');
-    it('creates an object of action creators', () => {
-      expect(Object.hasOwnProperty.call(actions, 'setName')).toBe(true);
-      expect(Object.hasOwnProperty.call(actions, 'resetName')).toBe(true);
-    });
 
-    it('s action creators toString method returns the action type', () => {
-      expect(actions.setName.toString()).toEqual('SET_NAME');
-      expect(actions.resetName.toString()).toEqual('RESET_NAME');
+  it('s actions creators work as expected', () => {
+    expect(actions.setName('Paul')).toEqual({
+      type: 'setName',
+      payload: 'Paul',
     });
-
-    it('s actions creators work as expected', () => {
-      expect(actions.setName('Paul')).toEqual({
-        type: 'SET_NAME',
-        payload: 'Paul',
-      });
-      expect(actions.resetName()).toEqual({
-        type: 'RESET_NAME',
-        payload: undefined,
-      });
+    expect(actions.resetName()).toEqual({
+      type: 'resetName',
+      payload: undefined,
     });
   });
 });
@@ -202,7 +139,7 @@ describe('createSlice', () => {
       increment: never;
       multiply: number;
     }
-    const { actions, reducer, selectors } = createSlice<Actions, State, State>({
+    const { actions, reducer, selectors } = createSlice<Actions, State, ''>({
       cases: {
         increment: (state) => state + 1,
         multiply: (state, payload) => state * payload,
@@ -220,14 +157,14 @@ describe('createSlice', () => {
 
     it('should have the correct action for increment', () => {
       expect(actions.increment()).toEqual({
-        type: 'INCREMENT',
+        type: 'increment',
         payload: undefined,
       });
     });
 
     it('should have the correct action for multiply', () => {
       expect(actions.multiply(3)).toEqual({
-        type: 'MULTIPLY',
+        type: 'multiply',
         payload: 3,
       });
     });
@@ -272,13 +209,13 @@ describe('createSlice', () => {
 
     it('should have the correct action for increment', () => {
       expect(actions.increment()).toEqual({
-        type: 'cool/INCREMENT',
+        type: 'increment',
         payload: undefined,
       });
     });
     it('should have the correct action for multiply', () => {
       expect(actions.multiply(5)).toEqual({
-        type: 'cool/MULTIPLY',
+        type: 'multiply',
         payload: 5,
       });
     });
@@ -400,7 +337,7 @@ describe('multiple createSlice slices used to create a redux store', () => {
     waves: 0,
   };
 
-  const hiSlice = createSlice<HiActions, HiSliceState, IState>({
+  const hiSlice = createSlice<HiActions, HiSliceState, 'hi'>({
     // interfaces supplied to createSlice
     slice: 'hi', // The key/name of the slice, it is type checked to ensure it is a key in IState
     cases: {
@@ -464,7 +401,7 @@ describe('multiple createSlice slices used to create a redux store', () => {
     userId: null,
   };
 
-  const authSlice = createSlice<AuthActions, AuthSliceState, IState>({
+  const authSlice = createSlice<AuthActions, AuthSliceState, 'auth'>({
     slice: 'auth',
     initialState: authInitialState,
     cases: {

@@ -1,10 +1,11 @@
-export function createAction<P = any>(type: string) {
+export function createAction<P = any, T extends string = string>(type: T) {
   const action = (payload: P) => ({
     type,
     payload,
   });
 
-  action.toString = () => `${type}`;
+  action.type = `${type}` as T;
+  action.toString = (): T => `${type}` as T;
   return action;
 }
 

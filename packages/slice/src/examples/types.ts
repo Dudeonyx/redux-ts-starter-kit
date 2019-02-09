@@ -42,15 +42,15 @@ export const {
 // tslint:disable: no-unused-expression
 // $ExpectType ActionCreators<{ set: string[]; reset: {}; }>
 hiActions$;
-// $ExpectType (payload: string[]) => Action<string[]>
+// $ExpectType { (payload: string[]): PayloadAction<"set", string[]>; type: "set"; toString: () => "set"; }
 hiActions$.set;
-// $ExpectType (payload?: any) => Action<any>
+// $ExpectType { (): PayloadAction<"reset", undefined>; type: "reset"; toString: () => "reset"; }
 hiActions$.reset;
 // $ExpectType { getSlice: (state: { hi: string[]; }) => string[]; }
 hiSelector$;
 // $ExpectType (state: { hi: string[]; }) => string[]
 hiSelector$.getSlice;
-// $ExpectType Reducer<string[], Action<any>>
+// $ExpectType Reducer<string[], PayloadAction<string, any>, "hi">
 hiReducer$;
 
 // tslint:enable: no-unused-expression
@@ -66,11 +66,11 @@ export const {
   selectors: hiSelectors,
   reducer: hiReducer,
   slice: hi_slice,
-} = createSlice<Actions, HiSliceState, IState>({
+} = createSlice<Actions, HiSliceState, 'hi'>({
   slice: 'hi',
   cases: {
     set: (state, payload) => payload,
-    reset: (state) => defaultState,
+    reset: () => defaultState,
   },
   initialState: defaultState,
 });
@@ -78,30 +78,28 @@ export const {
 // tslint:disable: no-unused-expression
 // $ExpectType ActionCreators<Actions>
 hiActions;
-// $ExpectType (payload: HiSliceState) => Action<HiSliceState>
+// $ExpectType { (payload: HiSliceState): PayloadAction<"set", HiSliceState>; type: "set"; toString: () => "set"; }
 hiActions.set;
-// $ExpectType () => Action<any>
+// $ExpectType { (): PayloadAction<"reset", undefined>; type: "reset"; toString: () => "reset"; }
 hiActions.reset;
 
-// $ExpectType Reducer<HiSliceState, Action<any>>
+// $ExpectType Reducer<HiSliceState, PayloadAction<string, any>, "hi">
 hiReducer;
-// $ExpectType { test: (state: IState) => string; wow: (state: IState) => number; } & { getSlice: (state: IState) => HiSliceState; }
+// $ExpectType { test: (state: { hi: HiSliceState; }) => string; wow: (state: { hi: HiSliceState; }) => number; } & { getSlice: (state: { hi: HiSliceState; }) => HiSliceState; }
 hiSelectors;
-// $ExpectType (state: IState) => HiSliceState
+// $ExpectType (state: { hi: HiSliceState; }) => HiSliceState
 hiSelectors.getSlice;
-// $ExpectType (state: IState) => string
+// $ExpectType (state: { hi: HiSliceState; }) => string
 hiSelectors.test;
-// $ExpectType (state: IState) => number
+// $ExpectType (state: { hi: HiSliceState; }) => number
 hiSelectors.wow;
-// $ExpectType "hi" | "auth" | "ords"
+// $ExpectType "hi"
 hi_slice;
 
 // tslint:enable: no-unused-expression
 
 const val = hiSelectors.getSlice({
   hi: defaultState,
-  auth: {} as AuthSliceState,
-  ords: {} as IordersReducerState,
 });
 
 hiActions.set({ test: 'ok', wow: 0 });
@@ -169,6 +167,31 @@ export const {
     userId: getAuthUserId,
   },
 } = auth;
+
+// tslint:disable: no-unused-expression
+// $ExpectType Reducer<AuthSliceState, PayloadAction<string, any>, "auth">
+authReducer;
+// $ExpectType "auth"
+authSlice;
+// $ExpectType { (payload: Error): PayloadAction<"authFail", Error>; type: "authFail"; toString: () => "authFail"; }
+authFail;
+// $ExpectType { (payload: AuthSuccess): PayloadAction<"authSuccess", AuthSuccess>; type: "authSuccess"; toString: () => "authSuccess"; }
+authSuccess;
+// $ExpectType { (): PayloadAction<"authStart", undefined>; type: "authStart"; toString: () => "authStart"; }
+authStart;
+// $ExpectType { (): PayloadAction<"authLogout", undefined>; type: "authLogout"; toString: () => "authLogout"; }
+authLogout;
+// $ExpectType (state: { auth: AuthSliceState; }) => AuthSliceState
+getAuth;
+// $ExpectType (state: { auth: AuthSliceState; }) => boolean
+getAuthAuthenticating;
+// $ExpectType (state: { auth: AuthSliceState; }) => Error
+getAuthError;
+// $ExpectType (state: { auth: AuthSliceState; }) => string
+getAuthUserId;
+// $ExpectType (state: { auth: AuthSliceState; }) => string
+getAuthIdToken;
+// tslint:enable: no-unused-expression
 export interface AuthActions$ {
   authSuccess$: AuthSuccess;
   authStart$: never;
@@ -177,7 +200,7 @@ export interface AuthActions$ {
 }
 
 const slice = 'auth';
-const auth$ = createSlice<AuthActions$, AuthSliceState, any>({
+const auth$ = createSlice<AuthActions$, AuthSliceState, typeof slice>({
   slice,
   initialState,
   cases: {
@@ -212,7 +235,33 @@ export const {
     userId: getAuthUserId$,
   },
 } = auth$;
-// getAuth$({auth: {} as AuthSliceState,})
+// getAuth$({auth: {} as AuthSliceState,} as IState)
+
+// tslint:disable: no-unused-expression
+// $ExpectType Reducer<AuthSliceState, PayloadAction<string, any>, "auth">
+authReducer$;
+// $ExpectType "auth"
+authSlice$;
+// $ExpectType { (payload: Error): PayloadAction<"authFail$", Error>; type: "authFail$"; toString: () => "authFail$"; }
+authFail$;
+// $ExpectType { (payload: AuthSuccess): PayloadAction<"authSuccess$", AuthSuccess>; type: "authSuccess$"; toString: () => "authSuccess$"; }
+authSuccess$;
+// $ExpectType { (): PayloadAction<"authStart$", undefined>; type: "authStart$"; toString: () => "authStart$"; }
+authStart$;
+// $ExpectType { (): PayloadAction<"authLogout$", undefined>; type: "authLogout$"; toString: () => "authLogout$"; }
+authLogout$;
+// $ExpectType (state: { auth: AuthSliceState; }) => AuthSliceState
+getAuth$;
+// $ExpectType (state: { auth: AuthSliceState; }) => boolean
+getAuthAuthenticating$;
+// $ExpectType (state: { auth: AuthSliceState; }) => Error
+getAuthError$;
+// $ExpectType (state: { auth: AuthSliceState; }) => string
+getAuthUserId$;
+// $ExpectType (state: { auth: AuthSliceState; }) => string
+getAuthIdToken$;
+// tslint:enable: no-unused-expression
+
 const auth$NoInterface = createSlice({
   slice: 'auth',
   initialState,
@@ -225,7 +274,7 @@ const auth$NoInterface = createSlice({
       state.idToken = null;
       state.userId = null;
     },
-    authStart$2: (state) => {
+    authStart$2: (state, payload) => {
       state.authenticating = true;
     },
     authSuccess$2: (state, payload: AuthSuccess) => {

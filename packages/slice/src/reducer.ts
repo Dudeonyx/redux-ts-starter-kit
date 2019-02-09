@@ -1,6 +1,6 @@
 import createNextState from 'immer';
-import { Action } from './types';
-import { ReducerMap } from './slice';
+import { PayloadAction } from './types';
+import { ReducerMap, ActionsMap, Reducer } from './slice';
 
 /**
  * @description Input for the createReducer utility
@@ -9,7 +9,7 @@ import { ReducerMap } from './slice';
  * @interface CreateReducer
  * @template SS - The [State] interface
  */
-export interface CreateReducer<S = any> {
+export interface CreateReducer<S = any, A = any, SliceName = string> {
   /**
    * The initial State, same as in standard reducer
    *
@@ -24,7 +24,7 @@ export interface CreateReducer<S = any> {
    * @type {ReducerMap<SS, any>}
    * @memberof CreateReducer
    */
-  cases: ReducerMap<S, any>;
+  cases: ReducerMap<S, A>;
 
   /**
    * @description An optional property representing the key of the generated slice in the redux state tree.
@@ -32,7 +32,7 @@ export interface CreateReducer<S = any> {
    * @type {string}
    * @memberof CreateReducer
    */
-  slice?: string;
+  slice?: SliceName;
 }
 // /** fix for `never[]` */
 // // export type NoEmptyArray<State> = State extends never[] ? any[] : State;
@@ -49,12 +49,16 @@ export interface CreateReducer<S = any> {
  * }
  * @returns
  */
-export function createReducer<S>({
+export function createReducer<
+  S,
+  A extends ActionsMap = ActionsMap,
+  SliceName extends string = string
+>({
   initialState,
   cases,
-  slice = '',
-}: CreateReducer<S>) {
-  const reducer = (state = initialState, action: Action<any>) => {
+  slice = '' as any,
+}: CreateReducer<S, A, SliceName>): Reducer<S, PayloadAction, SliceName> {
+  const reducer = (state = initialState, action: PayloadAction) => {
     return createNextState(state, (draft) => {
       const caseReducer = cases[action.type];
 
@@ -66,6 +70,6 @@ export function createReducer<S>({
     });
   };
 
-  reducer.toString = () => String(slice);
-  return reducer;
+  reducer.toString = () => slice;
+  return reducer as any;
 }
