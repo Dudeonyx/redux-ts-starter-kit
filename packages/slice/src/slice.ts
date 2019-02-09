@@ -92,7 +92,6 @@ export type ActionCreators<A> = {
 export interface Slice<
   A = any,
   SS = any,
-  S = SS,
   SliceName extends string = string
 > {
   /**
@@ -113,7 +112,7 @@ export interface Slice<
    *
    * @memberof Slice
    */
-  selectors: Selectors<SS, S>;
+  selectors: SliceName extends '' ? Selectors<SS, SS> : Selectors<SS, {[slice in SliceName]: SS}>;
   /**
    * The automatically generated action creators
    *
@@ -221,7 +220,6 @@ export function createSlice<
 }: InputWithBlankSlice<SliceState, Actions>): Slice<
   Actions,
   SliceState,
-  SliceState,
   ''
 >;
 
@@ -236,7 +234,6 @@ export function createSlice<
 }: InputWithSlice<SliceState, Actions, SliceName>): Slice<
   Actions,
   SliceState,
-  { [slice in SliceName]: SliceState },
   SliceName
 >;
 
@@ -249,7 +246,6 @@ export function createSlice<
   initialState,
 }: InputWithoutSlice<SliceState, Actions>): Slice<
   Actions,
-  SliceState,
   SliceState,
   ''
 >;

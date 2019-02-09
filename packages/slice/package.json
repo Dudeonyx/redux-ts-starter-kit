@@ -88,5 +88,6 @@
       "prettier-tslint fix",
       "git add"
     ]
-  }
+  },
+  "gitHead": "9073cc276c3ca59cd9593c6d1ea95d1ee1ad861e"
 }
