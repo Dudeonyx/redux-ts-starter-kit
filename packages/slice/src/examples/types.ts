@@ -109,10 +109,10 @@ const red = hiReducer;
 console.log('\nHi selector: ', val, '\nHi reducer', red);
 
 interface AuthSliceState {
-  idToken: string | null;
-  userId: string | null;
-  authenticating: boolean;
-  error: Error | null;
+  readonly idToken: string | null;
+  readonly userId: string | null;
+  readonly authenticating: boolean;
+  readonly error: Error | null;
 }
 interface AuthSuccess {
   idToken: string | null;
@@ -140,7 +140,7 @@ const auth = createSlice({
       state.error = error;
       state.authenticating = false;
     },
-    authLogout: (state, _: never) => {
+    authLogout: (state) => {
       state.idToken = null;
       state.userId = null;
     },

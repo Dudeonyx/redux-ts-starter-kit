@@ -1,6 +1,6 @@
 import createNextState from 'immer';
 import { PayloadAction } from './types';
-import { ReducerMap, ActionsMap, Reducer } from './slice';
+import { Cases, ActionsMap, Reducer } from './slice';
 
 /**
  * @description Input for the createReducer utility
@@ -24,7 +24,7 @@ export interface CreateReducer<S = any, A = any, SliceName = string> {
    * @type {ReducerMap<SS, any>}
    * @memberof CreateReducer
    */
-  cases: ReducerMap<S, A>;
+  cases: Cases<S, A>;
 }
 
 interface CreateReducer2<S, A, SliceName>

@@ -1,9 +1,10 @@
 import { PayloadAction } from './types';
 import { makeReducer, makeActionCreators, makeSelectors } from './slice-utils';
+import { Draft } from 'immer';
 
 /** Type alias for case reducers when `slice` is blank or undefined */
 type CaseReducer<SS = any, A = any> = (
-  state: SS,
+  state: Draft<SS>,
   payload: A,
 ) => SS | void | undefined;
 
@@ -17,7 +18,12 @@ export interface Reducer<
   toString: () => SliceName;
 }
 
-/** Map of `cases` */
+/**
+ * A map of case reducers for creating a standard reducer
+ * @export
+ * @template SS is the [SliceState] or [State]
+ * @template A  is the [Action]
+ */
 export type Cases<SS = any, Ax = any> = {
   [K in keyof Ax]: CaseReducer<SS, Ax[K]>
 };
@@ -32,15 +38,6 @@ export interface AnyState {
   [slice: string]: any;
 }
 
-/**
- * A map of case reducers for creating a standard reducer
- * @export
- * @template SS is the [SliceState] or [State]
- * @template A  is the [Action]
- */
-export type ReducerMap<SS, A = ActionsMap> = {
-  [key in keyof A]: CaseReducer<SS, A[key]>
-};
 /** Type alias for generated selectors */
 export type Selectors<SS, S> = SS extends any[]
   ? {
@@ -89,11 +86,7 @@ export type ActionCreators<A> = {
  * @template S - [State]
  * @template Slc - [slice]
  */
-export interface Slice<
-  A = any,
-  SS = any,
-  SliceName extends string = string
-> {
+export interface Slice<A = any, SS = any, SliceName extends string = string> {
   /**
    * @description The name of the slice generated, i.e it's key in the redux state tree.
    * @type {SliceName}
@@ -112,7 +105,9 @@ export interface Slice<
    *
    * @memberof Slice
    */
-  selectors: SliceName extends '' ? Selectors<SS, SS> : Selectors<SS, {[slice in SliceName]: SS}>;
+  selectors: SliceName extends ''
+    ? Selectors<SS, SS>
+    : Selectors<SS, { [slice in SliceName]: SS }>;
   /**
    * The automatically generated action creators
    *
@@ -217,11 +212,7 @@ export function createSlice<
   cases,
   initialState,
   slice,
-}: InputWithBlankSlice<SliceState, Actions>): Slice<
-  Actions,
-  SliceState,
-  ''
->;
+}: InputWithBlankSlice<SliceState, Actions>): Slice<Actions, SliceState, ''>;
 
 export function createSlice<
   Actions extends ActionsMap,
@@ -244,11 +235,7 @@ export function createSlice<
 >({
   cases,
   initialState,
-}: InputWithoutSlice<SliceState, Actions>): Slice<
-  Actions,
-  SliceState,
-  ''
->;
+}: InputWithoutSlice<SliceState, Actions>): Slice<Actions, SliceState, ''>;
 
 export function createSlice<
   Actions extends ActionsMap,

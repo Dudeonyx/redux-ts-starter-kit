@@ -1,13 +1,7 @@
 import { createAction } from './action';
 import { createReducer } from './reducer';
 import { createSubSelector, createSelector } from './selector';
-import {
-  ActionsMap,
-  ActionCreators,
-  Cases,
-  ReducerMap,
-  Selectors,
-} from './slice';
+import { ActionsMap, ActionCreators, Cases, Selectors } from './slice';
 
 export const makeActionCreators = <Actions extends ActionsMap>(
   actionKeys: Array<Extract<keyof Actions, string>>,
@@ -30,7 +24,7 @@ export const makeReducer = <
   slice: SliceName,
 ) => {
   const actionKeys = Object.keys(cases) as Array<keyof Actions>;
-  const reducerMap = actionKeys.reduce<ReducerMap<SliceState, Actions>>(
+  const reducerMap = actionKeys.reduce<Cases<SliceState, Actions>>(
     (map, action) => {
       map[action] = cases[action];
       return map;
