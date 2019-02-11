@@ -1,6 +1,6 @@
 {
   "name": "@redux-ts-starter-kit/slice",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-alpha.2",
   "main": "lib/redux-ts-starter-kit-slice.cjs.js",
   "module": "lib/redux-ts-starter-kit-slice.esm.js",
   "types": "lib/index.d.ts",
@@ -70,7 +70,7 @@
     "typings-checker": "^2.0.0"
   },
   "dependencies": {
-    "immer": "^1.9.3"
+    "immer": "2.0.0"
   },
   "husky": {
     "hooks": {
@@ -89,5 +89,5 @@
       "git add"
     ]
   },
-  "gitHead": "9073cc276c3ca59cd9593c6d1ea95d1ee1ad861e"
+  "gitHead": "5b49dc95cf946af743328edc8828269f1e13ae3b"
 }
