@@ -5,6 +5,15 @@ describe('createAction', () => {
     const action = createAction('A_TYPE');
     expect(action('something')).toEqual({
       type: 'A_TYPE',
+      slice: '',
+      payload: 'something',
+    });
+  });
+  it('should create a slicespaced action', () => {
+    const action = createAction('A_TYPE', 'A_SLICE');
+    expect(action('something')).toEqual({
+      type: 'A_TYPE',
+      slice: 'A_SLICE',
       payload: 'something',
     });
   });

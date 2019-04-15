@@ -58,7 +58,11 @@ export function createReducer<
   initialState,
   cases,
   slice,
-}: CreateReducer2<S, A, SliceName>): Reducer<S, PayloadAction, SliceName>;
+}: CreateReducer2<S, A, SliceName>): Reducer<
+  S,
+  PayloadAction<string, any, SliceName>,
+  SliceName
+>;
 
 export function createReducer<
   S,
@@ -67,7 +71,11 @@ export function createReducer<
 >({
   initialState,
   cases,
-}: CreateReducer<S, A, SliceName>): Reducer<S, PayloadAction, ''>;
+}: CreateReducer<S, A, SliceName>): Reducer<
+  S,
+  PayloadAction<string, any, ''>,
+  ''
+>;
 
 export function createReducer<
   S,

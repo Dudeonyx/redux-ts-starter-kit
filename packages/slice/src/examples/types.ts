@@ -113,6 +113,15 @@ interface AuthSliceState {
   readonly userId: string | null;
   readonly authenticating: boolean;
   readonly error: Error | null;
+  readonly nestedObj: {
+    key1: number;
+    key2: string;
+    key3: boolean;
+    deeplyNestedObj: {
+      keyA: number;
+      keyB: string;
+    };
+  };
 }
 interface AuthSuccess {
   idToken: string | null;
@@ -130,6 +139,15 @@ const initialState: AuthSliceState = {
   userId: '',
   authenticating: false,
   error: null,
+  nestedObj: {
+    key1: 1,
+    key2: '1',
+    key3: true,
+    deeplyNestedObj: {
+      keyA: 1,
+      keyB: '1',
+    },
+  },
 };
 
 const auth = createSlice({
@@ -165,6 +183,7 @@ export const {
     error: getAuthError,
     idToken: getAuthIdToken,
     userId: getAuthUserId,
+    nestedObj: { deeplyNestedObj, getSlice: getNestedObj, key1, key2, key3 },
   },
 } = auth;
 

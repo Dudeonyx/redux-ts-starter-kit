@@ -11,7 +11,7 @@ type CaseReducer<SS = any, A = any> = (
 /** Type alias for the generated reducer */
 export interface Reducer<
   SS = any,
-  A extends PayloadAction = PayloadAction,
+  A extends PayloadAction = PayloadAction<string, any, any>,
   SliceName extends string = string
 > {
   (state: SS | undefined, action: A): SS;
@@ -38,37 +38,92 @@ export interface AnyState {
   [slice: string]: any;
 }
 
+type TestType<G> = unknown extends G // Hacky ternary to catch `any`
+  ? 'Any'
+  : G extends number
+  ? 'Number'
+  : G extends string
+  ? 'String'
+  : G extends symbol
+  ? 'Symbol'
+  : G extends boolean
+  ? 'Boolean'
+  : G extends any[] | ReadonlyArray<any>
+  ? 'Array'
+  : G extends Error
+  ? 'Error'
+  : G extends Date
+  ? 'Date'
+  : G extends Map<any, any>
+  ? 'Map'
+  : G extends WeakMap<any, any>
+  ? 'WeakMap'
+  : G extends Set<any>
+  ? 'Set'
+  : G extends WeakSet<any>
+  ? 'WeakSet'
+  : // tslint:disable-next-line: ban-types
+  G extends String
+  ? 'String()'
+  : // tslint:disable-next-line: ban-types
+  G extends Number
+  ? 'Number()'
+  : // tslint:disable-next-line: ban-types
+  G extends Boolean
+  ? 'Boolean()'
+  : // tslint:disable-next-line: ban-types
+  G extends Symbol
+  ? 'Symbol()'
+  : {} extends G
+  ? 'EmptyObject'
+  : G extends AnyState
+  ? 'Object'
+  : G extends object
+  ? 'Non-primitive'
+  : never extends G
+  ? 'Never'
+  : 'Unknown';
+
+// type FD1 = TestType<unknown>;
+// type FD2 = TestType<string>;
+// type FD3 = TestType<never>;
+// type FD4 = TestType<number>;
+// type FD5 = TestType<{}>;
+// type FD6 = TestType<[]>;
+// type FD7 = TestType<Error>;
+// type FD8 = TestType<Date>;
+// type FD9 = TestType<WeakMap<any,any>>;
+// type FD10 = TestType<WeakSet<any>>;
+// type FD11 = TestType<Map<any,any>>;
+// type FD12 = TestType<Set<any>>;
+// type FD13 = TestType<Number>;
 /** Type alias for generated selectors */
-export type Selectors<SS, S> = SS extends any[]
-  ? {
-      getSlice: (state: S) => SS;
-    }
-  : SS extends AnyState
-  ? ({ [key in keyof SS]: (state: S) => SS[key] } & {
+export type Selectors<SS, S, D extends 0 | 1 = 1> = TestType<
+  SS
+> extends 'Object'
+  ? ({
+      [key in keyof SS]: D extends 1
+        ? TestType<SS[key]> extends 'Object'
+          ? Selectors<SS[key], S, 0>
+          : (state: S) => SS[key]
+        : (state: S) => SS[key]
+    } & {
       getSlice: (state: S) => SS;
     })
   : {
       getSlice: (state: S) => SS;
     };
 
-
 /** Type alias for generated action creators */
 export type ActionCreators<A, Slc extends string = ''> = {
-  [key in Extract<keyof A, string>]: unknown extends A[key] // hacky ternary for `A[key]` = `any`
+  [key in Extract<keyof A, string>]: TestType<A[key]> extends 'Any'
     ? {
         (payload?: any): PayloadAction<key, any, Slc>;
         type: key;
         slice: Slc;
         toString: () => key;
       } // tslint:disable-next-line: ban-types
-    : Object extends A[key] // ensures payload isn't inferred as {}
-    ? {
-        (): PayloadAction<key, undefined, Slc>;
-        type: key;
-        slice: Slc;
-        toString: () => key;
-      }
-    : A[key] extends never // No payload when type is `never`
+    : TestType<A[key]> extends 'EmptyObject' | 'Never' | never // ensures payload isn't inferred as {}
     ? {
         (): PayloadAction<key, undefined, Slc>;
         type: key;
@@ -105,7 +160,15 @@ export interface Slice<A = any, SS = any, SliceName extends string = string> {
    * @type {Reducer<SS, Action>}
    * @memberof Slice
    */
-  reducer: Reducer<SS, PayloadAction, SliceName>;
+  reducer: Reducer<SS, PayloadAction<string, any, string>, SliceName>;
+  /**
+   * @description The generated slice reducer, unlike the normal reducer
+   * `sliceReducer` only listens to actions with a matching `slice` key
+   *
+   * @type {Reducer<SS, Action>}
+   * @memberof Slice
+   */
+  sliceReducer: Reducer<SS, PayloadAction<string, any, SliceName>, SliceName>;
   /**
    * The automatically generated selectors
    *
@@ -119,7 +182,7 @@ export interface Slice<A = any, SS = any, SliceName extends string = string> {
    *
    * @memberof Slice
    */
-  actions: ActionCreators<A>;
+  actions: ActionCreators<A, SliceName>;
 }
 
 interface InputWithoutSlice<SS = any, Ax = ActionsMap> {
@@ -251,24 +314,29 @@ export function createSlice<
   cases,
   initialState,
   slice = '' as any,
-}: InputWithOptionalSlice<SliceState, Actions, SliceName>) {
+}: InputWithOptionalSlice<SliceState, Actions, SliceName>): Slice<
+  Actions,
+  SliceState,
+  SliceName
+> {
   const actionKeys = Object.keys(cases) as Array<
     Extract<keyof Actions, string>
   >;
 
-  const reducer = makeReducer<Actions, SliceState, SliceName>(
+  const [reducer, sliceReducer,] = makeReducer<Actions, SliceState, SliceName>(
     cases,
     initialState,
     slice,
   );
 
-  const actions = makeActionCreators<Actions>(actionKeys);
+  const actions = makeActionCreators<Actions, SliceName>(actionKeys, slice);
 
   const selectors = makeSelectors<SliceState, SliceName>(slice, initialState);
   return {
     actions,
-    reducer,
+    reducer: reducer as any,
+    sliceReducer,
     slice,
-    selectors,
+    selectors: selectors as any,
   };
 }

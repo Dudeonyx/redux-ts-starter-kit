@@ -17,10 +17,12 @@ describe('makeActionCreators', () => {
   it('s actions creators work as expected', () => {
     expect(actions.setName('Paul')).toEqual({
       type: 'setName',
+      slice: '',
       payload: 'Paul',
     });
     expect(actions.resetName()).toEqual({
       type: 'resetName',
+      slice: '',
       payload: undefined,
     });
   });
@@ -85,29 +87,21 @@ describe('makeSelectors', () => {
         expect(selectors.surname(state)).toEqual('Baz');
       });
     });
-  });
-  describe('without slice', () => {
-    describe('state is not an object', () => {
-      const state = ['Foo', 'Bar', 'Baz',];
-      const selectors = makeSelectors('');
-      it('only creates a `getSlice` selector', () => {
-        expect(Object.hasOwnProperty.call(selectors, 'getSlice')).toBe(true);
-        expect(Object.hasOwnProperty.call(selectors, 'length')).toBe(false);
-        expect(Object.keys(selectors).length).toBe(1);
-      });
-
-      it('creates a working `getSlice` selector', () => {
-        expect(selectors.getSlice(state)).toEqual(['Foo', 'Bar', 'Baz',]);
-      });
-    });
-    describe('state is an object', () => {
+    describe('initialState is an object with nesting', () => {
+      const initialState = {
+        name: '',
+        middlename: '',
+        surname: '',
+      };
       const state = {
-        name: 'Foo',
-        middlename: 'Bar',
-        surname: 'Baz',
+        form: {
+          name: 'Foo',
+          middlename: 'Bar',
+          surname: 'Baz',
+        },
       };
 
-      const selectors = makeSelectors('', state);
+      const selectors = makeSelectors('form', initialState);
 
       it('creates a `getSlice` selector and additional selectors', () => {
         expect(Object.hasOwnProperty.call(selectors, 'getSlice')).toBe(true);
@@ -128,6 +122,58 @@ describe('makeSelectors', () => {
         expect(selectors.middlename(state)).toEqual('Bar');
         expect(selectors.surname(state)).toEqual('Baz');
       });
+    });
+  });
+  describe('state is an object', () => {
+    const state = {
+      name: 'Foo',
+      middlename: 'Bar',
+      surname: 'Baz',
+      sizes: {
+        bust: 1,
+        hips: 2,
+        waist: 3,
+      },
+    };
+
+    const selectors = makeSelectors('', state);
+
+    it('creates a `getSlice` selector and additional selectors and nested selectors', () => {
+      expect(Object.hasOwnProperty.call(selectors, 'getSlice')).toBe(true);
+      expect(Object.hasOwnProperty.call(selectors, 'name')).toBe(true);
+      expect(Object.hasOwnProperty.call(selectors, 'middlename')).toBe(true);
+      expect(Object.hasOwnProperty.call(selectors, 'surname')).toBe(true);
+      expect(Object.hasOwnProperty.call(selectors, 'sizes')).toBe(true);
+      expect(typeof selectors.sizes === 'object').toBe(true);
+      expect(Object.hasOwnProperty.call(selectors.sizes, 'getSlice')).toBe(
+        true,
+      );
+      expect(Object.hasOwnProperty.call(selectors.sizes, 'bust')).toBe(true);
+      expect(Object.hasOwnProperty.call(selectors.sizes, 'waist')).toBe(true);
+      expect(Object.hasOwnProperty.call(selectors.sizes, 'hips')).toBe(true);
+      expect(Object.hasOwnProperty.call(selectors, 'lastname')).toBe(false);
+      expect(Object.keys(selectors).length).toBe(5);
+      expect(Object.keys(selectors.sizes).length).toBe(4);
+    });
+
+    it('creates working selectors', () => {
+      expect(selectors.getSlice(state)).toEqual({
+        name: 'Foo',
+        middlename: 'Bar',
+        surname: 'Baz',
+        sizes: {
+          bust: 1,
+          hips: 2,
+          waist: 3,
+        },
+      });
+      expect(selectors.name(state)).toEqual('Foo');
+      expect(selectors.middlename(state)).toEqual('Bar');
+      expect(selectors.surname(state)).toEqual('Baz');
+      expect(selectors.sizes.getSlice(state)).toEqual(state.sizes);
+      expect(selectors.sizes.bust(state)).toEqual(1);
+      expect(selectors.sizes.hips(state)).toEqual(2);
+      expect(selectors.sizes.waist(state)).toEqual(3);
     });
   });
 });
@@ -158,6 +204,7 @@ describe('createSlice', () => {
     it('should have the correct action for increment', () => {
       expect(actions.increment()).toEqual({
         type: 'increment',
+        slice: '',
         payload: undefined,
       });
     });
@@ -165,6 +212,7 @@ describe('createSlice', () => {
     it('should have the correct action for multiply', () => {
       expect(actions.multiply(3)).toEqual({
         type: 'multiply',
+        slice: '',
         payload: 3,
       });
     });
@@ -210,12 +258,14 @@ describe('createSlice', () => {
     it('should have the correct action for increment', () => {
       expect(actions.increment()).toEqual({
         type: 'increment',
+        slice: 'cool',
         payload: undefined,
       });
     });
     it('should have the correct action for multiply', () => {
       expect(actions.multiply(5)).toEqual({
         type: 'multiply',
+        slice: 'cool',
         payload: 5,
       });
     });
@@ -307,6 +357,9 @@ describe('createSlice', () => {
       expect(reducer({ user: 'hi' }, actions.setUserName('eric'))).toEqual({
         user: 'eric',
       });
+      expect(reducer(undefined, actions.setUserName('eric'))).toEqual({
+        user: 'eric',
+      });
     });
   });
 });
@@ -347,7 +400,7 @@ describe('multiple createSlice slices used to create a redux store', () => {
       setGreeting: (state, payload) => {
         state.greeting = payload;
       },
-      resetHi: (state) => {
+      resetHi: () => {
         return hiInitialState;
       },
     },
@@ -382,7 +435,6 @@ describe('multiple createSlice slices used to create a redux store', () => {
     slice: 'form',
     initialState: formInitialState,
   });
-
   interface AuthSliceState {
     idToken: string | null;
     userId: string | null;

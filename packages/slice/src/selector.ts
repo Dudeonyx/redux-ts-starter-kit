@@ -1,21 +1,22 @@
 import { AnyState } from './slice';
 
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+// const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const hasOwn = Object.prototype.hasOwnProperty;
+
+export function createSelector<State extends AnyState = AnyState>(
+  slice: '',
+): (state: State) => State;
 
 export function createSelector<
-  State extends AnyState = AnyState,
-  SliceState extends State = State
->(slice: ''): (state: State) => SliceState;
+  State extends { [key in Sn]: SliceState } = { [key in Sn]: SliceState },
+  SliceState = any,
+  Sn extends string = any
+>(slice: Sn): (state: State) => SliceState;
 
 export function createSelector<
   State extends AnyState = AnyState,
   SliceState = any
->(slice: keyof State): (state: State) => SliceState;
-
-export function createSelector<
-  State extends AnyState = AnyState,
-  SliceState = any
->(slice: keyof State): (state: State) => SliceState {
+>(slice: keyof State): (state: State) => SliceState | State {
   if (
     !(
       typeof slice === 'string' ||
@@ -23,58 +24,45 @@ export function createSelector<
       typeof slice === 'symbol'
     )
   ) {
-    throw new Error('slice argument must be a string or number or symbol');
+    throw new Error(
+      'slice argument must be of type: string or number or symbol',
+    );
   }
   if (slice === '') {
-    return (state: State) => {
-      if (state == null) {
-        // tslint:disable-next-line: no-unused-expression
-        IS_PRODUCTION ||
-          console.error(`A selector was called with a null or undefined state`);
-        return state;
-      }
-      return state as any;
-    };
+    return (state: State) => state;
   }
   return (state: State) => {
-    if (state == null) {
-      // tslint:disable-next-line: no-unused-expression
-      IS_PRODUCTION ||
-        console.error(
-          `${String(slice)} selector was called with a null or undefined state`,
-        );
-      return state;
+    try {
+      const stateSlice = state[slice];
+      return stateSlice;
+    } catch (error) {
+      console.error(`${String(slice)} was not found in the given State,
+    This selector was either called with a bad state argument or
+    an incorrect slice name was given when instantiating the parent reducer,
+    check for spelling errors`);
+      throw error;
     }
-    if (!state.hasOwnProperty(slice)) {
-      // tslint:disable-next-line: no-unused-expression
-      IS_PRODUCTION ||
-        console.error(`${String(slice)} was not found in the given State,
-      This selector was either called with a bad state argument or
-      an incorrect slice name was given when instantiating the parent reducer,
-      check for spelling errors`);
-      return undefined;
-    }
-    return state[slice];
   };
 }
 export function createSubSelector<
-  State extends AnyState = AnyState,
-  SliceState extends AnyState = AnyState
->(slice: keyof State | '', subSlice: ''): never;
+  State extends { [key in Sn]: SliceState } = { [key in Sn]: SliceState },
+  SliceState = any,
+  Sn extends string = string
+>(slice: Sn | '', subSlice: ''): never;
+
 export function createSubSelector<
   State extends AnyState = AnyState,
-  SliceState extends AnyState = AnyState
->(
-  slice: '',
-  subSlice: keyof SliceState,
-): (state: AnyState) => SliceState[keyof SliceState];
+  SliceState extends { [x in SSn]: SliceState } = { [x in SSn]: SliceState },
+  SSn extends string = string
+>(slice: '', subSlice: SSn): (state: SliceState) => SliceState[SSn];
+
 export function createSubSelector<
-  State extends AnyState = AnyState,
-  SliceState extends AnyState = AnyState
->(
-  slice: keyof State,
-  subSlice: keyof SliceState,
-): (state: State) => SliceState[keyof SliceState];
+  State extends { [key in Sn]: SliceState } = { [key in Sn]: SliceState },
+  SliceState extends { [key in SSn]: any } = { [key in SSn]: any },
+  Sn extends string = string,
+  SSn extends string = string
+>(slice: Sn, subSlice: SSn): (state: State) => SliceState[SSn];
+
 export function createSubSelector<
   State extends AnyState = AnyState,
   SliceState extends AnyState = AnyState
@@ -97,54 +85,162 @@ export function createSubSelector<
     )
   ) {
     throw new Error(
-      'SubSlice must not be blank, and slice & subSlice must be a string or number or symbol',
+      'SubSlice must not be blank, and slice & subSlice must be of type: string or number or symbol',
     );
   }
   if (!slice) {
     return (state: State) => {
-      if (state == null) {
-        // tslint:disable-next-line: no-unused-expression
-        IS_PRODUCTION ||
+      try {
+        return state[subSlice as keyof State];
+      } catch (error) {
+        if (!hasOwn.call(state, slice)) {
           console.error(
-            `${String(
-              subSlice,
-            )} sub-selector was called with a null or undefined state`,
+            String(slice) +
+              ' was not found in the given State, This selector was either called with a bad state argument or an incorrect subSlice name was given when instantiating the parent reducer, check for spelling errors',
           );
-        return state as any;
+        } else if (!hasOwn.call(state[slice], subSlice)) {
+          console.error(
+            String(subSlice) +
+              ' was not found in the given State[' +
+              String(slice) +
+              '] slice, This selector was either called with a bad state argument or an incorrect subSlice name was given when instantiating the parent reducer, check for spelling errors',
+          );
+        }
+        throw error;
       }
-      return state[subSlice as keyof State];
     };
   }
   return (state: State) => {
-    if (state == null) {
-      // tslint:disable-next-line: no-unused-expression
-      IS_PRODUCTION ||
-        console.error(
-          `${String(slice)}/${String(
-            subSlice,
-          )} sub-selector was called with a null or undefined state`,
-        );
-      return state;
-    }
-    if (!state.hasOwnProperty(slice)) {
-      // tslint:disable-next-line: no-unused-expression
-      IS_PRODUCTION ||
-        console.error(`${String(slice)} was not found in the given State,
+    try {
+      return state[slice][subSlice];
+    } catch (error) {
+      console.error(`${String(slice)} was not found in the given State,
       This selector was either called with a bad state argument or
       an incorrect slice name was given when instantiating the parent reducer,
       check for spelling errors`);
-      return undefined;
+      throw error;
     }
-    if (!state[slice].hasOwnProperty(subSlice)) {
-      // tslint:disable-next-line: no-unused-expression
-      IS_PRODUCTION ||
+  };
+}
+export function createSubSubSelector<
+  State extends AnyState,
+  SliceState = any,
+  Sn extends string = string
+>(slice: Sn | '', subSlice: '', subSubSlice: any): never;
+
+export function createSubSubSelector<
+  State extends AnyState = AnyState,
+  SliceState = any,
+  Sn = string,
+  SSn = string
+>(slice: Sn | '', subSlice: SSn | '', subSubSlice: ''): never;
+
+export function createSubSubSelector<
+  State extends { [key in Sn]: SliceState } = { [key in Sn]: SliceState },
+  SliceState extends { [key in SSn]: { [key2 in SSSn]: any } } = {
+    [key in SSn]: { [key2 in SSSn]: any }
+  },
+  Sn extends string = string,
+  SSn extends string = string,
+  SSSn extends string = string
+>(
+  slice: '',
+  subSlice: SSn,
+  subSubSlice: SSSn,
+): (state: SliceState) => SliceState[SSn][SSSn];
+
+export function createSubSubSelector<
+  State extends { [key in Sn]: SliceState } = { [key in Sn]: SliceState },
+  SliceState extends { [key in SSn]: { [key2 in SSSn]: any } } = {
+    [key in SSn]: { [key2 in SSSn]: any }
+  },
+  Sn extends string = string,
+  SSn extends string = string,
+  SSSn extends string = string
+>(
+  slice: Sn,
+  subSlice: SSn,
+  subSubSlice: SSSn,
+): (state: State) => SliceState[SSn][SSSn];
+
+export function createSubSubSelector<
+  State extends { [key in Sn]: SliceState } = { [key in Sn]: SliceState },
+  SliceState extends { [key in SSn]: { [key2 in SSSn]: any } } = {
+    [key in SSn]: { [key2 in SSSn]: any }
+  },
+  Sn extends string = string,
+  SSn extends string = string,
+  SSSn extends string = string
+>(
+  slice: Sn,
+  subSlice: SSn,
+  subSubSlice: SSSn,
+): (state: State) => SliceState[SSn][SSSn] {
+  if (
+    subSlice == null ||
+    subSlice === '' ||
+    subSubSlice == null ||
+    subSubSlice === '' ||
+    !(
+      typeof slice === 'string' ||
+      typeof slice === 'number' ||
+      typeof slice === 'symbol'
+    ) ||
+    !(
+      typeof subSlice === 'string' ||
+      typeof subSlice === 'number' ||
+      typeof subSlice === 'symbol'
+    ) ||
+    !(
+      typeof subSubSlice === 'string' ||
+      typeof subSubSlice === 'number' ||
+      typeof subSubSlice === 'symbol'
+    )
+  ) {
+    throw new Error(
+      'SubSlice or SubSubSlice must not be blank, and slice, subSlice, SubSubSlice must be of type: string or number or symbol',
+    );
+  }
+  if (!slice) {
+    return (state: State) => {
+      try {
+        return ((state as unknown) as SliceState)[subSlice][subSubSlice];
+      } catch (error) {
+        console.error(`${String(slice)} was not found in the given State,
+        This selector was either called with a bad state argument (e.g null or undefined) or
+        an incorrect slice name was given when instantiating the parent reducer,
+        check for spelling errors`);
+        throw error;
+      }
+    };
+  }
+  return (state: State) => {
+    try {
+      return state[slice][subSlice][subSubSlice];
+    } catch (error) {
+      if (!hasOwn.call(state, slice)) {
         console.error(
-          `${String(subSlice)} was not found in the given State[${String(
-            slice,
-          )}] slice,\nThis selector was either called with a bad state argument or\nan incorrect subSlice name was given when instantiating the parent reducer,\ncheck for spelling errors`,
+          String(slice) +
+            ' was not found in the given State, This selector was either called with a bad state argument or an incorrect subSlice name was given when instantiating the parent reducer, check for spelling errors',
         );
-      return undefined;
+      } else if (!hasOwn.call(state[slice], subSlice)) {
+        console.error(
+          String(subSlice) +
+            ' was not found in the given State[' +
+            String(slice) +
+            '] slice, This selector was either called with a bad state argument or an incorrect subSlice name was given when instantiating the parent reducer, check for spelling errors',
+        );
+      } else if (!hasOwn.call(state[slice][subSlice], subSubSlice)) {
+        console.error(
+          String(subSubSlice) +
+            ' was not found in the given State[' +
+            String(slice) +
+            '][' +
+            String(subSlice) +
+            '] slice, This selector was either called with a bad state argument or an incorrect subSlice name was given when instantiating the parent reducer, check for spelling errors',
+        );
+      }
+      throw error;
     }
-    return ((state[slice] as unknown) as SliceState)[subSlice];
   };
 }
