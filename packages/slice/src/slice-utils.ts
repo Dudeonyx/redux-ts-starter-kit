@@ -163,7 +163,10 @@ function makeSliceSpacedReducer<
   if (slice === '' || slice === undefined) {
     return reducer;
   }
-  const newReducer = (state: SS | undefined = undefined, action: PA) => {
+  const initialState = reducer(undefined, {
+    type: '@%@^#$*&^@^#%%$^$%%@%$%$@$%$',
+  } as any);
+  const newReducer = (state = initialState, action: PA) => {
     return action.slice === slice ? reducer(state, action) : state;
   };
   newReducer.toString = () => slice;

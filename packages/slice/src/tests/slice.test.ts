@@ -32,7 +32,7 @@ describe('makeSelectors', () => {
   describe('with slice', () => {
     describe('initialState is not an object', () => {
       const initialState = ['Foo',];
-      const state = { list: ['Foo', 'Bar', 'Baz',] };
+      const testState = { list: ['Foo', 'Bar', 'Baz',] };
       const selectors = makeSelectors('list', initialState);
       it('only creates a `getSlice` selector', () => {
         expect(Object.hasOwnProperty.call(selectors, 'getSlice')).toBe(true);
@@ -41,14 +41,14 @@ describe('makeSelectors', () => {
       });
 
       it('creates a working `getSlice` selector', () => {
-        expect(selectors.getSlice(state)).toEqual(['Foo', 'Bar', 'Baz',]);
+        expect(selectors.getSlice(testState)).toEqual(['Foo', 'Bar', 'Baz',]);
       });
       it('can be called without giving the initialState', () => {
         const selectors2 = makeSelectors('list');
         expect(Object.hasOwnProperty.call(selectors2, 'getSlice')).toBe(true);
         expect(Object.hasOwnProperty.call(selectors2, 'length')).toBe(false);
         expect(Object.keys(selectors2).length).toBe(1);
-        expect(selectors2.getSlice(state)).toEqual(['Foo', 'Bar', 'Baz',]);
+        expect(selectors2.getSlice(testState)).toEqual(['Foo', 'Bar', 'Baz',]);
       });
     });
     describe('initialState is an object', () => {
@@ -57,7 +57,7 @@ describe('makeSelectors', () => {
         middlename: '',
         surname: '',
       };
-      const state = {
+      const testState = {
         form: {
           name: 'Foo',
           middlename: 'Bar',
@@ -77,14 +77,14 @@ describe('makeSelectors', () => {
       });
 
       it('creates working selectors', () => {
-        expect(selectors.getSlice(state)).toEqual({
+        expect(selectors.getSlice(testState)).toEqual({
           name: 'Foo',
           middlename: 'Bar',
           surname: 'Baz',
         });
-        expect(selectors.name(state)).toEqual('Foo');
-        expect(selectors.middlename(state)).toEqual('Bar');
-        expect(selectors.surname(state)).toEqual('Baz');
+        expect(selectors.name(testState)).toEqual('Foo');
+        expect(selectors.middlename(testState)).toEqual('Bar');
+        expect(selectors.surname(testState)).toEqual('Baz');
       });
     });
     describe('initialState is an object with nesting', () => {
@@ -93,7 +93,7 @@ describe('makeSelectors', () => {
         middlename: '',
         surname: '',
       };
-      const state = {
+      const testState = {
         form: {
           name: 'Foo',
           middlename: 'Bar',
@@ -113,19 +113,19 @@ describe('makeSelectors', () => {
       });
 
       it('creates working selectors', () => {
-        expect(selectors.getSlice(state)).toEqual({
+        expect(selectors.getSlice(testState)).toEqual({
           name: 'Foo',
           middlename: 'Bar',
           surname: 'Baz',
         });
-        expect(selectors.name(state)).toEqual('Foo');
-        expect(selectors.middlename(state)).toEqual('Bar');
-        expect(selectors.surname(state)).toEqual('Baz');
+        expect(selectors.name(testState)).toEqual('Foo');
+        expect(selectors.middlename(testState)).toEqual('Bar');
+        expect(selectors.surname(testState)).toEqual('Baz');
       });
     });
   });
   describe('state is an object', () => {
-    const state = {
+    const testState = {
       name: 'Foo',
       middlename: 'Bar',
       surname: 'Baz',
@@ -136,7 +136,7 @@ describe('makeSelectors', () => {
       },
     };
 
-    const selectors = makeSelectors('', state);
+    const selectors = makeSelectors('', testState);
 
     it('creates a `getSlice` selector and additional selectors and nested selectors', () => {
       expect(Object.hasOwnProperty.call(selectors, 'getSlice')).toBe(true);
@@ -157,7 +157,7 @@ describe('makeSelectors', () => {
     });
 
     it('creates working selectors', () => {
-      expect(selectors.getSlice(state)).toEqual({
+      expect(selectors.getSlice(testState)).toEqual({
         name: 'Foo',
         middlename: 'Bar',
         surname: 'Baz',
@@ -167,13 +167,13 @@ describe('makeSelectors', () => {
           waist: 3,
         },
       });
-      expect(selectors.name(state)).toEqual('Foo');
-      expect(selectors.middlename(state)).toEqual('Bar');
-      expect(selectors.surname(state)).toEqual('Baz');
-      expect(selectors.sizes.getSlice(state)).toEqual(state.sizes);
-      expect(selectors.sizes.bust(state)).toEqual(1);
-      expect(selectors.sizes.hips(state)).toEqual(2);
-      expect(selectors.sizes.waist(state)).toEqual(3);
+      expect(selectors.name(testState)).toEqual('Foo');
+      expect(selectors.middlename(testState)).toEqual('Bar');
+      expect(selectors.surname(testState)).toEqual('Baz');
+      expect(selectors.sizes.getSlice(testState)).toEqual(testState.sizes);
+      expect(selectors.sizes.bust(testState)).toEqual(1);
+      expect(selectors.sizes.hips(testState)).toEqual(2);
+      expect(selectors.sizes.waist(testState)).toEqual(3);
     });
   });
 });
@@ -286,8 +286,7 @@ describe('createSlice', () => {
     });
   });
 
-  // tslint:disable: no-shadowed-variable
-  describe('createSlice when initialState is an object', () => {
+  describe('createSlice selectors when initialState is an object', () => {
     const { selectors } = createSlice({
       cases: {
         setName: (state, name: string) => {
@@ -308,7 +307,7 @@ describe('createSlice', () => {
       },
     });
 
-    const state = {
+    const testState = {
       form: {
         name: 'John',
         surname: 'Doe',
@@ -330,16 +329,16 @@ describe('createSlice', () => {
     });
 
     it('should select the state slice', () => {
-      expect(selectors.getSlice(state)).toEqual(state.form);
+      expect(selectors.getSlice(testState)).toEqual(testState.form);
     });
     it('should select the state slice name field', () => {
-      expect(selectors.name(state)).toEqual('John');
+      expect(selectors.name(testState)).toEqual('John');
     });
     it('should select the state slice surname field', () => {
-      expect(selectors.surname(state)).toEqual('Doe');
+      expect(selectors.surname(testState)).toEqual('Doe');
     });
     it('should select the state slice middlename field', () => {
-      expect(selectors.middlename(state)).toEqual('Wayne');
+      expect(selectors.middlename(testState)).toEqual('Wayne');
     });
   });
 
@@ -564,7 +563,7 @@ describe('multiple createSlice slices used to create a redux store', () => {
             idToken: 'a random token',
             userId: 'a user id',
           },
-        });
+        } as IState);
       });
     });
     describe('Actions in formSlice', () => {
@@ -585,7 +584,7 @@ describe('multiple createSlice slices used to create a redux store', () => {
             idToken: null,
             userId: null,
           },
-        });
+        } as IState);
       });
       it('sets surname in form', () => {
         expect(
@@ -604,7 +603,7 @@ describe('multiple createSlice slices used to create a redux store', () => {
             idToken: null,
             userId: null,
           },
-        });
+        } as IState);
       });
       it('sets name in form', () => {
         expect(
@@ -659,7 +658,7 @@ describe('multiple createSlice slices used to create a redux store', () => {
             idToken: 'a random token',
             userId: 'a user id',
           },
-        });
+        } as IState);
       });
     });
     describe('Actions in authSlice', () => {
@@ -686,7 +685,7 @@ describe('multiple createSlice slices used to create a redux store', () => {
             idToken: 'a random token',
             userId: 'a user id',
           },
-        });
+        } as IState);
       });
       it('resets userId and idToken in auth', () => {
         expect(
@@ -722,12 +721,12 @@ describe('multiple createSlice slices used to create a redux store', () => {
             idToken: null,
             userId: null,
           },
-        });
+        } as IState);
       });
     });
   });
   describe('Selectors work as expected', () => {
-    const state = {
+    const testState = {
       form: {
         name: 'John',
         surname: 'Wayne',
@@ -744,50 +743,249 @@ describe('multiple createSlice slices used to create a redux store', () => {
     };
     describe('Selectors in formSlice', () => {
       it('selects form', () => {
-        expect(formSlice.selectors.getSlice(state)).toEqual({
+        expect(formSlice.selectors.getSlice(testState)).toEqual({
           name: 'John',
           surname: 'Wayne',
           middlename: 'Doe',
         });
       });
       it('selects name in form', () => {
-        expect(formSlice.selectors.name(state)).toEqual('John');
+        expect(formSlice.selectors.name(testState)).toEqual('John');
       });
       it('selects surname in form', () => {
-        expect(formSlice.selectors.surname(state)).toEqual('Wayne');
+        expect(formSlice.selectors.surname(testState)).toEqual('Wayne');
       });
       it('selects middlename in form', () => {
-        expect(formSlice.selectors.middlename(state)).toEqual('Doe');
+        expect(formSlice.selectors.middlename(testState)).toEqual('Doe');
       });
     });
 
     describe('Selectors in hiSlice', () => {
       it('selects hi', () => {
-        expect(hiSlice.selectors.getSlice(state)).toEqual({
+        expect(hiSlice.selectors.getSlice(testState)).toEqual({
           greeting: 'Kaydo!',
           waves: 5,
         });
       });
       it('selects greeting in hi', () => {
-        expect(hiSlice.selectors.greeting(state)).toEqual('Kaydo!');
+        expect(hiSlice.selectors.greeting(testState)).toEqual('Kaydo!');
       });
       it('selects waves in hi', () => {
-        expect(hiSlice.selectors.waves(state)).toEqual(5);
+        expect(hiSlice.selectors.waves(testState)).toEqual(5);
       });
     });
     describe('Selectors in authSlice', () => {
       it('selects auth', () => {
-        expect(authSlice.selectors.getSlice(state)).toEqual({
+        expect(authSlice.selectors.getSlice(testState)).toEqual({
           idToken: 'a random token',
           userId: 'a user id',
         });
       });
       it('selects idToken in auth', () => {
-        expect(authSlice.selectors.idToken(state)).toEqual('a random token');
+        expect(authSlice.selectors.idToken(testState)).toEqual(
+          'a random token',
+        );
       });
       it('selects userId in auth', () => {
-        expect(authSlice.selectors.userId(state)).toEqual('a user id');
+        expect(authSlice.selectors.userId(testState)).toEqual('a user id');
       });
     });
+  });
+});
+
+describe('createSlice creates a working sliceReducer', () => {
+  interface IState {
+    // The interface of the combined state
+    hi: HiSliceState;
+    hi_SP: HiSliceState_SP;
+  }
+
+  interface HiSliceState {
+    // The interface of the state slice the reducer will manage
+    greeting: string;
+    waves: number;
+  }
+  interface HiActions {
+    // The interface used to type the actions
+    setWaves: number; // payload is number
+    setGreeting: string; //  payload is string
+    resetHi: never; // never indicates no payload expected
+  }
+
+  const hiInitialState: HiSliceState = {
+    // The initial State
+    greeting: '',
+    waves: 0,
+  };
+
+  const hiSlice = createSlice<HiActions, HiSliceState, 'hi'>({
+    // interfaces supplied to createSlice
+    slice: 'hi', // The key/name of the slice, it is type checked to ensure it is a key in IState
+    cases: {
+      setWaves: (state, payload) => {
+        state.waves = payload;
+      },
+      setGreeting: (state, payload) => {
+        state.greeting = payload;
+      },
+      resetHi: () => {
+        return hiInitialState;
+      },
+    },
+    initialState: hiInitialState,
+  });
+  // tslint:disable-next-line: class-name
+  interface HiSliceState_SP {
+    // The interface of the state slice the reducer will manage
+    greeting: string;
+    waves: number;
+  }
+  // tslint:disable-next-line: class-name
+  interface HiActions_SP {
+    // The interface used to type the actions
+    setWaves: number; // payload is number
+    setGreeting: string; //  payload is string
+    resetHi: never; // never indicates no payload expected
+  }
+
+  const hiInitialState_SP: HiSliceState_SP = {
+    // The initial State
+    greeting: '',
+    waves: 0,
+  };
+
+  const hiSlice_SP = createSlice<HiActions_SP, HiSliceState_SP, 'hi_SP'>({
+    // interfaces supplied to createSlice
+    slice: 'hi_SP', // The key/name of the slice, it is type checked to ensure it is a key in IState
+    cases: {
+      setWaves: (state, payload) => {
+        state.waves = payload;
+      },
+      setGreeting: (state, payload) => {
+        state.greeting = payload;
+      },
+      resetHi: () => {
+        return hiInitialState_SP;
+      },
+    },
+    initialState: hiInitialState_SP,
+  });
+
+  const reducer = combineReducers<IState>({
+    hi: hiSlice.reducer,
+    hi_SP: hiSlice_SP.sliceReducer,
+  });
+  it('The SliceReducer initialises the state', () => {
+    expect(hiSlice_SP.reducer(undefined, { type: 'dfdfdf' })).toEqual({
+      waves: 0,
+      greeting: '',
+    } as HiSliceState_SP);
+  });
+  it('The SliceReducer ignores actions with matching type but without matching `slice` property', () => {
+    expect(
+      hiSlice_SP.sliceReducer(undefined, hiSlice.actions.setGreeting(
+        'hello',
+      ) as any),
+    ).toEqual({
+      waves: 0,
+      greeting: '',
+    } as HiSliceState_SP);
+    expect(
+      hiSlice_SP.sliceReducer(undefined, { type: 'setWaves', payload: 5 }),
+    ).toEqual({
+      waves: 0,
+      greeting: '',
+    } as HiSliceState_SP);
+  });
+  it('The SliceReducer accepts actions with matching type and matching `slice` property', () => {
+    expect(
+      hiSlice_SP.sliceReducer(
+        undefined,
+        hiSlice_SP.actions.setGreeting('hello'),
+      ),
+    ).toEqual({
+      waves: 0,
+      greeting: 'hello',
+    } as HiSliceState_SP);
+    expect(
+      hiSlice_SP.sliceReducer(undefined, {
+        type: 'setWaves',
+        slice: 'hi_SP',
+        payload: 5,
+      }),
+    ).toEqual({
+      waves: 5,
+      greeting: '',
+    } as HiSliceState_SP);
+  });
+  it('The normal reducer accepts actions with matching type with or without matching `slice` property', () => {
+    expect(
+      hiSlice_SP.reducer(undefined, hiSlice.actions.setGreeting('hello')),
+    ).toEqual({
+      waves: 0,
+      greeting: 'hello',
+    } as HiSliceState_SP);
+    expect(
+      hiSlice_SP.reducer(undefined, {
+        type: 'setWaves',
+        slice: '',
+        payload: 5,
+      }),
+    ).toEqual({
+      waves: 5,
+      greeting: '',
+    } as HiSliceState_SP);
+    expect(
+      hiSlice_SP.reducer(undefined, hiSlice_SP.actions.setGreeting('hello')),
+    ).toEqual({
+      waves: 0,
+      greeting: 'hello',
+    } as HiSliceState_SP);
+    expect(
+      hiSlice_SP.reducer(undefined, {
+        type: 'setWaves',
+        slice: 'hi_SP',
+        payload: 5,
+      }),
+    ).toEqual({
+      waves: 5,
+      greeting: '',
+    } as HiSliceState_SP);
+  });
+  it('The combined reducer works as expected', () => {
+    expect(reducer(undefined, { type: 'setWaves', payload: 5 })).toEqual({
+      hi: {
+        waves: 5,
+        greeting: '',
+      },
+      hi_SP: {
+        waves: 0,
+        greeting: '',
+      },
+    } as IState);
+    expect(
+      reducer(undefined, { type: 'setWaves', slice: 'hi', payload: 12 }),
+    ).toEqual({
+      hi: {
+        waves: 12,
+        greeting: '',
+      },
+      hi_SP: {
+        waves: 0,
+        greeting: '',
+      },
+    } as IState);
+    expect(
+      reducer(undefined, { type: 'setWaves', slice: 'hi_SP', payload: 7 }),
+    ).toEqual({
+      hi: {
+        waves: 7,
+        greeting: '',
+      },
+      hi_SP: {
+        waves: 7,
+        greeting: '',
+      },
+    } as IState);
   });
 });

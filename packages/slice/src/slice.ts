@@ -61,18 +61,14 @@ type TestType<G> = unknown extends G // Hacky ternary to catch `any`
   : G extends Set<any>
   ? 'Set'
   : G extends WeakSet<any>
-  ? 'WeakSet'
-  : // tslint:disable-next-line: ban-types
-  G extends String
-  ? 'String()'
-  : // tslint:disable-next-line: ban-types
-  G extends Number
-  ? 'Number()'
-  : // tslint:disable-next-line: ban-types
-  G extends Boolean
-  ? 'Boolean()'
-  : // tslint:disable-next-line: ban-types
-  G extends Symbol
+  ? 'WeakSet' // tslint:disable-next-line: ban-types
+  : G extends String
+  ? 'String()' // tslint:disable-next-line: ban-types
+  : G extends Number
+  ? 'Number()' // tslint:disable-next-line: ban-types
+  : G extends Boolean
+  ? 'Boolean()' // tslint:disable-next-line: ban-types
+  : G extends Symbol
   ? 'Symbol()'
   : {} extends G
   ? 'EmptyObject'
@@ -145,7 +141,7 @@ export type ActionCreators<A, Slc extends string = ''> = {
  * @template A - is the [Action] creator interface
  * @template SS - [SliceState]
  * @template S - [State]
- * @template Slc - [slice]
+ * @template SliceName - [slice]
  */
 export interface Slice<A = any, SS = any, SliceName extends string = string> {
   /**
@@ -157,7 +153,7 @@ export interface Slice<A = any, SS = any, SliceName extends string = string> {
   /**
    * @description The generated reducer
    *
-   * @type {Reducer<SS, Action>}
+   * @type {Reducer<SS, PayloadAction<string, any, string>, SliceName>}
    * @memberof Slice
    */
   reducer: Reducer<SS, PayloadAction<string, any, string>, SliceName>;
@@ -165,7 +161,7 @@ export interface Slice<A = any, SS = any, SliceName extends string = string> {
    * @description The generated slice reducer, unlike the normal reducer
    * `sliceReducer` only listens to actions with a matching `slice` key
    *
-   * @type {Reducer<SS, Action>}
+   * @type {Reducer<SS, PayloadAction<string, any, SliceName>, SliceName>}
    * @memberof Slice
    */
   sliceReducer: Reducer<SS, PayloadAction<string, any, SliceName>, SliceName>;
