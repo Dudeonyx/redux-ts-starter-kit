@@ -1,4 +1,4 @@
-import createNextState from 'immer';
+import { produce as createNextState } from 'immer';
 import { PayloadAction } from './types';
 import { Cases, ActionsMap, Reducer } from './slice';
 

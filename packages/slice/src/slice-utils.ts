@@ -3,9 +3,18 @@ import { createReducer } from './reducer';
 import { createSubSelector, createSelector } from './selector';
 import { ActionsMap, ActionCreators, Cases, Selectors } from './slice';
 
-export const makeActionCreators = <Actions extends ActionsMap>(
+
+export function makeActionCreators <Actions extends ActionsMap, Sl extends string>(
   actionKeys: Array<Extract<keyof Actions, string>>,
-): ActionCreators<Actions> => {
+  slice: Sl,
+): ActionCreators<Actions> 
+
+export function makeActionCreators <Actions extends ActionsMap>(
+  actionKeys: Array<Extract<keyof Actions, string>>,
+): ActionCreators<Actions> 
+export function makeActionCreators <Actions extends ActionsMap>(
+  actionKeys: Array<Extract<keyof Actions, string>>,
+): ActionCreators<Actions> {
   return actionKeys.reduce(
     (map, action) => {
       map[action] = createAction(action);

@@ -50,29 +50,35 @@ export type Selectors<SS, S> = SS extends any[]
   : {
       getSlice: (state: S) => SS;
     };
+
+
 /** Type alias for generated action creators */
-export type ActionCreators<A> = {
-  [key in keyof A]: unknown extends A[key] // hacky ternary for `A[key]` = `any`
+export type ActionCreators<A, Slc extends string = ''> = {
+  [key in Extract<keyof A, string>]: unknown extends A[key] // hacky ternary for `A[key]` = `any`
     ? {
-        (payload?: any): PayloadAction<Extract<key, string>, any>;
+        (payload?: any): PayloadAction<key, any, Slc>;
         type: key;
+        slice: Slc;
         toString: () => key;
       } // tslint:disable-next-line: ban-types
     : Object extends A[key] // ensures payload isn't inferred as {}
     ? {
-        (): PayloadAction<Extract<key, string>, undefined>;
+        (): PayloadAction<key, undefined, Slc>;
         type: key;
+        slice: Slc;
         toString: () => key;
       }
     : A[key] extends never // No payload when type is `never`
     ? {
-        (): PayloadAction<Extract<key, string>, undefined>;
+        (): PayloadAction<key, undefined, Slc>;
         type: key;
+        slice: Slc;
         toString: () => key;
       }
     : {
-        (payload: A[key]): PayloadAction<Extract<key, string>, A[key]>;
+        (payload: A[key]): PayloadAction<key, A[key], Slc>;
         type: key;
+        slice: Slc;
         toString: () => key;
       }
 };

@@ -1,6 +1,7 @@
-export function createAction<P = any, T extends string = string>(type: T) {
+export function createAction<P = any, T extends string = string, Slc extends string = string>(type: T, slice: Slc) {
   const action = (payload: P) => ({
     type,
+    slice,
     payload,
   });
 
@@ -9,4 +10,4 @@ export function createAction<P = any, T extends string = string>(type: T) {
   return action;
 }
 
-export const getActionType = (action: any) => `${action}`;
+export const getActionType = <T extends string>(action: {(payload:any): any; toString: ()=> T}) => `${action}` as T;

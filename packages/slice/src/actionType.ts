@@ -1,12 +1,12 @@
-const allCapsSnakeCase = (string: string) => {
-  return string.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
-};
+// const allCapsSnakeCase = (string: string) => {
+//   return string.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
+// };
 
-export const createActionType = (
-  slice: string | number | symbol,
-  action: string | number | symbol,
+export const createActionType = <S extends string|number|symbol,A extends string|number|symbol>(
+  slice: S,
+  action: A,
 ) => {
   return slice != null && slice !== ''
-    ? `${String(slice)}/${allCapsSnakeCase(String(action))}`
-    : allCapsSnakeCase(String(action));
+    ? `${String(slice)}/${String(action)}`
+    : String(action);
 };
