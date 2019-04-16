@@ -1,6 +1,7 @@
 import { createSlice } from '../slice';
 import { makeActionCreators, makeSelectors } from '../slice-utils';
 import { combineReducers } from 'redux';
+import { PayloadAction } from '../types';
 
 describe('makeActionCreators', () => {
   const actions = makeActionCreators(['setName', 'resetName',]);
@@ -182,13 +183,13 @@ describe('createSlice', () => {
   describe('when slice is empty', () => {
     type State = number;
     interface Actions {
-      increment: never;
-      multiply: number;
+      increment: PayloadAction<never>;
+      multiply: PayloadAction<number>;
     }
     const { actions, reducer, selectors } = createSlice<Actions, State, ''>({
       cases: {
         increment: (state) => state + 1,
-        multiply: (state, payload) => state * payload,
+        multiply: (state, action) => state * action.payload,
       },
       initialState: 0,
     });

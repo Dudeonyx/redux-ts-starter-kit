@@ -3,6 +3,7 @@ import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { createReducer } from '../reducer';
+import { PayloadAction } from '../types';
 
 interface HiSliceState {
   test: string;
@@ -15,8 +16,8 @@ interface IState {
   ords: IordersReducerState;
 }
 
-interface Actions {
-  set: HiSliceState;
+type Actions = {
+  set: PayloadAction<HiSliceState>;
   reset: never;
 }
 
@@ -33,7 +34,7 @@ export const {
 } = createSlice({
   slice: 'hi',
   cases: {
-    set: (state, payload: string[]) => payload,
+    set: (state, action: PayloadAction<string[], 'hi/set'>) => action.payload,
     reset: () => ['defaultState', 'jhj',],
   },
   initialState: [] as string[],
@@ -69,7 +70,7 @@ export const {
 } = createSlice<Actions, HiSliceState, 'hi'>({
   slice: 'hi',
   cases: {
-    set: (state, payload) => payload,
+    set: (state, payload) => payload.payload,
     reset: () => defaultState,
   },
   initialState: defaultState,
@@ -154,8 +155,8 @@ const auth = createSlice({
   slice: 'auth',
   initialState,
   cases: {
-    authFail: (state, error: Error) => {
-      state.error = error;
+    authFail: (state, error: PayloadAction<Error>) => {
+      state.error = error.payload;
       state.authenticating = false;
     },
     authLogout: (state) => {
@@ -165,10 +166,10 @@ const auth = createSlice({
     authStart: (state) => {
       state.authenticating = true;
     },
-    authSuccess: (state, payload: AuthSuccess) => {
+    authSuccess: (state, action: PayloadAction<AuthSuccess>) => {
       state.authenticating = false;
-      state.idToken = payload.idToken;
-      state.userId = payload.userId;
+      state.idToken = action.payload.idToken;
+      state.userId = action.payload.userId;
     },
   },
 });
@@ -211,11 +212,12 @@ getAuthUserId;
 // $ExpectType (state: { auth: AuthSliceState; }) => string
 getAuthIdToken;
 // tslint:enable: no-unused-expression
-export interface AuthActions$ {
-  authSuccess$: AuthSuccess;
-  authStart$: never;
-  authFail$: Error;
-  authLogout$: never;
+// tslint:disable-next-line: interface-over-type-literal
+export type AuthActions$  = {
+  authSuccess$: PayloadAction<AuthSuccess>;
+  authStart$: PayloadAction<never>;
+  authFail$: PayloadAction<Error>;
+  authLogout$: PayloadAction<never>;
 }
 
 const slice = 'auth';
@@ -223,8 +225,8 @@ const auth$ = createSlice<AuthActions$, AuthSliceState, typeof slice>({
   slice,
   initialState,
   cases: {
-    authFail$: (state, error) => {
-      state.error = error;
+    authFail$: (state, action) => {
+      state.error = action.payload;
       state.authenticating = false;
     },
     authLogout$: (state) => {
@@ -234,10 +236,10 @@ const auth$ = createSlice<AuthActions$, AuthSliceState, typeof slice>({
     authStart$: (state) => {
       state.authenticating = true;
     },
-    authSuccess$: (state, payload) => {
+    authSuccess$: (state, action) => {
       state.authenticating = false;
-      state.idToken = payload.idToken;
-      state.userId = payload.userId;
+      state.idToken = action.payload.idToken;
+      state.userId = action.payload.userId;
     },
   },
 });
@@ -434,3 +436,37 @@ console.log(
   getAuth(store.getState()),
   '\n***************\n',
 );
+
+type MapTest<O extends {}> = Record<keyof O, number>
+const test = < A extends {[key in keyof A]: number}>( options: { cases:A }) =>{
+return options.cases;
+}
+const test2 = < A extends MapTest<A>>( options: { cases:A }) =>{
+return options.cases;
+}
+
+interface Case {
+  helpMe: number,
+  dont: 'fdf'
+}
+
+const resultA = test<Case>({
+  cases:{
+    helpMe: 2,
+  }
+})
+const resultB = test({
+  cases:{
+    helpMe: 2,
+  }
+})
+const result2A = test2<Case>({
+  cases:{
+    helpMe: 2,
+  }
+})
+const result2B = test2({
+  cases:{
+    helpMe: 2,
+  }
+})

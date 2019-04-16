@@ -30,15 +30,15 @@ describe('createReducer', () => {
   });
 
   describe('given pure reducers with immutable updates', () => {
-    function addTodo(state: any, payload: any) {
-      const { newTodo } = payload;
+    function addTodo(state: any, action: any) {
+      const { newTodo } = action.payload;
 
       // Updates the state immutably without relying on immer
       return [...state, { ...newTodo, completed: false },];
     }
 
-    function toggleTodo(state: any, payload: any) {
-      const { index } = payload;
+    function toggleTodo(state: any, action: any) {
+      const { index } = action.payload;
 
       // Updates the todo object immutably withot relying on immer
       return state.map((todo: any, i: number) => {
@@ -53,7 +53,7 @@ describe('createReducer', () => {
       initialState: [] as object[],
       cases: {
         ADD_TODO: addTodo,
-        TOGGLE_TODO: toggleTodo,
+        TOGGLE_TODO: (state,action: any) => {},
       },
     });
 

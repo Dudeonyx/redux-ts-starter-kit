@@ -9,7 +9,11 @@ import { Cases, ActionsMap, Reducer } from './slice';
  * @interface CreateReducer
  * @template SS - The [State] interface
  */
-export interface CreateReducer<S = any, A = any, SliceName = string> {
+export interface CreateReducer<
+  S = any,
+  A extends ActionsMap<A> = any,
+  SliceName = string
+> {
   /**
    * The initial State, same as in standard reducer
    *
@@ -27,7 +31,7 @@ export interface CreateReducer<S = any, A = any, SliceName = string> {
   cases: Cases<S, A>;
 }
 
-interface CreateReducer2<S, A, SliceName>
+interface CreateReducer2<S, A extends ActionsMap<A>, SliceName>
   extends CreateReducer<S, A, SliceName> {
   /**
    * @description An optional property representing the key of the generated slice in the redux state tree.
@@ -52,8 +56,8 @@ interface CreateReducer2<S, A, SliceName>
  */
 export function createReducer<
   S,
-  A extends ActionsMap = ActionsMap,
-  SliceName extends string = string
+  A extends ActionsMap<A>,
+  SliceName extends string
 >({
   initialState,
   cases,
@@ -66,8 +70,8 @@ export function createReducer<
 
 export function createReducer<
   S,
-  A extends ActionsMap = ActionsMap,
-  SliceName extends string = string
+  A extends ActionsMap<A>,
+  SliceName extends string
 >({
   initialState,
   cases,
@@ -79,7 +83,7 @@ export function createReducer<
 
 export function createReducer<
   S,
-  A extends ActionsMap = ActionsMap,
+  A extends ActionsMap<A> = ActionsMap<any>,
   SliceName extends string = string
 >({ initialState, cases, slice = '' }: any): any {
   const reducer = (state = initialState, action: PayloadAction) => {
@@ -87,7 +91,7 @@ export function createReducer<
       const caseReducer = cases[action.type];
 
       if (caseReducer) {
-        return caseReducer(draft as S, action.payload);
+        return caseReducer(draft as S, action);
       }
 
       return draft;

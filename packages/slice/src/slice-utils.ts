@@ -6,22 +6,25 @@ import {
   createSubSubSelector,
 } from './selector';
 import { ActionsMap, ActionCreators, Cases, Selectors, Reducer } from './slice';
-import { PayloadAction } from './types';
+import { PayloadAction, PayloadAction } from './types';
 import isPlainObject from './isPlainObject';
 
+
+
 export function makeActionCreators<
-  Actions extends ActionsMap,
+  Actions extends ActionsMap<{[s:string]: PayloadAction}>,
   Sl extends string
 >(
   actionKeys: Array<Extract<keyof Actions, string>>,
   slice: Sl,
 ): ActionCreators<Actions, Sl>;
 
-export function makeActionCreators<Actions extends ActionsMap>(
+export function makeActionCreators<Actions extends ActionsMap<{[s:string]: PayloadAction}>>(
   actionKeys: Array<Extract<keyof Actions, string>>,
 ): ActionCreators<Actions>;
+
 export function makeActionCreators<
-  Actions extends ActionsMap,
+  Actions extends ActionsMap<{[s:string]: PayloadAction}>,
   Sl extends string
 >(
   actionKeys: Array<Extract<keyof Actions, string>>,
@@ -37,16 +40,16 @@ export function makeActionCreators<
 }
 
 export const makeReducer = <
-  Actions extends ActionsMap,
+  CS extends Cases<SliceState,any>,
   SliceState,
   SliceName extends string
 >(
-  cases: Cases<SliceState, Actions>,
+  cases: CS,
   initialState: SliceState,
   slice: SliceName,
 ) => {
-  const actionKeys = Object.keys(cases) as Array<keyof Actions>;
-  const reducerMap = actionKeys.reduce<Cases<SliceState, Actions>>(
+  const actionKeys = Object.keys(cases) as Array<keyof CS>;
+  const reducerMap = actionKeys.reduce<CS>(
     (map, action) => {
       map[action] = cases[action];
       return map;
