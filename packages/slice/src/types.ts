@@ -21,7 +21,7 @@ export interface PayloadAction<
   readonly payload: P;
   readonly slice?: Slc;
 }
-type FD1 = TestType<void>;
+// type FD1 = TestType<void>;
 // type FD2 = TestType<string>;
 // type FD3 = TestType<never>;
 // type FD4 = TestType<number>;

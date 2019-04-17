@@ -3,7 +3,7 @@ import * as redux from 'redux';
 import * as devtools from 'redux-devtools-extension';
 
 import thunk from 'redux-thunk';
-import { createSlice } from '@redux-ts-starter-kit/slice';
+import { createSlice, Casesify, PayloadAction } from '@redux-ts-starter-kit/slice';
 
 describe('getDefaultMiddleware', () => {
   const ORIGINAL_NODE_ENV = process.env.NODE_ENV;
@@ -175,14 +175,14 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     waves: 0,
   };
 
-  const hiSlice = createSlice<Actions, HiSliceState, 'hi'>({
+  const hiSlice = createSlice<Casesify<HiSliceState,Actions>, HiSliceState, 'hi'>({
     slice: 'hi',
     cases: {
       setGreeting: (state, payload) => {
-        state.greeting = payload;
+        state.greeting = payload.payload;
       },
       setWaves: (state, payload) => {
-        state.waves = payload;
+        state.waves = payload.payload;
       },
       resetHi: () => hiInitialState,
     },
@@ -203,16 +203,16 @@ describe('multiple createSlice reducers used to create a redux store', () => {
 
   const formSlice = createSlice({
     cases: {
-      setName: (state, name: string) => {
-        state.name = name;
+      setName: (state, name: PayloadAction<string>) => {
+        state.name = name.payload;
       },
-      setSurname: (state, surname: string) => {
-        state.surname = surname;
+      setSurname: (state, surname: PayloadAction<string>) => {
+        state.surname = surname.payload;
       },
-      setMiddlename: (state, middlename: string) => {
-        state.middlename = middlename;
+      setMiddlename: (state, middlename: PayloadAction<string>) => {
+        state.middlename = middlename.payload;
       },
-      resetForm: (state, _: never) => formInitialState,
+      resetForm: () => formInitialState,
     },
     slice: 'form',
     initialState: formInitialState,
@@ -236,7 +236,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     userId: '',
   };
 
-  const authSlice = createSlice<AuthActions, AuthSliceState, 'auth'>({
+  const authSlice = createSlice<Casesify<AuthSliceState,AuthActions>, AuthSliceState, 'auth'>({
     slice: 'auth',
     initialState: authInitialState,
     cases: {
@@ -245,8 +245,8 @@ describe('multiple createSlice reducers used to create a redux store', () => {
         state.userId = '';
       },
       authLogin: (state, payload) => {
-        state.idToken = payload.idToken;
-        state.userId = payload.userId;
+        state.idToken = payload.payload.idToken;
+        state.userId = payload.payload.userId;
       },
     },
   });
