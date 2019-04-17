@@ -3,15 +3,15 @@ import { Reducer } from '../slice';
 
 describe('createReducer', () => {
   describe('given impure reducers with immer', () => {
-    function addTodo(state: any, payload: any) {
-      const { newTodo } = payload;
+    function addTodo(state: any, action: any) {
+      const { newTodo } = action.payload;
 
       // Can safely call state.push() here
       state.push({ ...newTodo, completed: false });
     }
 
-    function toggleTodo(state: any, payload: any) {
-      const { index } = payload;
+    function toggleTodo(state: any, action: any) {
+      const { index } = action.payload;
 
       const todo = state[index];
       // Can directly modify the todo object
@@ -53,7 +53,7 @@ describe('createReducer', () => {
       initialState: [] as object[],
       cases: {
         ADD_TODO: addTodo,
-        TOGGLE_TODO: (state,action: any) => {},
+        TOGGLE_TODO: toggleTodo,
       },
     });
 

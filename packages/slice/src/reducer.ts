@@ -1,6 +1,6 @@
 import { produce as createNextState } from 'immer';
 import { PayloadAction, GenericAction } from './types';
-import { Cases, ActionsMap, Reducer } from './slice';
+import { Cases, Reducer } from './slice';
 
 /**
  * @description Input for the createReducer utility
@@ -9,7 +9,7 @@ import { Cases, ActionsMap, Reducer } from './slice';
  * @interface CreateReducer
  * @template SS - The [State] interface
  */
-export interface CreateReducer<S, Ax extends ActionsMap, SliceName = string> {
+export interface CreateReducer<S, CS extends Cases<S,any>, SliceName = string> {
   /**
    * The initial State, same as in standard reducer
    *
@@ -24,7 +24,7 @@ export interface CreateReducer<S, Ax extends ActionsMap, SliceName = string> {
    * @type {ReducerMap<SS, any>}
    * @memberof CreateReducer
    */
-  cases: Cases<S, Ax>;
+  cases: CS;
 }
 
 interface CreateReducer2<S, CS extends Cases<S, any>, SliceName>
@@ -62,13 +62,13 @@ interface CreateReducer3<S, CS extends Cases<S, any>, SliceName>
  */
 export function createReducer<
   S,
-  Ax extends ActionsMap,
+  CS extends Cases<S,any>,
   SliceName extends string
 >({
   initialState,
   cases,
   slice,
-}: CreateReducer2<S, Ax, SliceName>): Reducer<
+}: CreateReducer2<S, CS, SliceName>): Reducer<
   S,
   GenericAction<any, string>,
   SliceName
@@ -76,28 +76,28 @@ export function createReducer<
 
 export function createReducer<
   S,
-  Ax extends ActionsMap,
+  CS extends Cases<S,any>,
   SliceName extends string
 >({
   initialState,
   cases,
-}: CreateReducer<S, Ax, SliceName>): Reducer<S, GenericAction<any, string>, ''>;
+}: CreateReducer<S, CS, SliceName>): Reducer<S, GenericAction<any, string>, ''>;
 
 export function createReducer<
   S,
-  Ax extends ActionsMap,
+  CS extends Cases<S,any>,
   SliceName extends string = string
 >({
   initialState,
   cases,
   slice = '' as SliceName,
-}: CreateReducer3<S, Ax, SliceName>): Reducer<S, GenericAction, SliceName> {
+}: CreateReducer3<S, CS, SliceName>): Reducer<S, GenericAction, SliceName> {
   const reducer = (state = initialState, action: GenericAction) => {
     return createNextState(state, (draft) => {
       const caseReducer = cases[action.type];
 
       if (caseReducer) {
-        return caseReducer(draft, action);
+        return caseReducer(draft, action as PayloadAction);
       }
 
       return draft;

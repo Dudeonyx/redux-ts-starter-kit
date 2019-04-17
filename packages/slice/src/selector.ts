@@ -8,9 +8,9 @@ export function createSelector<State extends AnyState = AnyState>(
 ): (state: State) => State;
 
 export function createSelector<
-  State extends { [key in Sn]: SliceState } = { [key in Sn]: SliceState },
-  SliceState = any,
-  Sn extends string = any
+  State extends { [key in Sn]: SliceState },
+  SliceState,
+  Sn extends string
 >(slice: Sn): (state: State) => SliceState;
 
 export function createSelector<
@@ -45,27 +45,27 @@ export function createSelector<
   };
 }
 export function createSubSelector<
-  State extends { [key in Sn]: SliceState } = { [key in Sn]: SliceState },
-  SliceState = any,
-  Sn extends string = string
+  State extends { [key in Sn]: SliceState },
+  SliceState,
+  Sn extends string
 >(slice: Sn | '', subSlice: ''): never;
 
 export function createSubSelector<
-  State extends AnyState = AnyState,
-  SliceState extends { [x in SSn]: SliceState } = { [x in SSn]: SliceState },
-  SSn extends string = string
+  State extends AnyState,
+  SliceState extends { [x in SSn]: SliceState },
+  SSn extends string
 >(slice: '', subSlice: SSn): (state: SliceState) => SliceState[SSn];
 
 export function createSubSelector<
-  State extends { [key in Sn]: SliceState } = { [key in Sn]: SliceState },
-  SliceState extends { [key in SSn]: any } = { [key in SSn]: any },
-  Sn extends string = string,
-  SSn extends string = string
+  State extends { [key in Sn]: SliceState },
+  SliceState extends { [key in SSn]: any },
+  Sn extends string,
+  SSn extends string
 >(slice: Sn, subSlice: SSn): (state: State) => SliceState[SSn];
 
 export function createSubSelector<
-  State extends AnyState = AnyState,
-  SliceState extends AnyState = AnyState
+  State extends AnyState,
+  SliceState extends AnyState
 >(
   slice: keyof State,
   subSlice: keyof SliceState,
@@ -124,25 +124,23 @@ export function createSubSelector<
 }
 export function createSubSubSelector<
   State extends AnyState,
-  SliceState = any,
-  Sn extends string = string
+  SliceState,
+  Sn extends string
 >(slice: Sn | '', subSlice: '', subSubSlice: any): never;
 
 export function createSubSubSelector<
-  State extends AnyState = AnyState,
-  SliceState = any,
-  Sn = string,
-  SSn = string
+  State extends AnyState,
+  SliceState,
+  Sn extends string,
+  SSn extends string
 >(slice: Sn | '', subSlice: SSn | '', subSubSlice: ''): never;
 
 export function createSubSubSelector<
-  State extends { [key in Sn]: SliceState } = { [key in Sn]: SliceState },
-  SliceState extends { [key in SSn]: { [key2 in SSSn]: any } } = {
-    [key in SSn]: { [key2 in SSSn]: any }
-  },
-  Sn extends string = string,
-  SSn extends string = string,
-  SSSn extends string = string
+  State extends { [key in Sn]: SliceState },
+  SliceState extends { [key in SSn]: { [key2 in SSSn]: any } },
+  Sn extends string,
+  SSn extends string,
+  SSSn extends string
 >(
   slice: '',
   subSlice: SSn,
@@ -150,13 +148,11 @@ export function createSubSubSelector<
 ): (state: SliceState) => SliceState[SSn][SSSn];
 
 export function createSubSubSelector<
-  State extends { [key in Sn]: SliceState } = { [key in Sn]: SliceState },
-  SliceState extends { [key in SSn]: { [key2 in SSSn]: any } } = {
-    [key in SSn]: { [key2 in SSSn]: any }
-  },
-  Sn extends string = string,
-  SSn extends string = string,
-  SSSn extends string = string
+  State extends { [key in Sn]: SliceState },
+  SliceState extends { [key in SSn]: { [key2 in SSSn]: any } },
+  Sn extends string,
+  SSn extends string,
+  SSSn extends string
 >(
   slice: Sn,
   subSlice: SSn,
@@ -164,13 +160,11 @@ export function createSubSubSelector<
 ): (state: State) => SliceState[SSn][SSSn];
 
 export function createSubSubSelector<
-  State extends { [key in Sn]: SliceState } = { [key in Sn]: SliceState },
-  SliceState extends { [key in SSn]: { [key2 in SSSn]: any } } = {
-    [key in SSn]: { [key2 in SSSn]: any }
-  },
-  Sn extends string = string,
-  SSn extends string = string,
-  SSSn extends string = string
+  State extends { [key in Sn]: SliceState },
+  SliceState extends { [key in SSn]: { [key2 in SSSn]: any } },
+  Sn extends string,
+  SSn extends string,
+  SSSn extends string
 >(
   slice: Sn,
   subSlice: SSn,

@@ -17,10 +17,10 @@ interface IState {
 }
 
 // tslint:disable-next-line: interface-over-type-literal
-type Actions = {
+type Actions = Cases<HiSliceState,{
   set: PayloadAction<HiSliceState, 'hi/set'>;
-  reset: PayloadAction<never>;
-};
+  reset: PayloadAction<never, 'hi/reset'>;
+}>;
 
 const defaultState = {
   test: '',
@@ -68,7 +68,7 @@ export const {
   selectors: hiSelectors,
   reducer: hiReducer,
   slice: hi_slice,
-} = createSlice<Cases<HiSliceState, Actions>, HiSliceState, 'hi'>({
+} = createSlice<Actions, HiSliceState, 'hi'>({
   slice: 'hi',
   cases: {
     set: (state, payload) => payload.payload,
@@ -152,6 +152,7 @@ const initialState: AuthSliceState = {
   },
 };
 
+
 const auth = createSlice({
   slice: 'auth',
   initialState,
@@ -185,7 +186,7 @@ export const {
     error: getAuthError,
     idToken: getAuthIdToken,
     userId: getAuthUserId,
-    nestedObj: { deeplyNestedObj, getSlice: getNestedObj, key1, key2, key3 },
+    nestedObj,
   },
 } = auth;
 
@@ -221,9 +222,11 @@ export type AuthActions$ = {
   authLogout$: PayloadAction<never>;
 };
 
+type AuthCases$ = Cases<AuthSliceState, AuthActions$>
+
 const slice = 'auth';
 const auth$ = createSlice<
-  Cases<AuthSliceState, AuthActions$>,
+  AuthCases$,
   AuthSliceState,
   typeof slice
 >({
@@ -292,21 +295,21 @@ const auth$NoInterface = createSlice({
   slice: 'auth',
   initialState,
   cases: {
-    authFail$2: (state, error: Error) => {
-      state.error = error;
+    authFail$2: (state, action: PayloadAction<Error,'auth/authFail$2'>) => {
+      state.error = action.payload;
       state.authenticating = false;
     },
-    // authLogout$2: (state, _n: never) => {
-    //   state.idToken = null;
-    //   state.userId = null;
-    // },
+    authLogout$2: (state) => {
+      state.idToken = null;
+      state.userId = null;
+    },
     authStart$2: (state, payload) => {
       state.authenticating = true;
     },
-    authSuccess$2: (state, payload: AuthSuccess) => {
+    authSuccess$2: (state, action: PayloadAction<AuthSuccess>) => {
       state.authenticating = false;
-      state.idToken = payload.idToken;
-      state.userId = payload.userId;
+      state.idToken = action.payload.idToken;
+      state.userId = action.payload.userId;
     },
   },
 });
@@ -327,8 +330,8 @@ export const {
 export const authReducer2 = createReducer({
   initialState,
   cases: {
-    authFail: (state, error: Error) => {
-      state.error = error;
+    authFail: (state, error: PayloadAction<Error>) => {
+      state.error = error.payload;
       state.authenticating = false;
     },
     authLogout: (state) => {
@@ -338,10 +341,10 @@ export const authReducer2 = createReducer({
     authStart: (state) => {
       state.authenticating = true;
     },
-    authSuccess: (state, payload: AuthSuccess) => {
+    authSuccess: (state, payload: PayloadAction<AuthSuccess>) => {
       state.authenticating = false;
-      state.idToken = payload.idToken;
-      state.userId = payload.userId;
+      state.idToken = payload.payload.idToken;
+      state.userId = payload.payload.userId;
     },
   },
 });
@@ -356,16 +359,16 @@ const orderSlice = createSlice({
   slice: 'ords',
   initialState: initialStateOeds,
   cases: {
-    setOrders: (state, orders: IDbOrders) => {
+    setOrders: (state, orders: PayloadAction<IDbOrders>) => {
       state.error = null;
-      state.orders = orders;
+      state.orders = orders.payload;
       state.loading = false;
     },
-    setOrdersError: (state, error: Error) => {
-      state.error = error;
+    setOrdersError: (state, error: PayloadAction<Error>) => {
+      state.error = error.payload;
       state.loading = false;
     },
-    setOrdersLoading: (state, n: never) => {
+    setOrdersLoading: (state) => {
       state.loading = true;
       state.error = null;
     },
@@ -441,39 +444,3 @@ console.log(
   getAuth(store.getState()),
   '\n***************\n',
 );
-
-type MapTest<O extends {}> = Record<keyof O, number>;
-const test = <A extends { [key in keyof A]: number }>(options: {
-  cases: A;
-}) => {
-  return options.cases;
-};
-const test2 = <A extends MapTest<A>>(options: { cases: A }) => {
-  return options.cases;
-};
-
-interface Case {
-  helpMe: number;
-  dont: 'fdf';
-}
-
-const resultA = test<Case>({
-  cases: {
-    helpMe: 2,
-  },
-});
-const resultB = test({
-  cases: {
-    helpMe: 2,
-  },
-});
-const result2A = test2<Case>({
-  cases: {
-    helpMe: 2,
-  },
-});
-const result2B = test2({
-  cases: {
-    helpMe: 2,
-  },
-});

@@ -31,7 +31,7 @@ export function makeActionCreators<
 ): ActionCreators<Actions, Sl> {
   return actionKeys.reduce(
     (map, action) => {
-      map[action] = createAction(action, slice);
+      map[action] = createAction(createActionType(slice, action), slice);
       return map;
     },
     {} as any,
@@ -39,18 +39,18 @@ export function makeActionCreators<
 }
 
 export const makeReducer = <
-  Ax extends ActionsMap,
+  CS extends Cases<SliceState, any>,
   SliceState,
   SliceName extends string
 >(
-  cases: Cases<SliceState, Ax>,
+  cases: CS,
   initialState: SliceState,
   slice: SliceName,
 ) => {
-  const actionKeys = Object.keys(cases) as Array<keyof Ax>;
-  const reducerMap = actionKeys.reduce<Cases<SliceState, Ax>>(
+  const actionKeys = Object.keys(cases) as Array<keyof CS>;
+  const reducerMap = actionKeys.reduce<{ [s: string]: CS[keyof CS] }>(
     (map, action) => {
-      map[action] = cases[createActionType(slice, action)];
+      map[createActionType(slice, action)] = cases[action];
       return map;
     },
     {} as any,
@@ -191,7 +191,8 @@ function makeSubSubSelectors<
             { [sliceKey in SliceName]: SliceState },
             SliceState,
             SliceName,
-            Extract<typeof key, string>
+            Extract<typeof key, string>,
+            Extract<typeof subKey, string>
           >(slice, key as any, subKey);
           return acc;
         },

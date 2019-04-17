@@ -7,7 +7,7 @@ import { Draft } from 'immer';
 // tslint:disable-next-line: callable-types
 type CaseReducer<SS, A extends Action> = (
   state: Draft<SS>,
-  action: A,
+  action: A extends PayloadAction<infer P, infer T> ? {} extends P ? PayloadAction<any,any>: PayloadAction<P,T>: never,
 ) => SS | void | undefined;
 
 /** Type alias for the generated reducer */
@@ -29,7 +29,7 @@ export interface Reducer<
 export type Cases<SS, Ax extends { [s: string]: PayloadAction<any> }> = {
   [K in keyof Ax]: Ax[K] extends PayloadAction<any, any>
     ? CaseReducer<SS, Ax[K]>
-    : never
+    : void
 };
 
 export type Casesify<SS, A extends { [s: string]: any }> = {
@@ -44,16 +44,16 @@ export interface ActionsMap {
   [action: string]: any;
 }
 
-// type CaseActions<CS extends Cases<any, any>> = {
-//   [T in keyof CS]: CS[T] extends (state: any) => any
-//     ? PayloadAction<undefined, any, any>
-//     : (CS[T] extends (
-//         state: any,
-//         action: PayloadAction<infer P, infer Ty, any>,
-//       ) => any
-//         ? PayloadAction<P, Ty, any>
-//         : PayloadAction<void, any, any>)
-// };
+type CaseActions<CS extends Cases<any, any>> = {
+  [T in keyof CS]: CS[T] extends (state: any) => any
+    ? PayloadAction<undefined, any, any>
+    : (CS[T] extends (
+        state: any,
+        action: PayloadAction<infer P, infer Ty, any>,
+      ) => any
+        ? PayloadAction<P, Ty, any>
+        : PayloadAction<void, any, any>)
+};
 
 /** Generic State interface
  * @export
@@ -67,9 +67,7 @@ export type Selectors<SS, S, D extends 0 | 1 | 2 = 1> = D extends 1 | 2
   ? TestType<SS> extends 'Object'
     ? ({
         [key in keyof SS]: TestType<SS[key]> extends 'Object'
-          ? D extends 1
-            ? Selectors<SS[key], S, 0>
-            : D extends 2
+          ? D extends 2
             ? Selectors<SS[key], S, 1>
             : (state: S) => SS[key]
           : (state: S) => SS[key]
@@ -135,9 +133,9 @@ export type ActionCreators<A extends ActionsMap, Slc extends string = ''> = {
  * @template SliceName - [slice]
  */
 export interface Slice<
-  Ax extends ActionsMap,
-  SS = any,
-  SliceName extends string = string
+  CS extends Cases<SS,any>,
+  SS,
+  SliceName extends string
 > {
   /**
    * @description The name of the slice generated, i.e it's key in the redux state tree.
@@ -165,10 +163,10 @@ export interface Slice<
    *
    * @memberof Slice
    */
-  actions: ActionCreators<Ax, SliceName>;
+  actions: ActionCreators<CaseActions<CS>, SliceName>;
 }
 
-interface InputWithoutSlice<SS, Ax extends ActionsMap> {
+interface InputWithoutSlice<SS, CS extends Cases<SS,any>> {
   /**
    * The initial State, same as standard reducer
    *
@@ -183,11 +181,11 @@ interface InputWithoutSlice<SS, Ax extends ActionsMap> {
    * @type {Cases<SS, Ax>}
    * @memberof InputWithoutSlice
    */
-  cases: Cases<SS, Ax>;
+  cases: CS;
 }
 
-interface InputWithSlice<SS, Ax extends ActionsMap, SliceName extends string>
-  extends InputWithoutSlice<SS, Ax> {
+interface InputWithSlice<SS, CS extends Cases<SS,any>, SliceName extends string>
+  extends InputWithoutSlice<SS, CS> {
   /**
    * @description An optional property representing the key of the generated slice in the redux state tree.
    *
@@ -197,8 +195,8 @@ interface InputWithSlice<SS, Ax extends ActionsMap, SliceName extends string>
   slice: SliceName;
 }
 
-interface InputWithBlankSlice<SS, Ax extends ActionsMap>
-  extends InputWithoutSlice<SS, Ax> {
+interface InputWithBlankSlice<SS, CS extends Cases<SS,any>>
+  extends InputWithoutSlice<SS, CS> {
   /**
    * @description An optional property representing the key of the generated slice in the redux state tree.
    *
@@ -209,9 +207,9 @@ interface InputWithBlankSlice<SS, Ax extends ActionsMap>
 }
 interface InputWithOptionalSlice<
   SS,
-  Ax extends ActionsMap,
+  CS extends Cases<SS,any>,
   SliceName extends string
-> extends InputWithoutSlice<SS, Ax> {
+> extends InputWithoutSlice<SS, CS> {
   /**
    * @description An optional property representing the key of the generated slice in the redux state tree.
    *
@@ -250,62 +248,62 @@ interface InputWithOptionalSlice<
  * }
  */
 export function createSlice<
-  Actions extends ActionsMap,
+  CaseMap extends Cases<SliceState, any>,
   SliceState,
   SliceName extends ''
 >({
   cases,
   initialState,
   slice,
-}: InputWithBlankSlice<SliceState, Actions>): Slice<Actions, SliceState, ''>;
+}: InputWithBlankSlice<SliceState, CaseMap>): Slice<CaseMap, SliceState, ''>;
 
 export function createSlice<
-  Actions extends ActionsMap,
+  CaseMap extends Cases<SliceState, any>,
   SliceState,
   SliceName extends string
 >({
   cases,
   initialState,
   slice,
-}: InputWithSlice<SliceState, Actions, SliceName>): Slice<
-  Actions,
+}: InputWithSlice<SliceState, CaseMap, SliceName>): Slice<
+  CaseMap,
   SliceState,
   SliceName
 >;
 
 export function createSlice<
-  Actions extends ActionsMap,
+  CaseMap extends Cases<SliceState, any>,
   SliceState,
   SliceName extends string
 >({
   cases,
   initialState,
-}: InputWithoutSlice<SliceState, Actions>): Slice<Actions, SliceState, ''>;
+}: InputWithoutSlice<SliceState, CaseMap>): Slice<CaseMap, SliceState, ''>;
 
 export function createSlice<
-  Actions extends ActionsMap,
+  CaseMap extends Cases<SliceState, any>,
   SliceState,
   SliceName extends string
 >({
   cases,
   initialState,
   slice = '' as any,
-}: InputWithOptionalSlice<SliceState, Actions, SliceName>): Slice<
-  Actions,
+}: InputWithOptionalSlice<SliceState, CaseMap, SliceName>): Slice<
+  CaseMap,
   SliceState,
   SliceName
 > {
   const actionKeys = Object.keys(cases) as Array<
-    Extract<keyof Actions, string>
+    Extract<keyof CaseMap, string>
   >;
 
-  const reducer = makeReducer<Actions, SliceState, SliceName>(
+  const reducer = makeReducer<CaseMap, SliceState, SliceName>(
     cases,
     initialState,
     slice,
   );
 
-  const actions = makeActionCreators<Actions, SliceName>(actionKeys, slice);
+  const actions = makeActionCreators<CaseActions<CaseMap>, SliceName>(actionKeys, slice);
 
   const selectors = makeSelectors<SliceState, SliceName>(slice, initialState);
   return {
