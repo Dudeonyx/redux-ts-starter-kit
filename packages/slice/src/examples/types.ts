@@ -1,4 +1,4 @@
-import { createSlice } from '../slice';
+import { createSlice, Cases } from '../slice';
 import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
@@ -16,10 +16,11 @@ interface IState {
   ords: IordersReducerState;
 }
 
+// tslint:disable-next-line: interface-over-type-literal
 type Actions = {
-  set: PayloadAction<HiSliceState>;
-  reset: never;
-}
+  set: PayloadAction<HiSliceState, 'hi/set'>;
+  reset: PayloadAction<never>;
+};
 
 const defaultState = {
   test: '',
@@ -67,7 +68,7 @@ export const {
   selectors: hiSelectors,
   reducer: hiReducer,
   slice: hi_slice,
-} = createSlice<Actions, HiSliceState, 'hi'>({
+} = createSlice<Cases<HiSliceState, Actions>, HiSliceState, 'hi'>({
   slice: 'hi',
   cases: {
     set: (state, payload) => payload.payload,
@@ -155,8 +156,8 @@ const auth = createSlice({
   slice: 'auth',
   initialState,
   cases: {
-    authFail: (state, error: PayloadAction<Error>) => {
-      state.error = error.payload;
+    authFail: (state, action: PayloadAction<Error>) => {
+      state.error = action.payload;
       state.authenticating = false;
     },
     authLogout: (state) => {
@@ -213,15 +214,19 @@ getAuthUserId;
 getAuthIdToken;
 // tslint:enable: no-unused-expression
 // tslint:disable-next-line: interface-over-type-literal
-export type AuthActions$  = {
+export type AuthActions$ = {
   authSuccess$: PayloadAction<AuthSuccess>;
   authStart$: PayloadAction<never>;
   authFail$: PayloadAction<Error>;
   authLogout$: PayloadAction<never>;
-}
+};
 
 const slice = 'auth';
-const auth$ = createSlice<AuthActions$, AuthSliceState, typeof slice>({
+const auth$ = createSlice<
+  Cases<AuthSliceState, AuthActions$>,
+  AuthSliceState,
+  typeof slice
+>({
   slice,
   initialState,
   cases: {
@@ -291,10 +296,10 @@ const auth$NoInterface = createSlice({
       state.error = error;
       state.authenticating = false;
     },
-    authLogout$2: (state, _n: never) => {
-      state.idToken = null;
-      state.userId = null;
-    },
+    // authLogout$2: (state, _n: never) => {
+    //   state.idToken = null;
+    //   state.userId = null;
+    // },
     authStart$2: (state, payload) => {
       state.authenticating = true;
     },
@@ -437,36 +442,38 @@ console.log(
   '\n***************\n',
 );
 
-type MapTest<O extends {}> = Record<keyof O, number>
-const test = < A extends {[key in keyof A]: number}>( options: { cases:A }) =>{
-return options.cases;
-}
-const test2 = < A extends MapTest<A>>( options: { cases:A }) =>{
-return options.cases;
-}
+type MapTest<O extends {}> = Record<keyof O, number>;
+const test = <A extends { [key in keyof A]: number }>(options: {
+  cases: A;
+}) => {
+  return options.cases;
+};
+const test2 = <A extends MapTest<A>>(options: { cases: A }) => {
+  return options.cases;
+};
 
 interface Case {
-  helpMe: number,
-  dont: 'fdf'
+  helpMe: number;
+  dont: 'fdf';
 }
 
 const resultA = test<Case>({
-  cases:{
+  cases: {
     helpMe: 2,
-  }
-})
+  },
+});
 const resultB = test({
-  cases:{
+  cases: {
     helpMe: 2,
-  }
-})
+  },
+});
 const result2A = test2<Case>({
-  cases:{
+  cases: {
     helpMe: 2,
-  }
-})
+  },
+});
 const result2B = test2({
-  cases:{
+  cases: {
     helpMe: 2,
-  }
-})
+  },
+});

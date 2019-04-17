@@ -4,15 +4,16 @@ export interface Action<T extends string = string> {
   readonly type: T;
 }
 
-export interface PayloadAction<
-  T extends string = string,
+export interface GenericAction<
   P = any,
+  T extends string = string,
   Slc extends string = string
 > extends Action<T> {
   readonly payload?: P;
   readonly slice?: Slc;
+  readonly [s: string]: any;
 }
-export interface PayloadAction2<
+export interface PayloadAction<
   P = any,
   T extends string = string,
   Slc extends string = string
@@ -20,7 +21,7 @@ export interface PayloadAction2<
   readonly payload: P;
   readonly slice?: Slc;
 }
-// type FD1 = TestType<unknown>;
+type FD1 = TestType<void>;
 // type FD2 = TestType<string>;
 // type FD3 = TestType<never>;
 // type FD4 = TestType<number>;

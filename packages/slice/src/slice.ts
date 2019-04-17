@@ -1,20 +1,20 @@
-import { TestType, Action } from './types';
-import { PayloadAction, PayloadAction } from './types';
+import { TestType, Action, GenericAction } from './types';
+import { PayloadAction } from './types';
 import { makeReducer, makeActionCreators, makeSelectors } from './slice-utils';
 import { Draft } from 'immer';
 
 /** Type alias for case reducers when `slice` is blank or undefined */
 // tslint:disable-next-line: callable-types
-interface CaseReducer<SS, A extends Action> { (
+type CaseReducer<SS, A extends Action> = (
   state: Draft<SS>,
   action: A,
-): SS | void | undefined;}
+) => SS | void | undefined;
 
 /** Type alias for the generated reducer */
 export interface Reducer<
   SS = any,
-  A extends PayloadAction = PayloadAction<unknown, any, any>,
-  SliceName extends string = string
+  A extends GenericAction<any, any, any> = GenericAction<any, any, any>,
+  SliceName extends string = any
 > {
   (state: SS | undefined, action: A): SS;
   toString: () => SliceName;
@@ -26,23 +26,35 @@ export interface Reducer<
  * @template SS is the [SliceState] or [State]
  * @template A  is the [Action]
  */
-export type Cases<SS, Ax extends ActionsMap<Ax>> = {
-  [K in keyof Ax]: CaseReducer<SS, Ax[K]>
+export type Cases<SS, Ax extends { [s: string]: PayloadAction<any> }> = {
+  [K in keyof Ax]: Ax[K] extends PayloadAction<any, any>
+    ? CaseReducer<SS, Ax[K]>
+    : never
+};
+
+export type Casesify<SS, A extends { [s: string]: any }> = {
+  [key in keyof A]: CaseReducer<SS, PayloadAction<A[key]>>
+};
+
+export type Actionify<A extends { [s: string]: any }> = {
+  [key in keyof A]: PayloadAction<A[key]>
 };
 /** Generic Actions Map interface */
-export type ActionsMap<A> =  {
-  [key in keyof A]: A[key] extends PayloadAction<infer P, infer T,any> ? PayloadAction<P,T,any> : void
-}
-type CaseActions<CS extends Cases<any, any>> = {
-  [T in keyof CS]: CS[T] extends (state: any) => any
-    ? void
-    : (CS[T] extends (state: any, action: infer A) => any
-        ? A
-        : void
-        )
+export interface ActionsMap {
+  [action: string]: any;
 }
 
-// interface AAA<A extends {}>{}
+// type CaseActions<CS extends Cases<any, any>> = {
+//   [T in keyof CS]: CS[T] extends (state: any) => any
+//     ? PayloadAction<undefined, any, any>
+//     : (CS[T] extends (
+//         state: any,
+//         action: PayloadAction<infer P, infer Ty, any>,
+//       ) => any
+//         ? PayloadAction<P, Ty, any>
+//         : PayloadAction<void, any, any>)
+// };
+
 /** Generic State interface
  * @export
  */
@@ -50,58 +62,63 @@ export interface AnyState {
   [slice: string]: any;
 }
 
-
 /** Type alias for generated selectors */
-export type Selectors<SS, S, D extends 0 | 1 = 1> = TestType<
-  SS
-> extends 'Object'
-  ? ({
-      [key in keyof SS]: D extends 1
-        ? TestType<SS[key]> extends 'Object'
-          ? Selectors<SS[key], S, 0>
+export type Selectors<SS, S, D extends 0 | 1 | 2 = 1> = D extends 1 | 2
+  ? TestType<SS> extends 'Object'
+    ? ({
+        [key in keyof SS]: TestType<SS[key]> extends 'Object'
+          ? D extends 1
+            ? Selectors<SS[key], S, 0>
+            : D extends 2
+            ? Selectors<SS[key], S, 1>
+            : (state: S) => SS[key]
           : (state: S) => SS[key]
-        : (state: S) => SS[key]
-    } & {
-      getSlice: (state: S) => SS;
-    })
+      } & {
+        getSlice: (state: S) => SS;
+      })
+    : {
+        getSlice: (state: S) => SS;
+      }
   : {
       getSlice: (state: S) => SS;
     };
-    
 
 /** Type alias for generated action creators */
-export type ActionCreators<A, Slc extends string = ''> = {
-
-  [key in Extract<keyof A, string>]: A[key] extends PayloadAction<infer P, infer K, any> ?
-    TestType<P> extends 'Any'
-    ? {
-        (payload?: any): PayloadAction< any,K, Slc>;
-        type: K;
-        slice: Slc;
-        toString: () => K;
-      } // tslint:disable-next-line: ban-types
-    : TestType<P> extends 'EmptyObject' | 'Never' | never // ensures payload isn't inferred as {}
-    ? {
-        (): PayloadAction<undefined,K, Slc>;
-        type: K;
-        slice: Slc;
-        toString: () => K;
-      }
-    : {
-        (payload: P): PayloadAction< P,K, Slc>;
-        type: K;
-        slice: Slc;
-        toString: () => K;
-      }
+export type ActionCreators<A extends ActionsMap, Slc extends string = ''> = {
+  [key in Extract<keyof A, string>]: A[key] extends PayloadAction<
+    infer P,
+    infer K,
+    any
+  >
+    ? TestType<P> extends 'Any'
+      ? {
+          (payload?: any): PayloadAction<any, K, Slc>;
+          type: K;
+          slice: Slc;
+          toString: () => K;
+        } // tslint:disable-next-line: ban-types
+      : TestType<P> extends 'EmptyObject' | 'Never' | never // ensures payload isn't inferred as {}
+      ? {
+          (): PayloadAction<undefined, K, Slc>;
+          type: K;
+          slice: Slc;
+          toString: () => K;
+        }
+      : {
+          (payload: P): PayloadAction<P, K, Slc>;
+          type: K;
+          slice: Slc;
+          toString: () => K;
+        }
     : TestType<A[key]> extends 'Any'
     ? {
-        (payload?: any): PayloadAction<any, string , Slc>;
+        (payload?: any): PayloadAction<any, string, Slc>;
         type: string;
         slice: Slc;
         toString: () => string;
       }
     : {
-        (): PayloadAction<any, string , Slc>;
+        (): PayloadAction<any, string, Slc>;
         type: string;
         slice: Slc;
         toString: () => string;
@@ -117,7 +134,11 @@ export type ActionCreators<A, Slc extends string = ''> = {
  * @template S - [State]
  * @template SliceName - [slice]
  */
-export interface Slice<CS extends Cases<SS,any>, SS = any, SliceName extends string = string> {
+export interface Slice<
+  Ax extends ActionsMap,
+  SS = any,
+  SliceName extends string = string
+> {
   /**
    * @description The name of the slice generated, i.e it's key in the redux state tree.
    * @type {SliceName}
@@ -127,18 +148,10 @@ export interface Slice<CS extends Cases<SS,any>, SS = any, SliceName extends str
   /**
    * @description The generated reducer
    *
-   * @type {Reducer<SS, PayloadAction< any,string, string>, SliceName>}
+   * @type {Reducer<SS, GenericAction< any,string, string>, SliceName>}
    * @memberof Slice
    */
-  reducer: Reducer<SS, PayloadAction< any,string, string>, SliceName>;
-  /**
-   * @description The generated slice reducer, unlike the normal reducer
-   * `sliceReducer` only listens to actions with a matching `slice` key
-   *
-   * @type {Reducer<SS, PayloadAction< any,string, SliceName>, SliceName>}
-   * @memberof Slice
-   */
-  sliceReducer: Reducer<SS, PayloadAction< any,string, SliceName>, SliceName>;
+  reducer: Reducer<SS, GenericAction<any, string, string>, SliceName>;
   /**
    * The automatically generated selectors
    *
@@ -152,10 +165,10 @@ export interface Slice<CS extends Cases<SS,any>, SS = any, SliceName extends str
    *
    * @memberof Slice
    */
-  actions: ActionCreators<CaseActions<CS>, SliceName>;
+  actions: ActionCreators<Ax, SliceName>;
 }
 
-interface InputWithoutSlice<SS, CS extends Cases<SS,any>> {
+interface InputWithoutSlice<SS, Ax extends ActionsMap> {
   /**
    * The initial State, same as standard reducer
    *
@@ -170,14 +183,11 @@ interface InputWithoutSlice<SS, CS extends Cases<SS,any>> {
    * @type {Cases<SS, Ax>}
    * @memberof InputWithoutSlice
    */
-  cases: CS;
+  cases: Cases<SS, Ax>;
 }
 
-interface InputWithSlice<
-  SS,
-  CS extends Cases<SS,any>,
-  SliceName extends string
-> extends InputWithoutSlice<SS, CS> {
+interface InputWithSlice<SS, Ax extends ActionsMap, SliceName extends string>
+  extends InputWithoutSlice<SS, Ax> {
   /**
    * @description An optional property representing the key of the generated slice in the redux state tree.
    *
@@ -187,8 +197,8 @@ interface InputWithSlice<
   slice: SliceName;
 }
 
-interface InputWithBlankSlice<SS ,CS extends Cases<SS,any>>
-  extends InputWithoutSlice<SS, CS> {
+interface InputWithBlankSlice<SS, Ax extends ActionsMap>
+  extends InputWithoutSlice<SS, Ax> {
   /**
    * @description An optional property representing the key of the generated slice in the redux state tree.
    *
@@ -198,10 +208,10 @@ interface InputWithBlankSlice<SS ,CS extends Cases<SS,any>>
   slice: '';
 }
 interface InputWithOptionalSlice<
-  SS ,
-  CS extends Cases<SS,any>,
+  SS,
+  Ax extends ActionsMap,
   SliceName extends string
-> extends InputWithoutSlice<SS, CS> {
+> extends InputWithoutSlice<SS, Ax> {
   /**
    * @description An optional property representing the key of the generated slice in the redux state tree.
    *
@@ -217,13 +227,14 @@ interface InputWithOptionalSlice<
  *
  * @export
  *
- * @template CS - A map of action creator names and payloads, in the form `{[actionName]: typeof payload}`,
+ * @template Actions - A map of action creator names and payloads, in the form `{[actionName]: typeof payload}`,
  *  a payload type of `never` can be used to indicate that no payload is expected
  *
  * @template SliceState - The interface of the initial state,
  *  it is also the interface of the slice of state.
  *
- * @template State - The interface of the entire redux state tree
+ * @template SliceName - The name of the slice of state the reducer manages,
+ * can be blank or left out entirely
  *
  * @param {{cases: Cases<SS, Ax>, initialState: SS, slice: string}} {
  *   cases,
@@ -231,12 +242,7 @@ interface InputWithOptionalSlice<
  *   slice
  * }
  *
- * @returns {Slice<
- CS,
- *   NoEmptyArray<SliceState>,
- *   State,
- *   typeof slice
- * >} {
+ * @returns {Slice<Actions, SliceState, SliceName>} {
  *   reducer,
  *   actions,
  *   selectors,
@@ -244,56 +250,56 @@ interface InputWithOptionalSlice<
  * }
  */
 export function createSlice<
-  CS extends Cases<SliceState,any>,
-  SliceState extends object| string|symbol|number|boolean,
+  Actions extends ActionsMap,
+  SliceState,
   SliceName extends ''
 >({
   cases,
   initialState,
   slice,
-}: InputWithBlankSlice<SliceState, CS>): Slice<CS, SliceState, ''>;
+}: InputWithBlankSlice<SliceState, Actions>): Slice<Actions, SliceState, ''>;
 
 export function createSlice<
-  CS extends Cases<SliceState,any>,
-  SliceState extends object| string|symbol|number|boolean,
+  Actions extends ActionsMap,
+  SliceState,
   SliceName extends string
 >({
   cases,
   initialState,
   slice,
-}: InputWithSlice<SliceState, CS, SliceName>): Slice<
-  CS,
+}: InputWithSlice<SliceState, Actions, SliceName>): Slice<
+  Actions,
   SliceState,
   SliceName
 >;
 
 export function createSlice<
-  CS extends Cases<SliceState,any>,
-  SliceState extends object| string|symbol|number|boolean,
+  Actions extends ActionsMap,
+  SliceState,
   SliceName extends string
 >({
   cases,
   initialState,
-}: InputWithoutSlice<SliceState, CS>): Slice<Actions, SliceState, ''>;
+}: InputWithoutSlice<SliceState, Actions>): Slice<Actions, SliceState, ''>;
 
 export function createSlice<
-  CS extends Cases<SliceState,any>,
-  SliceState extends object| string|symbol|number|boolean,
+  Actions extends ActionsMap,
+  SliceState,
   SliceName extends string
 >({
   cases,
   initialState,
   slice = '' as any,
-}: InputWithOptionalSlice<SliceState, CS, SliceName>): Slice<
-  CS,
+}: InputWithOptionalSlice<SliceState, Actions, SliceName>): Slice<
+  Actions,
   SliceState,
   SliceName
 > {
   const actionKeys = Object.keys(cases) as Array<
-    Extract<keyof CS, string>
+    Extract<keyof Actions, string>
   >;
 
-  const [reducer, sliceReducer,] = makeReducer<CS, SliceState, SliceName>(
+  const reducer = makeReducer<Actions, SliceState, SliceName>(
     cases,
     initialState,
     slice,
@@ -304,8 +310,7 @@ export function createSlice<
   const selectors = makeSelectors<SliceState, SliceName>(slice, initialState);
   return {
     actions,
-    reducer: reducer as any,
-    sliceReducer,
+    reducer,
     slice,
     selectors: selectors as any,
   };

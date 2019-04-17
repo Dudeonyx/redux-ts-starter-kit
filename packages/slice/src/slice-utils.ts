@@ -5,26 +5,25 @@ import {
   createSelector,
   createSubSubSelector,
 } from './selector';
-import { ActionsMap, ActionCreators, Cases, Selectors, Reducer } from './slice';
-import { PayloadAction, PayloadAction } from './types';
+import { ActionsMap, ActionCreators, Cases, Selectors } from './slice';
+// import { PayloadAction, GenericAction } from './types';
 import isPlainObject from './isPlainObject';
-
-
+import { createActionType } from './actionType';
 
 export function makeActionCreators<
-  Actions extends ActionsMap<{[s:string]: PayloadAction}>,
+  Actions extends ActionsMap,
   Sl extends string
 >(
   actionKeys: Array<Extract<keyof Actions, string>>,
   slice: Sl,
 ): ActionCreators<Actions, Sl>;
 
-export function makeActionCreators<Actions extends ActionsMap<{[s:string]: PayloadAction}>>(
+export function makeActionCreators<Actions extends ActionsMap>(
   actionKeys: Array<Extract<keyof Actions, string>>,
 ): ActionCreators<Actions>;
 
 export function makeActionCreators<
-  Actions extends ActionsMap<{[s:string]: PayloadAction}>,
+  Actions extends ActionsMap,
   Sl extends string
 >(
   actionKeys: Array<Extract<keyof Actions, string>>,
@@ -40,18 +39,18 @@ export function makeActionCreators<
 }
 
 export const makeReducer = <
-  CS extends Cases<SliceState,any>,
+  Ax extends ActionsMap,
   SliceState,
   SliceName extends string
 >(
-  cases: CS,
+  cases: Cases<SliceState, Ax>,
   initialState: SliceState,
   slice: SliceName,
 ) => {
-  const actionKeys = Object.keys(cases) as Array<keyof CS>;
-  const reducerMap = actionKeys.reduce<CS>(
+  const actionKeys = Object.keys(cases) as Array<keyof Ax>;
+  const reducerMap = actionKeys.reduce<Cases<SliceState, Ax>>(
     (map, action) => {
-      map[action] = cases[action];
+      map[action] = cases[createActionType(slice, action)];
       return map;
     },
     {} as any,
@@ -61,9 +60,9 @@ export const makeReducer = <
     cases: reducerMap,
     slice,
   });
-  const sliceSpacedReducer = makeSliceSpacedReducer(slice, reducer);
+  // const sliceSpacedReducer = makeSliceSpacedReducer(slice, reducer);
 
-  return [reducer, sliceSpacedReducer,] as [typeof reducer, typeof reducer];
+  return reducer;
 };
 
 export interface MakeSelectors {
@@ -77,10 +76,40 @@ export interface MakeSelectors {
     slice: SliceName,
     initialState: SliceState,
   ): Selectors<SliceState, SliceState>;
+  <SliceState, SliceName extends ''>(
+    slice: SliceName,
+    initialState: SliceState,
+    depth: 0,
+  ): Selectors<SliceState, SliceState, 0>;
+  <SliceState, SliceName extends ''>(
+    slice: SliceName,
+    initialState: SliceState,
+    depth: 1,
+  ): Selectors<SliceState, SliceState, 1>;
+  <SliceState, SliceName extends ''>(
+    slice: SliceName,
+    initialState: SliceState,
+    depth: 2,
+  ): Selectors<SliceState, SliceState, 2>;
   <SliceState, SliceName extends string>(
     slice: SliceName,
     initialState: SliceState,
   ): Selectors<SliceState, { [slice in SliceName]: SliceState }>;
+  <SliceState, SliceName extends string>(
+    slice: SliceName,
+    initialState: SliceState,
+    depth: 0,
+  ): Selectors<SliceState, { [slice in SliceName]: SliceState }, 0>;
+  <SliceState, SliceName extends string>(
+    slice: SliceName,
+    initialState: SliceState,
+    depth: 1,
+  ): Selectors<SliceState, { [slice in SliceName]: SliceState }, 1>;
+  <SliceState, SliceName extends string>(
+    slice: SliceName,
+    initialState: SliceState,
+    depth: 2,
+  ): Selectors<SliceState, { [slice in SliceName]: SliceState }, 2>;
 }
 export const makeSelectors: MakeSelectors = <
   SliceState,
@@ -88,38 +117,47 @@ export const makeSelectors: MakeSelectors = <
 >(
   slice: SliceName,
   initialState?: SliceState,
-  depth: 0 | 1 = 1,
+  depth: 0 | 1 | 2 = 1,
 ) => {
-  let initialStateKeys: Array<keyof SliceState> = [];
-  if (isPlainObject(initialState) && !Array.isArray(initialState)) {
-    initialStateKeys = Object.keys(initialState) as Array<keyof SliceState>;
+  if (
+    depth >= 1 &&
+    isPlainObject(initialState) &&
+    !Array.isArray(initialState)
+  ) {
+    const initialStateKeys = Object.keys(initialState) as Array<
+      keyof SliceState
+    >;
+    const otherSelectors = initialStateKeys.reduce<
+      {
+        [key in keyof SliceState]:
+          | ((
+              state: { [sliceKey in SliceName]: SliceState },
+            ) => SliceState[key])
+          | Selectors<SliceState[key], { [sliceKey in SliceName]: SliceState }>
+      }
+    >(
+      (map, key) => {
+        map[key] = makeSubSubSelectors<SliceState, SliceName, typeof key>(
+          initialState,
+          key,
+          slice,
+          !!(depth - 1),
+        );
+
+        return map;
+      },
+      {} as any,
+    );
+    return {
+      ...otherSelectors,
+      getSlice: createSelector<
+        { [sliceKey in SliceName]: SliceState },
+        SliceState,
+        SliceName
+      >(slice),
+    };
   }
-  const otherSelectors = initialStateKeys.reduce<
-    {
-      [key in keyof SliceState]: (
-        state: { [sliceKey in SliceName]: SliceState },
-      ) => SliceState[key]
-    }
-  >(
-    (map, key) => {
-      map[key] =
-        isPlainObject(initialState) &&
-        !Array.isArray(initialState) &&
-        isPlainObject(initialState[key]) &&
-        !Array.isArray(initialState[key])
-          ? makeSubSubSelectors<SliceState, SliceName>(initialState, key, slice)
-          : createSubSelector<
-              { [sliceKey in SliceName]: SliceState },
-              SliceState,
-              SliceName,
-              Extract<typeof key, string>
-            >(slice, key as any);
-      return map;
-    },
-    {} as any,
-  );
   return {
-    ...otherSelectors,
     getSlice: createSelector<
       { [sliceKey in SliceName]: SliceState },
       SliceState,
@@ -127,51 +165,68 @@ export const makeSelectors: MakeSelectors = <
     >(slice),
   };
 };
-function makeSubSubSelectors<SliceState, SliceName extends string>(
+function makeSubSubSelectors<
+  SliceState extends {},
+  SliceName extends string,
+  Key extends keyof SliceState
+>(
   initialState: SliceState,
-  key: keyof SliceState,
+  key: Key,
   slice: SliceName,
-): {
-  [k in keyof SliceState]: (
-    state: { [sliceKey in SliceName]: SliceState },
-  ) => SliceState[k]
-}[keyof SliceState] {
-  return {
-    ...Object.keys(initialState[key]).reduce(
-      (acc, subKey) => {
-        acc[subKey] = createSubSubSelector<
-          { [sliceKey in SliceName]: SliceState },
-          SliceState,
-          SliceName,
-          Extract<typeof key, string>
-        >(slice, key as any, subKey);
-        return acc;
-      },
-      {} as any,
-    ),
-    getSlice: createSubSelector<
-      { [sliceKey in SliceName]: SliceState },
-      SliceState,
-      SliceName,
-      Extract<typeof key, string>
-    >(slice, key as any),
-  };
+  depth: boolean = true,
+):
+  | Selectors<SliceState[Key], { [k in SliceName]: SliceState }>
+  | ((state: { [k in SliceName]: SliceState }) => SliceState[Key]) {
+  if (
+    depth &&
+    isPlainObject(initialState) &&
+    !Array.isArray(initialState) &&
+    isPlainObject(initialState[key]) &&
+    !Array.isArray(initialState[key])
+  ) {
+    return {
+      ...Object.keys(initialState[key]).reduce(
+        (acc, subKey) => {
+          acc[subKey] = createSubSubSelector<
+            { [sliceKey in SliceName]: SliceState },
+            SliceState,
+            SliceName,
+            Extract<typeof key, string>
+          >(slice, key as any, subKey);
+          return acc;
+        },
+        {} as any,
+      ),
+      getSlice: createSubSelector<
+        { [sliceKey in SliceName]: SliceState },
+        SliceState,
+        SliceName,
+        Extract<typeof key, string>
+      >(slice, key as any),
+    };
+  }
+  return createSubSelector<
+    { [sliceKey in SliceName]: SliceState },
+    SliceState,
+    SliceName,
+    Extract<typeof key, string>
+  >(slice, key as any);
 }
 
-function makeSliceSpacedReducer<
-  PA extends PayloadAction,
-  SliceName extends string,
-  SS
->(slice: SliceName, reducer: Reducer<SS, PA, SliceName>) {
-  if (slice === '' || slice === undefined) {
-    return reducer;
-  }
-  const initialState = reducer(undefined, {
-    type: '@%@^#$*&^@^#%%$^$%%@%$%$@$%$',
-  } as any);
-  const newReducer = (state = initialState, action: PA) => {
-    return action.slice === slice ? reducer(state, action) : state;
-  };
-  newReducer.toString = () => slice;
-  return newReducer as typeof reducer;
-}
+// function makeSliceSpacedReducer<
+//   PA extends GenericAction,
+//   SliceName extends string,
+//   SS
+// >(slice: SliceName, reducer: Reducer<SS, PA, SliceName>) {
+//   if (slice === '' || slice === undefined) {
+//     return reducer;
+//   }
+//   const initialState = reducer(undefined, {
+//     type: '@%@^#$*&^@^#%%$^$%%@%$%$@$%$',
+//   } as any);
+//   const newReducer = (state = initialState, action: PA) => {
+//     return action.slice === slice ? reducer(state, action) : state;
+//   };
+//   newReducer.toString = () => slice;
+//   return newReducer as typeof reducer;
+// }
