@@ -7,5 +7,9 @@ export interface AnyAction<T extends string = string> extends Action<T> {
 }
 export interface PayloadAction<P = any, T extends string = string>
   extends Action<T> {
+  readonly payload: P;
+}
+export interface PayloadAction2<P = any, T extends string = string>
+  extends Action<T> {
   readonly payload?: P;
 }

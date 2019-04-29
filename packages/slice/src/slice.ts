@@ -1,4 +1,4 @@
-import { PayloadAction, AnyAction } from './types';
+import { PayloadAction, AnyAction, Action, PayloadAction2 } from './types';
 import { makeReducer, makeActionCreators, makeSelectors } from './slice-utils';
 import { Draft } from 'immer';
 
@@ -7,7 +7,7 @@ interface NotEmptyObject {
   [s: number]: string | number | symbol | boolean | object | undefined | null;
 }
 /** Type alias for case reducers when `slice` is blank or undefined */
-type CaseReducer<SS = any, A = any> = (
+type CaseReducer<SS = any, A extends Action = Action> = (
   state: Draft<SS>,
   payload: A,
 ) => SS | void | undefined;
@@ -29,7 +29,10 @@ export interface Reducer<
  * @template A  is the [Action]
  */
 export type Cases<SS = any, Ax = any> = {
-  [K in keyof Ax]: CaseReducer<SS, Ax[K]>
+  [K in keyof Ax]: CaseReducer<SS, PayloadAction<Ax[K], Extract<K, string>>>
+};
+export type Cases2<SS = any, Ax = any> = {
+  [K in keyof Ax]: CaseReducer<SS, PayloadAction2<Ax[K], Extract<K, string>>>
 };
 /** Generic Actions Map interface */
 export interface ActionsMap<P = any> {

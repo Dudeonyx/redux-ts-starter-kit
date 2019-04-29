@@ -1,16 +1,17 @@
 import { createReducer } from '../reducer';
 import { Reducer } from '../slice';
+import { PayloadAction } from '../types';
 
 describe('createReducer', () => {
   describe('given impure reducers with immer', () => {
-    function addTodo(state: any, payload: any) {
+    function addTodo(state: any, { payload }: PayloadAction) {
       const { newTodo } = payload;
 
       // Can safely call state.push() here
       state.push({ ...newTodo, completed: false });
     }
 
-    function toggleTodo(state: any, payload: any) {
+    function toggleTodo(state: any, { payload }: any) {
       const { index } = payload;
 
       const todo = state[index];
@@ -30,14 +31,14 @@ describe('createReducer', () => {
   });
 
   describe('given pure reducers with immutable updates', () => {
-    function addTodo(state: any, payload: any) {
+    function addTodo(state: any, { payload }: any) {
       const { newTodo } = payload;
 
       // Updates the state immutably without relying on immer
       return [...state, { ...newTodo, completed: false },];
     }
 
-    function toggleTodo(state: any, payload: any) {
+    function toggleTodo(state: any, { payload }: any) {
       const { index } = payload;
 
       // Updates the todo object immutably withot relying on immer

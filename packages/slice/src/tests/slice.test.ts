@@ -1,6 +1,7 @@
 import { createSlice } from '../slice';
 import { makeActionCreators, makeSelectors } from '../slice-utils';
 import { combineReducers } from 'redux';
+import { PayloadAction } from '../types';
 
 describe('makeActionCreators', () => {
   const actions = makeActionCreators(['setName', 'resetName',]);
@@ -142,7 +143,7 @@ describe('createSlice', () => {
     const { actions, reducer, selectors } = createSlice<Actions, State, ''>({
       cases: {
         increment: (state) => state + 1,
-        multiply: (state, payload) => state * payload,
+        multiply: (state, action) => state * action.payload,
       },
       initialState: 0,
     });
@@ -194,7 +195,8 @@ describe('createSlice', () => {
     const { actions, reducer, selectors } = createSlice({
       cases: {
         increment: (state) => state + 1,
-        multiply: (state: number, payload: number) => state * payload,
+        multiply: (state: number, action: PayloadAction<number>) =>
+          state * action.payload,
       },
       initialState: 0,
       slice: 'cool',
@@ -240,14 +242,14 @@ describe('createSlice', () => {
   describe('createSlice when initialState is an object', () => {
     const { selectors } = createSlice({
       cases: {
-        setName: (state, name: string) => {
-          state.name = name;
+        setName: (state, action: PayloadAction<string>) => {
+          state.name = action.payload;
         },
-        setSurname: (state, surname: string) => {
-          state.surname = surname;
+        setSurname: (state, action: PayloadAction<string>) => {
+          state.surname = action.payload;
         },
-        setMiddlename: (state, middlename: string) => {
-          state.middlename = middlename;
+        setMiddlename: (state, action: PayloadAction<string>) => {
+          state.middlename = action.payload;
         },
       },
       slice: 'form',
@@ -296,8 +298,8 @@ describe('createSlice', () => {
   describe('when mutating state object', () => {
     const { actions, reducer } = createSlice({
       cases: {
-        setUserName: (state, payload: string) => {
-          state.user = payload;
+        setUserName: (state, action: PayloadAction<string>) => {
+          state.user = action.payload;
         },
       },
       initialState: { user: '' },
@@ -341,11 +343,11 @@ describe('multiple createSlice slices used to create a redux store', () => {
     // interfaces supplied to createSlice
     slice: 'hi', // The key/name of the slice, it is type checked to ensure it is a key in IState
     cases: {
-      setWaves: (state, payload) => {
-        state.waves = payload;
+      setWaves: (state, action) => {
+        state.waves = action.payload;
       },
-      setGreeting: (state, payload) => {
-        state.greeting = payload;
+      setGreeting: (state, action) => {
+        state.greeting = action.payload;
       },
       resetHi: (state) => {
         return hiInitialState;
@@ -368,16 +370,16 @@ describe('multiple createSlice slices used to create a redux store', () => {
 
   const formSlice = createSlice({
     cases: {
-      setName: (state, name: string) => {
-        state.name = name;
+      setName: (state, action: PayloadAction<string>) => {
+        state.name = action.payload;
       },
-      setSurname: (state, surname: string) => {
-        state.surname = surname;
+      setSurname: (state, action: PayloadAction<string>) => {
+        state.surname = action.payload;
       },
-      setMiddlename: (state, middlename: string) => {
-        state.middlename = middlename;
+      setMiddlename: (state, action: PayloadAction<string>) => {
+        state.middlename = action.payload;
       },
-      resetForm: (state, _: never) => formInitialState,
+      resetForm: (state, _: PayloadAction<never>) => formInitialState,
     },
     slice: 'form',
     initialState: formInitialState,
@@ -409,9 +411,9 @@ describe('multiple createSlice slices used to create a redux store', () => {
         state.idToken = null;
         state.userId = null;
       },
-      authLogin: (state, payload) => {
-        state.idToken = payload.idToken;
-        state.userId = payload.userId;
+      authLogin: (state, action) => {
+        state.idToken = action.payload.idToken;
+        state.userId = action.payload.userId;
       },
     },
   });

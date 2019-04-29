@@ -3,6 +3,7 @@ import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { createReducer } from '../reducer';
+import { PayloadAction } from '../types';
 
 interface HiSliceState {
   test: string;
@@ -33,7 +34,7 @@ export const {
 } = createSlice({
   slice: 'hi',
   cases: {
-    set: (state, payload: string[]) => payload,
+    set: (state, action: PayloadAction<string[]>) => action.payload,
     reset: () => ['defaultState', 'jhj',],
   },
   initialState: [] as string[],
@@ -69,7 +70,7 @@ export const {
 } = createSlice<Actions, HiSliceState, 'hi'>({
   slice: 'hi',
   cases: {
-    set: (state, payload) => payload,
+    set: (state, action) => action.payload,
     reset: () => defaultState,
   },
   initialState: defaultState,
@@ -136,21 +137,21 @@ const auth = createSlice({
   slice: 'auth',
   initialState,
   cases: {
-    authFail: (state, error: Error) => {
-      state.error = error;
+    authFail: (state, action: PayloadAction<Error>) => {
+      state.error = action.payload;
       state.authenticating = false;
     },
     authLogout: (state) => {
       state.idToken = null;
       state.userId = null;
     },
-    authStart: (state, payload) => {
+    authStart: (state, action) => {
       state.authenticating = true;
     },
-    authSuccess: (state, payload: AuthSuccess) => {
+    authSuccess: (state, action: PayloadAction<AuthSuccess>) => {
       state.authenticating = false;
-      state.idToken = payload.idToken;
-      state.userId = payload.userId;
+      state.idToken = action.payload.idToken;
+      state.userId = action.payload.userId;
     },
   },
 });
@@ -204,8 +205,8 @@ const auth$ = createSlice<AuthActions$, AuthSliceState, typeof slice>({
   slice,
   initialState,
   cases: {
-    authFail$: (state, error) => {
-      state.error = error;
+    authFail$: (state, action) => {
+      state.error = action.payload;
       state.authenticating = false;
     },
     authLogout$: (state) => {
@@ -215,10 +216,10 @@ const auth$ = createSlice<AuthActions$, AuthSliceState, typeof slice>({
     authStart$: (state) => {
       state.authenticating = true;
     },
-    authSuccess$: (state, payload) => {
+    authSuccess$: (state, action) => {
       state.authenticating = false;
-      state.idToken = payload.idToken;
-      state.userId = payload.userId;
+      state.idToken = action.payload.idToken;
+      state.userId = action.payload.userId;
     },
   },
 });
@@ -266,21 +267,21 @@ const auth$NoInterface = createSlice({
   slice: 'auth',
   initialState,
   cases: {
-    authFail$2: (state, error: Error) => {
-      state.error = error;
+    authFail$2: (state, action: PayloadAction<Error>) => {
+      state.error = action.payload;
       state.authenticating = false;
     },
-    authLogout$2: (state, _n: never) => {
+    authLogout$2: (state, _n: PayloadAction<never>) => {
       state.idToken = null;
       state.userId = null;
     },
-    authStart$2: (state, payload) => {
+    authStart$2: (state, action) => {
       state.authenticating = true;
     },
-    authSuccess$2: (state, payload: AuthSuccess) => {
+    authSuccess$2: (state, action: PayloadAction<AuthSuccess>) => {
       state.authenticating = false;
-      state.idToken = payload.idToken;
-      state.userId = payload.userId;
+      state.idToken = action.payload.idToken;
+      state.userId = action.payload.userId;
     },
   },
 });
@@ -301,8 +302,8 @@ export const {
 export const authReducer2 = createReducer({
   initialState,
   cases: {
-    authFail: (state, error: Error) => {
-      state.error = error;
+    authFail: (state, action: PayloadAction<Error>) => {
+      state.error = action.payload;
       state.authenticating = false;
     },
     authLogout: (state) => {
@@ -312,10 +313,10 @@ export const authReducer2 = createReducer({
     authStart: (state) => {
       state.authenticating = true;
     },
-    authSuccess: (state, payload: AuthSuccess) => {
+    authSuccess: (state, action: PayloadAction<AuthSuccess>) => {
       state.authenticating = false;
-      state.idToken = payload.idToken;
-      state.userId = payload.userId;
+      state.idToken = action.payload.idToken;
+      state.userId = action.payload.userId;
     },
   },
 });
@@ -330,16 +331,16 @@ const orderSlice = createSlice({
   slice: 'ords',
   initialState: initialStateOeds,
   cases: {
-    setOrders: (state, orders: IDbOrders) => {
+    setOrders: (state, action: PayloadAction<IDbOrders>) => {
       state.error = null;
-      state.orders = orders;
+      state.orders = action.payload;
       state.loading = false;
     },
-    setOrdersError: (state, error: Error) => {
-      state.error = error;
+    setOrdersError: (state, action: PayloadAction<Error>) => {
+      state.error = action.payload;
       state.loading = false;
     },
-    setOrdersLoading: (state, n: never) => {
+    setOrdersLoading: (state, n: PayloadAction<never>) => {
       state.loading = true;
       state.error = null;
     },

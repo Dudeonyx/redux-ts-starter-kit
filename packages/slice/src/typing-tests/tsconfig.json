@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+      "noEmit": true,
+      "target": "esnext",
+      "lib": ["esnext", "dom","dom.iterable"],
+      "allowSyntheticDefaultImports": true,
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+    },
+    "include": ["./"]
+  }
+  

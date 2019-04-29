@@ -25,6 +25,7 @@
     "build": "rollup -c",
     "build:declaration": "tsc -p tsconfig.build.json",
     "clean": "rimraf lib .rpt2_cache",
+    "tsc:tests": "yarn run tsc -p ./src/tests --noEmit",
     "test:types": "typings-checker -p ./src/examples/tsconfig.json ./src/examples/types.ts",
     "lint": "prettier-tslint fix src/**/*.ts",
     "example": "ts-node ./src/examples/types.ts"

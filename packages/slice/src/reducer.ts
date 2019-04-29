@@ -1,5 +1,5 @@
 import createNextState from 'immer';
-import { PayloadAction, AnyAction } from './types';
+import { AnyAction } from './types';
 import { Cases, ActionsMap, Reducer } from './slice';
 
 /**
@@ -85,12 +85,12 @@ export function createReducer<
   cases,
   slice = '' as SliceName,
 }: CreateReducer3<S, A, SliceName>): Reducer<S> {
-  const reducer = (state = initialState, action: PayloadAction) => {
+  const reducer = (state = initialState, action: AnyAction) => {
     return createNextState(state, (draft) => {
       const caseReducer = cases[action.type];
 
       if (caseReducer) {
-        return caseReducer(draft, action.payload);
+        return caseReducer(draft, action as any);
       }
 
       return draft;
