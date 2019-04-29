@@ -1,6 +1,6 @@
 {
   "name": "@redux-ts-starter-kit/core",
-  "version": "2.0.0-alpha.4",
+  "version": "2.0.0-alpha.6",
   "main": "lib/redux-ts-starter-kit-core.cjs.js",
   "module": "lib/redux-ts-starter-kit-core.esm.js",
   "types": "lib/index.d.ts",
@@ -67,11 +67,11 @@
     "tslint": "^5.12.0",
     "tslint-config-prettier": "^1.17.0",
     "tslint-react": "^3.6.0",
-    "typescript": "^3.2.2",
-    "typings-checker": "^2.0.0"
+    "typescript": "^3.4.5",
+    "typings-tester": "^0.3.2"
   },
   "dependencies": {
-    "@redux-ts-starter-kit/slice": "^2.0.0-alpha.4",
+    "@redux-ts-starter-kit/slice": "^2.0.0-alpha.6",
     "redux": "^4.0.1",
     "redux-devtools-extension": "^2.13.7",
     "redux-immutable-state-invariant": "^2.1.0",
@@ -94,6 +94,5 @@
       "prettier-tslint fix",
       "git add"
     ]
-  },
-  "gitHead": "8e1a129ac7b7afbe45b2c60a19be3a9220bbb22b"
+  }
 }

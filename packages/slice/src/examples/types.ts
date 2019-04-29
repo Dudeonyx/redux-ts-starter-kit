@@ -29,7 +29,7 @@ export const {
   actions: hiActions$,
   selectors: hiSelector$,
   reducer: hiReducer$,
-  slice: hiSlice$,
+  // slice: hiSlice$,
 } = createSlice({
   slice: 'hi',
   cases: {
@@ -144,7 +144,7 @@ const auth = createSlice({
       state.idToken = null;
       state.userId = null;
     },
-    authStart: (state) => {
+    authStart: (state, payload) => {
       state.authenticating = true;
     },
     authSuccess: (state, payload: AuthSuccess) => {

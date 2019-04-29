@@ -1,5 +1,5 @@
 import createNextState from 'immer';
-import { PayloadAction } from './types';
+import { PayloadAction, AnyAction } from './types';
 import { Cases, ActionsMap, Reducer } from './slice';
 
 /**
@@ -9,7 +9,7 @@ import { Cases, ActionsMap, Reducer } from './slice';
  * @interface CreateReducer
  * @template SS - The [State] interface
  */
-export interface CreateReducer<S = any, A = any, SliceName = string> {
+export interface CreateReducer<S = any, A = any> {
   /**
    * The initial State, same as in standard reducer
    *
@@ -27,8 +27,8 @@ export interface CreateReducer<S = any, A = any, SliceName = string> {
   cases: Cases<S, A>;
 }
 
-interface CreateReducer2<S, A, SliceName>
-  extends CreateReducer<S, A, SliceName> {
+interface CreateReducer2<S, A, SliceName extends string>
+  extends CreateReducer<S, A> {
   /**
    * @description An optional property representing the key of the generated slice in the redux state tree.
    *
@@ -36,6 +36,16 @@ interface CreateReducer2<S, A, SliceName>
    * @memberof CreateReducer
    */
   slice: SliceName;
+}
+interface CreateReducer3<S, A, SliceName extends string>
+  extends CreateReducer<S, A> {
+  /**
+   * @description An optional property representing the key of the generated slice in the redux state tree.
+   *
+   * @type {string}
+   * @memberof CreateReducer
+   */
+  slice?: SliceName;
 }
 
 /**
@@ -58,7 +68,13 @@ export function createReducer<
   initialState,
   cases,
   slice,
-}: CreateReducer2<S, A, SliceName>): Reducer<S, PayloadAction, SliceName>;
+}: CreateReducer2<S, A, SliceName>): Reducer<S, AnyAction, SliceName>;
+
+export function createReducer<
+  S,
+  A extends ActionsMap = ActionsMap,
+  SliceName extends string = string
+>({ initialState, cases }: CreateReducer<S, A>): Reducer<S, AnyAction, ''>;
 
 export function createReducer<
   S,
@@ -67,25 +83,20 @@ export function createReducer<
 >({
   initialState,
   cases,
-}: CreateReducer<S, A, SliceName>): Reducer<S, PayloadAction, ''>;
-
-export function createReducer<
-  S,
-  A extends ActionsMap = ActionsMap,
-  SliceName extends string = string
->({ initialState, cases, slice = '' }: any): any {
+  slice = '' as SliceName,
+}: CreateReducer3<S, A, SliceName>): Reducer<S> {
   const reducer = (state = initialState, action: PayloadAction) => {
     return createNextState(state, (draft) => {
       const caseReducer = cases[action.type];
 
       if (caseReducer) {
-        return caseReducer(draft as S, action.payload);
+        return caseReducer(draft, action.payload);
       }
 
       return draft;
-    });
+    }) as S;
   };
 
   reducer.toString = () => slice;
-  return reducer as any;
+  return reducer;
 }

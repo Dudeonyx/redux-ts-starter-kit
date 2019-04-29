@@ -1,7 +1,11 @@
-import { PayloadAction } from './types';
+import { PayloadAction, AnyAction } from './types';
 import { makeReducer, makeActionCreators, makeSelectors } from './slice-utils';
 import { Draft } from 'immer';
 
+interface NotEmptyObject {
+  [s: string]: string | number | symbol | boolean | object | undefined | null;
+  [s: number]: string | number | symbol | boolean | object | undefined | null;
+}
 /** Type alias for case reducers when `slice` is blank or undefined */
 type CaseReducer<SS = any, A = any> = (
   state: Draft<SS>,
@@ -11,7 +15,7 @@ type CaseReducer<SS = any, A = any> = (
 /** Type alias for the generated reducer */
 export interface Reducer<
   SS = any,
-  A extends PayloadAction = PayloadAction,
+  A extends AnyAction = AnyAction,
   SliceName extends string = string
 > {
   (state: SS | undefined, action: A): SS;
@@ -54,24 +58,30 @@ export type Selectors<SS, S> = SS extends any[]
 export type ActionCreators<A> = {
   [key in keyof A]: unknown extends A[key] // hacky ternary for `A[key]` = `any`
     ? {
-        (payload?: any): PayloadAction<Extract<key, string>, any>;
-        type: key;
-        toString: () => key;
-      } // tslint:disable-next-line: ban-types
-    : Object extends A[key] // ensures payload isn't inferred as {}
-    ? {
-        (): PayloadAction<Extract<key, string>, undefined>;
+        (payload?: any): PayloadAction<any, Extract<key, string>>;
         type: key;
         toString: () => key;
       }
-    : A[key] extends never // No payload when type is `never`
+    : A[key] extends never | undefined | void // No payload when type is `never`
     ? {
-        (): PayloadAction<Extract<key, string>, undefined>;
+        (): PayloadAction<undefined, Extract<key, string>>;
+        type: key;
+        toString: () => key;
+      }
+    : A[key] extends NotEmptyObject
+    ? {
+        (payload: A[key]): PayloadAction<A[key], Extract<key, string>>;
+        type: key;
+        toString: () => key;
+      }
+    : {} extends A[key] // ensures payload isn't inferred as {}
+    ? {
+        (): PayloadAction<undefined, Extract<key, string>>;
         type: key;
         toString: () => key;
       }
     : {
-        (payload: A[key]): PayloadAction<Extract<key, string>, A[key]>;
+        (payload: A[key]): PayloadAction<A[key], Extract<key, string>>;
         type: key;
         toString: () => key;
       }
@@ -99,7 +109,7 @@ export interface Slice<A = any, SS = any, SliceName extends string = string> {
    * @type {Reducer<SS, Action>}
    * @memberof Slice
    */
-  reducer: Reducer<SS, PayloadAction, SliceName>;
+  reducer: Reducer<SS, AnyAction, SliceName>;
   /**
    * The automatically generated selectors
    *
