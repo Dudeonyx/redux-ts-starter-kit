@@ -1,24 +1,25 @@
-import { PayloadAction, AnyAction, Action, PayloadAction2 } from './types';
-import { makeReducer, makeActionCreators, makeSelectors } from './slice-utils';
+import { PayloadAction, AnyAction } from './types';
+import { makeActionCreators, makeSelectors } from './slice-utils';
 import { Draft } from 'immer';
+import { createReducer } from './reducer';
 
 interface NotEmptyObject {
   [s: string]: string | number | symbol | boolean | object | undefined | null;
   [s: number]: string | number | symbol | boolean | object | undefined | null;
 }
 /** Type alias for case reducers when `slice` is blank or undefined */
-type CaseReducer<SS = any, A extends Action = Action> = (
-  state: Draft<SS>,
-  payload: A,
-) => SS | void | undefined;
+type CaseReducer<S = any, P = any> = (
+  state: Draft<S>,
+  payload: P,
+) => S | void | undefined;
 
 /** Type alias for the generated reducer */
 export interface Reducer<
-  SS = any,
+  S = any,
   A extends AnyAction = AnyAction,
   SliceName extends string = string
 > {
-  (state: SS | undefined, action: A): SS;
+  (state: S | undefined, action: A): S;
   toString: () => SliceName;
 }
 
@@ -29,11 +30,13 @@ export interface Reducer<
  * @template A  is the [Action]
  */
 export type Cases<SS = any, Ax = any> = {
-  [K in keyof Ax]: CaseReducer<SS, PayloadAction<Ax[K], Extract<K, string>>>
+  [K in keyof Ax]: CaseReducer<SS, Ax[K]>
 };
-export type Cases2<SS = any, Ax = any> = {
-  [K in keyof Ax]: CaseReducer<SS, PayloadAction2<Ax[K], Extract<K, string>>>
-};
+
+// type PayloadActionMap<A extends ActionCreators<any>> = {
+//   [T in keyof A]: ReturnType<A[T]>
+// };
+
 /** Generic Actions Map interface */
 export interface ActionsMap<P = any> {
   [Action: string]: P;
@@ -263,11 +266,11 @@ export function createSlice<
     Extract<keyof Actions, string>
   >;
 
-  const reducer = makeReducer<Actions, SliceState, SliceName>(
+  const reducer = createReducer({
     cases,
     initialState,
     slice,
-  );
+  });
 
   const actions = makeActionCreators<Actions>(actionKeys);
 

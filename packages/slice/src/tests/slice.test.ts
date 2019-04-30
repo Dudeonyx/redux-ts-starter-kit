@@ -1,7 +1,10 @@
 import { createSlice } from '../slice';
-import { makeActionCreators, makeSelectors } from '../slice-utils';
+import {
+  makeActionCreators,
+  makeSelectors,
+  reMapSelectors,
+} from '../slice-utils';
 import { combineReducers } from 'redux';
-import { PayloadAction } from '../types';
 
 describe('makeActionCreators', () => {
   const actions = makeActionCreators(['setName', 'resetName',]);
@@ -133,6 +136,65 @@ describe('makeSelectors', () => {
   });
 });
 
+describe('ReMapSelectors', () => {
+  const initialState = {
+    name: '',
+    middlename: '',
+    surname: '',
+  };
+
+  const altState = {
+    data: {
+      userA: {
+        personalDetails: {
+          updated: {
+            form: {
+              name: 'Foo',
+              middlename: 'Bar',
+              surname: 'Baz',
+            },
+          },
+        },
+      },
+    },
+  };
+
+  type AltState = typeof altState;
+
+  const selectors = makeSelectors('form', initialState);
+
+  const reMappedSelectors = reMapSelectors(
+    (state: AltState) => state.data.userA.personalDetails.updated,
+    selectors,
+  );
+
+  it('creates a reMapped `getSlice` selector and additional selectors', () => {
+    expect(Object.hasOwnProperty.call(reMappedSelectors, 'getSlice')).toBe(
+      true,
+    );
+    expect(Object.hasOwnProperty.call(reMappedSelectors, 'name')).toBe(true);
+    expect(Object.hasOwnProperty.call(reMappedSelectors, 'middlename')).toBe(
+      true,
+    );
+    expect(Object.hasOwnProperty.call(reMappedSelectors, 'surname')).toBe(true);
+    expect(Object.hasOwnProperty.call(reMappedSelectors, 'lastname')).toBe(
+      false,
+    );
+    expect(Object.keys(reMappedSelectors).length).toBe(4);
+  });
+
+  it('creates working reMapped selectors', () => {
+    expect(reMappedSelectors.getSlice(altState)).toEqual({
+      name: 'Foo',
+      middlename: 'Bar',
+      surname: 'Baz',
+    });
+    expect(reMappedSelectors.name(altState)).toEqual('Foo');
+    expect(reMappedSelectors.middlename(altState)).toEqual('Bar');
+    expect(reMappedSelectors.surname(altState)).toEqual('Baz');
+  });
+});
+
 describe('createSlice', () => {
   describe('when slice is empty', () => {
     type State = number;
@@ -143,7 +205,7 @@ describe('createSlice', () => {
     const { actions, reducer, selectors } = createSlice<Actions, State, ''>({
       cases: {
         increment: (state) => state + 1,
-        multiply: (state, action) => state * action.payload,
+        multiply: (state, payload) => state * payload,
       },
       initialState: 0,
     });
@@ -195,8 +257,8 @@ describe('createSlice', () => {
     const { actions, reducer, selectors } = createSlice({
       cases: {
         increment: (state) => state + 1,
-        multiply: (state: number, action: PayloadAction<number>) =>
-          state * action.payload,
+        multiply: (state: number, payload: number) =>
+          state * payload,
       },
       initialState: 0,
       slice: 'cool',
@@ -242,14 +304,14 @@ describe('createSlice', () => {
   describe('createSlice when initialState is an object', () => {
     const { selectors } = createSlice({
       cases: {
-        setName: (state, action: PayloadAction<string>) => {
-          state.name = action.payload;
+        setName: (state, payload: string) => {
+          state.name = payload;
         },
-        setSurname: (state, action: PayloadAction<string>) => {
-          state.surname = action.payload;
+        setSurname: (state, payload: string) => {
+          state.surname = payload;
         },
-        setMiddlename: (state, action: PayloadAction<string>) => {
-          state.middlename = action.payload;
+        setMiddlename: (state, payload: string) => {
+          state.middlename = payload;
         },
       },
       slice: 'form',
@@ -298,8 +360,8 @@ describe('createSlice', () => {
   describe('when mutating state object', () => {
     const { actions, reducer } = createSlice({
       cases: {
-        setUserName: (state, action: PayloadAction<string>) => {
-          state.user = action.payload;
+        setUserName: (state, payload: string) => {
+          state.user = payload;
         },
       },
       initialState: { user: '' },
@@ -343,11 +405,11 @@ describe('multiple createSlice slices used to create a redux store', () => {
     // interfaces supplied to createSlice
     slice: 'hi', // The key/name of the slice, it is type checked to ensure it is a key in IState
     cases: {
-      setWaves: (state, action) => {
-        state.waves = action.payload;
+      setWaves: (state, payload) => {
+        state.waves = payload;
       },
-      setGreeting: (state, action) => {
-        state.greeting = action.payload;
+      setGreeting: (state, payload) => {
+        state.greeting = payload;
       },
       resetHi: (state) => {
         return hiInitialState;
@@ -370,16 +432,16 @@ describe('multiple createSlice slices used to create a redux store', () => {
 
   const formSlice = createSlice({
     cases: {
-      setName: (state, action: PayloadAction<string>) => {
-        state.name = action.payload;
+      setName: (state, payload: string) => {
+        state.name = payload;
       },
-      setSurname: (state, action: PayloadAction<string>) => {
-        state.surname = action.payload;
+      setSurname: (state, payload: string) => {
+        state.surname = payload;
       },
-      setMiddlename: (state, action: PayloadAction<string>) => {
-        state.middlename = action.payload;
+      setMiddlename: (state, payload: string) => {
+        state.middlename = payload;
       },
-      resetForm: (state, _: PayloadAction<never>) => formInitialState,
+      resetForm: (state, _: never) => formInitialState,
     },
     slice: 'form',
     initialState: formInitialState,
@@ -411,9 +473,9 @@ describe('multiple createSlice slices used to create a redux store', () => {
         state.idToken = null;
         state.userId = null;
       },
-      authLogin: (state, action) => {
-        state.idToken = action.payload.idToken;
-        state.userId = action.payload.userId;
+      authLogin: (state, payload) => {
+        state.idToken = payload.idToken;
+        state.userId = payload.userId;
       },
     },
   });

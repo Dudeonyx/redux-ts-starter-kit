@@ -90,7 +90,7 @@ export function createReducer<
       const caseReducer = cases[action.type];
 
       if (caseReducer) {
-        return caseReducer(draft, action as any);
+        return caseReducer(draft, action.payload);
       }
 
       return draft;

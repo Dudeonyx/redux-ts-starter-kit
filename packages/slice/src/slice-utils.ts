@@ -1,7 +1,24 @@
 import { createAction } from './action';
-import { createReducer } from './reducer';
 import { createSubSelector, createSelector } from './selector';
-import { ActionsMap, ActionCreators, Cases, Selectors } from './slice';
+import { ActionsMap, ActionCreators, Selectors } from './slice';
+
+export const reMapSelectors = <
+  State,
+  Slice,
+  Selects extends { [s: string]: (s: Slice) => any }
+>(
+  mapper: (s: State) => Slice,
+  selectors: Selects,
+) => {
+  return (Object.keys(selectors) as Array<keyof Selects>).reduce<
+    { [K in keyof Selects]: (state: State) => ReturnType<Selects[K]> }
+  >(
+    (map, key) => {
+      return { ...map, [key]: (s: State) => selectors[key](mapper(s)) };
+    },
+    {} as any,
+  );
+};
 
 export const makeActionCreators = <Actions extends ActionsMap>(
   actionKeys: Array<Extract<keyof Actions, string>>,
@@ -13,30 +30,6 @@ export const makeActionCreators = <Actions extends ActionsMap>(
     },
     {} as any,
   );
-};
-export const makeReducer = <
-  Actions extends ActionsMap,
-  SliceState,
-  SliceName extends string
->(
-  cases: Cases<SliceState, Actions>,
-  initialState: SliceState,
-  slice: SliceName,
-) => {
-  const actionKeys = Object.keys(cases) as Array<keyof Actions>;
-  const reducerMap = actionKeys.reduce<Cases<SliceState, Actions>>(
-    (map, action) => {
-      map[action] = cases[action];
-      return map;
-    },
-    {} as any,
-  );
-  const reducer = createReducer({
-    initialState,
-    cases: reducerMap,
-    slice,
-  });
-  return reducer;
 };
 
 export interface MakeSelectors {

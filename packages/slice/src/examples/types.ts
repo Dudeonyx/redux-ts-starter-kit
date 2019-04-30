@@ -3,7 +3,6 @@ import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { createReducer } from '../reducer';
-import { PayloadAction } from '../types';
 
 interface HiSliceState {
   test: string;
@@ -30,31 +29,17 @@ export const {
   actions: hiActions$,
   selectors: hiSelector$,
   reducer: hiReducer$,
+  ...hiSlice
   // slice: hiSlice$,
 } = createSlice({
   slice: 'hi',
   cases: {
-    set: (state, action: PayloadAction<string[]>) => action.payload,
+    set: (state, payload: string[]) => payload,
     reset: () => ['defaultState', 'jhj',],
   },
   initialState: [] as string[],
 });
 
-// tslint:disable: no-unused-expression
-// $ExpectType ActionCreators<{ set: string[]; reset: {}; }>
-hiActions$;
-// $ExpectType { (payload: string[]): PayloadAction<"set", string[]>; type: "set"; toString: () => "set"; }
-hiActions$.set;
-// $ExpectType { (): PayloadAction<"reset", undefined>; type: "reset"; toString: () => "reset"; }
-hiActions$.reset;
-// $ExpectType { getSlice: (state: { hi: string[]; }) => string[]; }
-hiSelector$;
-// $ExpectType (state: { hi: string[]; }) => string[]
-hiSelector$.getSlice;
-// $ExpectType Reducer<string[], PayloadAction<string, any>, "hi">
-hiReducer$;
-
-// tslint:enable: no-unused-expression
 const hiArray = {
   hi: ['',],
   auth: { error: null, authenticating: false } as AuthSliceState,
@@ -70,34 +55,11 @@ export const {
 } = createSlice<Actions, HiSliceState, 'hi'>({
   slice: 'hi',
   cases: {
-    set: (state, action) => action.payload,
+    set: (state, payload) => payload,
     reset: () => defaultState,
   },
   initialState: defaultState,
 });
-
-// tslint:disable: no-unused-expression
-// $ExpectType ActionCreators<Actions>
-hiActions;
-// $ExpectType { (payload: HiSliceState): PayloadAction<"set", HiSliceState>; type: "set"; toString: () => "set"; }
-hiActions.set;
-// $ExpectType { (): PayloadAction<"reset", undefined>; type: "reset"; toString: () => "reset"; }
-hiActions.reset;
-
-// $ExpectType Reducer<HiSliceState, PayloadAction<string, any>, "hi">
-hiReducer;
-// $ExpectType { test: (state: { hi: HiSliceState; }) => string; wow: (state: { hi: HiSliceState; }) => number; } & { getSlice: (state: { hi: HiSliceState; }) => HiSliceState; }
-hiSelectors;
-// $ExpectType (state: { hi: HiSliceState; }) => HiSliceState
-hiSelectors.getSlice;
-// $ExpectType (state: { hi: HiSliceState; }) => string
-hiSelectors.test;
-// $ExpectType (state: { hi: HiSliceState; }) => number
-hiSelectors.wow;
-// $ExpectType "hi"
-hi_slice;
-
-// tslint:enable: no-unused-expression
 
 const val = hiSelectors.getSlice({
   hi: defaultState,
@@ -137,21 +99,21 @@ const auth = createSlice({
   slice: 'auth',
   initialState,
   cases: {
-    authFail: (state, action: PayloadAction<Error>) => {
-      state.error = action.payload;
+    authFail: (state, payload: Error) => {
+      state.error = payload;
       state.authenticating = false;
     },
     authLogout: (state) => {
       state.idToken = null;
       state.userId = null;
     },
-    authStart: (state, action) => {
+    authStart: (state, payload) => {
       state.authenticating = true;
     },
-    authSuccess: (state, action: PayloadAction<AuthSuccess>) => {
+    authSuccess: (state, payload: AuthSuccess) => {
       state.authenticating = false;
-      state.idToken = action.payload.idToken;
-      state.userId = action.payload.userId;
+      state.idToken = payload.idToken;
+      state.userId = payload.userId;
     },
   },
 });
@@ -169,35 +131,11 @@ export const {
   },
 } = auth;
 
-// tslint:disable: no-unused-expression
-// $ExpectType Reducer<AuthSliceState, PayloadAction<string, any>, "auth">
-authReducer;
-// $ExpectType "auth"
-authSlice;
-// $ExpectType { (payload: Error): PayloadAction<"authFail", Error>; type: "authFail"; toString: () => "authFail"; }
-authFail;
-// $ExpectType { (payload: AuthSuccess): PayloadAction<"authSuccess", AuthSuccess>; type: "authSuccess"; toString: () => "authSuccess"; }
-authSuccess;
-// $ExpectType { (): PayloadAction<"authStart", undefined>; type: "authStart"; toString: () => "authStart"; }
-authStart;
-// $ExpectType { (): PayloadAction<"authLogout", undefined>; type: "authLogout"; toString: () => "authLogout"; }
-authLogout;
-// $ExpectType (state: { auth: AuthSliceState; }) => AuthSliceState
-getAuth;
-// $ExpectType (state: { auth: AuthSliceState; }) => boolean
-getAuthAuthenticating;
-// $ExpectType (state: { auth: AuthSliceState; }) => Error
-getAuthError;
-// $ExpectType (state: { auth: AuthSliceState; }) => string
-getAuthUserId;
-// $ExpectType (state: { auth: AuthSliceState; }) => string
-getAuthIdToken;
-// tslint:enable: no-unused-expression
 export interface AuthActions$ {
-  authSuccess$: AuthSuccess;
-  authStart$: never;
-  authFail$: Error;
-  authLogout$: never;
+  auth_Success$: AuthSuccess;
+  auth_Start$: never;
+  auth_Fail$: Error;
+  auth_Logout$: never;
 }
 
 const slice = 'auth';
@@ -205,21 +143,21 @@ const auth$ = createSlice<AuthActions$, AuthSliceState, typeof slice>({
   slice,
   initialState,
   cases: {
-    authFail$: (state, action) => {
-      state.error = action.payload;
+    auth_Fail$: (state, payload) => {
+      state.error = payload;
       state.authenticating = false;
     },
-    authLogout$: (state) => {
+    auth_Logout$: (state) => {
       state.idToken = null;
       state.userId = null;
     },
-    authStart$: (state) => {
+    auth_Start$: (state) => {
       state.authenticating = true;
     },
-    authSuccess$: (state, action) => {
+    auth_Success$: (state, payload) => {
       state.authenticating = false;
-      state.idToken = action.payload.idToken;
-      state.userId = action.payload.userId;
+      state.idToken = payload.idToken;
+      state.userId = payload.userId;
     },
   },
 });
@@ -227,7 +165,7 @@ const auth$ = createSlice<AuthActions$, AuthSliceState, typeof slice>({
 export const {
   reducer: authReducer$,
   slice: authSlice$,
-  actions: { authFail$, authStart$, authSuccess$, authLogout$ },
+  actions: { auth_Fail$, auth_Start$, auth_Success$, auth_Logout$ },
   selectors: {
     getSlice: getAuth$,
     authenticating: getAuthAuthenticating$,
@@ -236,52 +174,30 @@ export const {
     userId: getAuthUserId$,
   },
 } = auth$;
-// getAuth$({auth: {} as AuthSliceState,} as IState)
 
-// tslint:disable: no-unused-expression
-// $ExpectType Reducer<AuthSliceState, PayloadAction<string, any>, "auth">
-authReducer$;
-// $ExpectType "auth"
-authSlice$;
-// $ExpectType { (payload: Error): PayloadAction<"authFail$", Error>; type: "authFail$"; toString: () => "authFail$"; }
-authFail$;
-// $ExpectType { (payload: AuthSuccess): PayloadAction<"authSuccess$", AuthSuccess>; type: "authSuccess$"; toString: () => "authSuccess$"; }
-authSuccess$;
-// $ExpectType { (): PayloadAction<"authStart$", undefined>; type: "authStart$"; toString: () => "authStart$"; }
-authStart$;
-// $ExpectType { (): PayloadAction<"authLogout$", undefined>; type: "authLogout$"; toString: () => "authLogout$"; }
-authLogout$;
-// $ExpectType (state: { auth: AuthSliceState; }) => AuthSliceState
-getAuth$;
-// $ExpectType (state: { auth: AuthSliceState; }) => boolean
-getAuthAuthenticating$;
-// $ExpectType (state: { auth: AuthSliceState; }) => Error
-getAuthError$;
-// $ExpectType (state: { auth: AuthSliceState; }) => string
-getAuthUserId$;
-// $ExpectType (state: { auth: AuthSliceState; }) => string
-getAuthIdToken$;
-// tslint:enable: no-unused-expression
+getAuth$({auth: {} as AuthSliceState,} as IState)
+
+
 
 const auth$NoInterface = createSlice({
   slice: 'auth',
   initialState,
   cases: {
-    authFail$2: (state, action: PayloadAction<Error>) => {
-      state.error = action.payload;
+    auth_Fail$2: (state, payload: Error) => {
+      state.error = payload;
       state.authenticating = false;
     },
-    authLogout$2: (state, _n: PayloadAction<never>) => {
+    auth_Logout$2: (state, _n: never) => {
       state.idToken = null;
       state.userId = null;
     },
-    authStart$2: (state, action) => {
+    auth_Start$2: (state, payload) => {
       state.authenticating = true;
     },
-    authSuccess$2: (state, action: PayloadAction<AuthSuccess>) => {
+    auth_Success$2: (state, payload: AuthSuccess) => {
       state.authenticating = false;
-      state.idToken = action.payload.idToken;
-      state.userId = action.payload.userId;
+      state.idToken = payload.idToken;
+      state.userId = payload.userId;
     },
   },
 });
@@ -289,7 +205,7 @@ const auth$NoInterface = createSlice({
 export const {
   reducer: authReducer$2,
   slice: authSlice$2,
-  actions: { authFail$2, authStart$2, authSuccess$2, authLogout$2 },
+  actions: { auth_Fail$2, auth_Start$2, auth_Success$2, auth_Logout$2 },
   selectors: {
     getSlice: getAuth$2,
     authenticating: getAuthAuthenticating$2,
@@ -302,8 +218,8 @@ export const {
 export const authReducer2 = createReducer({
   initialState,
   cases: {
-    authFail: (state, action: PayloadAction<Error>) => {
-      state.error = action.payload;
+    authFail: (state, payload: Error) => {
+      state.error = payload;
       state.authenticating = false;
     },
     authLogout: (state) => {
@@ -313,10 +229,10 @@ export const authReducer2 = createReducer({
     authStart: (state) => {
       state.authenticating = true;
     },
-    authSuccess: (state, action: PayloadAction<AuthSuccess>) => {
+    authSuccess: (state, payload: AuthSuccess) => {
       state.authenticating = false;
-      state.idToken = action.payload.idToken;
-      state.userId = action.payload.userId;
+      state.idToken = payload.idToken;
+      state.userId = payload.userId;
     },
   },
 });
@@ -331,16 +247,16 @@ const orderSlice = createSlice({
   slice: 'ords',
   initialState: initialStateOeds,
   cases: {
-    setOrders: (state, action: PayloadAction<IDbOrders>) => {
+    setOrders: (state, payload: IDbOrders) => {
       state.error = null;
-      state.orders = action.payload;
+      state.orders = payload;
       state.loading = false;
     },
-    setOrdersError: (state, action: PayloadAction<Error>) => {
-      state.error = action.payload;
+    setOrdersError: (state, payload: Error) => {
+      state.error = payload;
       state.loading = false;
     },
-    setOrdersLoading: (state, n: PayloadAction<never>) => {
+    setOrdersLoading: (state, n: undefined) => {
       state.loading = true;
       state.error = null;
     },
@@ -352,7 +268,7 @@ export const {
   actions: ordersActions,
   selectors: ordersSelectors,
 } = orderSlice;
-
+ordersActions.setOrdersLoading();
 const rootReducer = combineReducers<IState>({
   hi: hiReducer,
   auth: authReducer,

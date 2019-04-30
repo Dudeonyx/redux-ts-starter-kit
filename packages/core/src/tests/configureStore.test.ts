@@ -3,7 +3,7 @@ import * as redux from 'redux';
 import * as devtools from 'redux-devtools-extension';
 
 import thunk from 'redux-thunk';
-import { createSlice, PayloadAction } from '@redux-ts-starter-kit/slice';
+import { createSlice } from '@redux-ts-starter-kit/slice';
 
 describe('getDefaultMiddleware', () => {
   const ORIGINAL_NODE_ENV = process.env.NODE_ENV;
@@ -178,11 +178,11 @@ describe('multiple createSlice reducers used to create a redux store', () => {
   const hiSlice = createSlice<Actions, HiSliceState, 'hi'>({
     slice: 'hi',
     cases: {
-      setGreeting: (state, action) => {
-        state.greeting = action.payload;
+      setGreeting: (state, payload) => {
+        state.greeting = payload;
       },
-      setWaves: (state, action) => {
-        state.waves = action.payload;
+      setWaves: (state, payload) => {
+        state.waves = payload;
       },
       resetHi: () => hiInitialState,
     },
@@ -203,16 +203,16 @@ describe('multiple createSlice reducers used to create a redux store', () => {
 
   const formSlice = createSlice({
     cases: {
-      setName: (state, action: PayloadAction<string>) => {
-        state.name = action.payload;
+      setName: (state, payload: string) => {
+        state.name = payload;
       },
-      setSurname: (state, action: PayloadAction<string>) => {
-        state.surname = action.payload;
+      setSurname: (state, payload: string) => {
+        state.surname = payload;
       },
-      setMiddlename: (state, action: PayloadAction<string>) => {
-        state.middlename = action.payload;
+      setMiddlename: (state, payload: string) => {
+        state.middlename = payload;
       },
-      resetForm: (state, _: PayloadAction<never>) => formInitialState,
+      resetForm: (state, _: never) => formInitialState,
     },
     slice: 'form',
     initialState: formInitialState,
@@ -244,9 +244,9 @@ describe('multiple createSlice reducers used to create a redux store', () => {
         state.idToken = '';
         state.userId = '';
       },
-      authLogin: (state, action) => {
-        state.idToken = action.payload.idToken;
-        state.userId = action.payload.userId;
+      authLogin: (state, payload) => {
+        state.idToken = payload.idToken;
+        state.userId = payload.userId;
       },
     },
   });

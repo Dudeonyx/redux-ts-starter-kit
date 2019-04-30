@@ -4,16 +4,16 @@ import {
   createSlice,
   ActionCreators,
   Reducer,
-} from '../../index';
+} from '@redux-ts-starter-kit/slice';
 
 /** Test: createSlice types */
 {
   const hiSlice = createSlice({
     slice: 'hi',
     cases: {
-      set: (_state, action: PayloadAction<string[]>) => action.payload,
-      add: (state, action: PayloadAction<string>) => [...state, action.payload,],
-      removeLast: (state, action) => void state.pop(),
+      set: (_state, payload: string[]) => payload,
+      add: (state, payload: string) => [...state, payload,],
+      removeLast: (state, payload) => void state.pop(),
       reset: () => ['defaultState', 'jhj',],
     },
     initialState: ['defaultState', 'jhj',],
@@ -114,18 +114,18 @@ import {
   const formSlice = createSlice({
     slice: 'form',
     cases: {
-      setName: (state, action: PayloadAction<string>) => {
-        state.name = action.payload;
+      setName: (state, payload: string) => {
+        state.name = payload;
       },
-      setSurname: (state, action: PayloadAction<string>) => {
-        state.surname = action.payload;
+      setSurname: (state, payload: string) => {
+        state.surname = payload;
       },
-      setMiddlename: (state, action: PayloadAction<string>) => {
-        state.middlename = action.payload;
+      setMiddlename: (state, payload: string) => {
+        state.middlename = payload;
       },
-      resetForm: (state, _: PayloadAction<undefined>) => formInitialState,
-      resetForm2: (state, _: PayloadAction<never>) => formInitialState,
-      resetForm3: (state, _: PayloadAction<void>) => formInitialState,
+      resetForm: (state, _: undefined) => formInitialState,
+      resetForm2: (state, _: never) => formInitialState,
+      resetForm3: (state, _: void) => formInitialState,
       resetForm4: (state) => formInitialState,
       resetForm5: () => formInitialState,
     },
