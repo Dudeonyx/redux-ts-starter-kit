@@ -123,9 +123,9 @@ store.dispatch(user.actions.setUserName('eric'));
 // New State -> { counter: 6, user: { name: 'eric' } }
 
 const state = store.getState();
-console.log(counter.selectors.getSlice(state));
+console.log(counter.selectors.selectSlice(state));
 // -> 6
-console.log(user.selectors.getSlice(state));
+console.log(user.selectors.selectSlice(state));
 // -> { name: 'eric' }
 
 console.log(user.selectors.name(state));
@@ -343,7 +343,7 @@ You can see this in action in the hiSlice example above, it's actions object has
 
 #### selectors
 
-An object containing the generated selector(s), always includes a selector called getSlice that selects it's slice state from the state, if the initial state is an object additional selectors are generated with the same names as the corresponding initial state keys
+An object containing the generated selector(s), always includes a selector called selectSlice that selects it's slice state from the state, if the initial state is an object additional selectors are generated with the same names as the corresponding initial state keys
 
 ```typescript
 import { createSlice } from '@redux-ts-starter-kit/slice';
@@ -377,7 +377,7 @@ const formSlice = createSlice<SliceState, Actions, State>({
       }
     };
 
- console.log(formSlice.selectors.getSlice(state))
+ console.log(formSlice.selectors.selectSlice(state))
  ->> {
     name: "John",
     surname: "Doe",

@@ -72,12 +72,12 @@ import {
   let selectors = hiSelector$;
 
   selectors = {
-    getSlice: (state: { hi: string[] }) => state.hi,
+    selectSlice: (state: { hi: string[] }) => state.hi,
   };
 
   selectors = {
     // typings:expect-error
-    getSlice: (state: { wow: string[] }) => state.wow,
+    selectSlice: (state: { wow: string[] }) => state.wow,
   };
 
   let reducer = hiReducer$;
@@ -150,11 +150,11 @@ import {
 
   const selectors = formSlice.selectors;
 
-  selectors.getSlice = (state) => state.form;
+  selectors.selectSlice = (state) => state.form;
   // typings:expect-error
-  selectors.getSlice = (state) => state.details;
+  selectors.selectSlice = (state) => state.details;
   // typings:expect-error
-  selectors.getSlice = (state: { form: number[] }) => state.form;
+  selectors.selectSlice = (state: { form: number[] }) => state.form;
 
   selectors.middlename = (state) => state.form.middlename;
   selectors.surname = (state) => state.form.surname;

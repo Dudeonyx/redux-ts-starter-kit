@@ -1,23 +1,83 @@
 import { createAction } from './action';
-import { createSubSelector, createSelector } from './selector';
+import { makeTypeSafeSelector, NestedObject, GetArrayLength } from './selector';
 import { ActionsMap, ActionCreators, Selectors } from './slice';
+import memoize from 'memoize-state';
 
-export const reMapSelectors = <
-  State,
-  Slice,
-  Selects extends { [s: string]: (s: Slice) => any }
+type InferSelectorMapState<Slctr> = Slctr extends {
+  [K in keyof Slctr]: (s: infer S) => any
+}
+  ? S
+  : never;
+
+type InferMapFnInput<MapFn> = MapFn extends (o: infer O) => any ? O : never;
+
+export const reMapComputed = <
+  P extends string[] & {
+    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  },
+  ComputedMap extends { [s: string]: (s: any) => any }
 >(
-  mapper: (s: State) => Slice,
-  selectors: Selects,
+  computed: ComputedMap,
+  ...paths: P
 ) => {
-  return (Object.keys(selectors) as Array<keyof Selects>).reduce<
-    { [K in keyof Selects]: (state: State) => ReturnType<Selects[K]> }
+  type State = InferSelectorMapState<ComputedMap>;
+  const mapFn = makeTypeSafeSelector(...paths)<State>();
+  type Obj = InferMapFnInput<typeof mapFn>;
+  return (Object.keys(computed) as Array<keyof ComputedMap>).reduce<
+    { [K in keyof ComputedMap]: (state: Obj) => ReturnType<ComputedMap[K]> }
   >(
     (map, key) => {
-      return { ...map, [key]: (s: State) => selectors[key](mapper(s)) };
-    },
+      const memoed = memoize(computed[key])
+      return ({
+      ...map,
+      [key]: (s: Obj) => memoed(mapFn(s)),
+    })},
     {} as any,
   );
+};
+export const reMapSelectors = <
+  P extends string[] & {
+    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  },
+  SelectorMap extends { [s: string]: (s: any) => any }
+>(
+  selectors: SelectorMap,
+  ...paths: P
+) => {
+  type State = InferSelectorMapState<SelectorMap>;
+  const mapFn = makeTypeSafeSelector(...paths)<State>();
+  type Obj = InferMapFnInput<typeof mapFn>;
+  return (Object.keys(selectors) as Array<keyof SelectorMap>).reduce<
+    { [K in keyof SelectorMap]: (state: Obj) => ReturnType<SelectorMap[K]> }
+  >(
+    (map, key) => ({
+      ...map,
+      [key]: (s: Obj) => selectors[key](mapFn(s)),
+    }),
+    {} as any,
+  );
+};
+
+type IsFunc<F> = F extends (...args: any[]) => any ? F : never;
+
+export type ReMappedSelectors<SS extends any, P extends string[], CS extends {[s:string]: (state: SS)=> any}> = {
+  [K in keyof Selectors<SS, SS>]: (
+    state: NestedObject<P, 0, GetArrayLength<P>, SS>,
+  ) => ReturnType<IsFunc<Selectors<SS, SS>[K]>>
+} & {
+  [K in keyof CS]: (state: NestedObject<P, 0, GetArrayLength<P>, SS>) => ReturnType<CS[K]>
+};
+
+export const makeReMapableSelectors = <SliceState>(
+  selectors: Selectors<SliceState, SliceState>,
+) => {
+  return <
+    P extends string[] & {
+      length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+    }
+  >(
+    ...paths: P
+  ) => reMapSelectors(selectors, ...paths);
 };
 
 export const makeActionCreators = <Actions extends ActionsMap>(
@@ -34,10 +94,10 @@ export const makeActionCreators = <Actions extends ActionsMap>(
 
 export interface MakeSelectors {
   <SliceState = any, SliceName extends '' = ''>(slice: SliceName): {
-    getSlice: (state: SliceState) => SliceState;
+    selectSlice: (state: SliceState) => SliceState;
   };
   <SliceState = any, SliceName extends string = string>(slice: SliceName): {
-    getSlice: (state: { [slice in SliceName]: SliceState }) => SliceState;
+    selectSlice: (state: { [slice in SliceName]: SliceState }) => SliceState;
   };
   <SliceState, SliceName extends ''>(
     slice: SliceName,
@@ -55,35 +115,31 @@ export const makeSelectors: MakeSelectors = <
   slice: SliceName,
   initialState?: SliceState,
 ) => {
-  let initialStateKeys: Array<keyof SliceState> = [];
+  let initialStateKeys: Array<Extract<keyof SliceState, string>> = [];
   if (
     typeof initialState === 'object' &&
     initialState !== null &&
     !Array.isArray(initialState)
   ) {
-    initialStateKeys = Object.keys(initialState) as Array<keyof SliceState>;
+    initialStateKeys = Object.keys(initialState) as Array<
+      Extract<keyof SliceState, string>
+    >;
   }
   const otherSelectors = initialStateKeys.reduce<
     {
-      [key in keyof SliceState]: (
+      [key in Extract<keyof SliceState, string>]: (
         state: { [sliceKey in SliceName]: SliceState },
       ) => SliceState[key]
     }
   >(
-    (map, key) => {
-      map[key] = createSubSelector<
-        { [sliceKey in SliceName]: SliceState },
-        SliceState
-      >(slice, key);
-      return map;
-    },
+    (map, key) => ({
+      ...map,
+      [key]: makeTypeSafeSelector(slice, key)<SliceState[typeof key]>(),
+    }),
     {} as any,
   );
   return {
-    getSlice: createSelector<
-      { [sliceKey in SliceName]: SliceState },
-      SliceState
-    >(slice),
+    selectSlice: makeTypeSafeSelector(slice)<SliceState>(),
     ...otherSelectors,
   };
 };

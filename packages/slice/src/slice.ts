@@ -1,5 +1,11 @@
 import { PayloadAction, AnyAction } from './types';
-import { makeActionCreators, makeSelectors } from './slice-utils';
+import {
+  makeActionCreators,
+  makeSelectors,
+  makeReMapableSelectors,
+  ReMappedSelectors,
+  reMapComputed,
+} from './slice-utils';
 import { Draft } from 'immer';
 import { createReducer } from './reducer';
 
@@ -51,14 +57,14 @@ export interface AnyState {
 /** Type alias for generated selectors */
 export type Selectors<SS, S> = SS extends any[]
   ? {
-      getSlice: (state: S) => SS;
+      selectSlice: (state: S) => SS;
     }
   : SS extends AnyState
   ? ({ [key in keyof SS]: (state: S) => SS[key] } & {
-      getSlice: (state: S) => SS;
+      selectSlice: (state: S) => SS;
     })
   : {
-      getSlice: (state: S) => SS;
+      selectSlice: (state: S) => SS;
     };
 /** Type alias for generated action creators */
 export type ActionCreators<A> = {
@@ -102,7 +108,12 @@ export type ActionCreators<A> = {
  * @template S - [State]
  * @template Slc - [slice]
  */
-export interface Slice<A = any, SS = any, SliceName extends string = string> {
+export interface Slice<
+  A,
+  SS,
+  SliceName extends string,
+  Computed extends { [s: string]: (s: any) => any } = {}
+> {
   /**
    * @description The name of the slice generated, i.e it's key in the redux state tree.
    * @type {SliceName}
@@ -122,17 +133,22 @@ export interface Slice<A = any, SS = any, SliceName extends string = string> {
    * @memberof Slice
    */
   selectors: SliceName extends ''
-    ? Selectors<SS, SS>
-    : Selectors<SS, { [slice in SliceName]: SS }>;
+    ? Selectors<SS, SS> & ComputedSelectors<SS, Computed>
+    : Selectors<SS, { [slice in SliceName]: SS }> &
+        ComputedSelectors<{ [slice in SliceName]: SS }, Computed>;
   /**
    * The automatically generated action creators
    *
    * @memberof Slice
    */
   actions: ActionCreators<A>;
+
+  reMapSelectorsTo: <P extends string[]>(
+    ...paths: P
+  ) => ReMappedSelectors<SS, P, Computed>;
 }
 
-interface InputWithoutSlice<SS = any, Ax = ActionsMap> {
+interface InputWithoutSlice<SS, Ax> {
   /**
    * The initial State, same as standard reducer
    *
@@ -150,11 +166,8 @@ interface InputWithoutSlice<SS = any, Ax = ActionsMap> {
   cases: Cases<SS, Ax>;
 }
 
-interface InputWithSlice<
-  SS = any,
-  Ax = ActionsMap,
-  SliceName extends string = string
-> extends InputWithoutSlice<SS, Ax> {
+interface InputWithSlice<SS, Ax, SliceName extends string>
+  extends InputWithoutSlice<SS, Ax> {
   /**
    * @description An optional property representing the key of the generated slice in the redux state tree.
    *
@@ -164,21 +177,8 @@ interface InputWithSlice<
   slice: SliceName;
 }
 
-interface InputWithBlankSlice<SS = any, Ax = ActionsMap>
+interface InputWithOptionalSlice<SS, Ax, SliceName extends string>
   extends InputWithoutSlice<SS, Ax> {
-  /**
-   * @description An optional property representing the key of the generated slice in the redux state tree.
-   *
-   * @type {''}
-   * @memberof InputWithBlankSlice
-   */
-  slice: '';
-}
-interface InputWithOptionalSlice<
-  SS = any,
-  Ax = ActionsMap,
-  SliceName extends string = string
-> extends InputWithoutSlice<SS, Ax> {
   /**
    * @description An optional property representing the key of the generated slice in the redux state tree.
    *
@@ -188,6 +188,9 @@ interface InputWithOptionalSlice<
   slice?: SliceName;
 }
 
+type ComputedSelectors<S, C extends { [s: string]: (...args: any) => any }> = {
+  [K in keyof C]: (state: S) => ReturnType<C[K]>
+};
 /**
  * @description Generates a redux state tree slice, complete with a `reducer`,
  *  `action creators` and `selectors`
@@ -220,16 +223,19 @@ interface InputWithOptionalSlice<
  *   slice
  * }
  */
+
 export function createSlice<
   Actions extends ActionsMap,
   SliceState,
-  SliceName extends ''
+  SliceName extends string,
+  Computed extends { [c: string]: (state: SliceState) => any }
 >({
   cases,
   initialState,
   slice,
-}: InputWithBlankSlice<SliceState, Actions>): Slice<Actions, SliceState, ''>;
-
+}: InputWithSlice<SliceState, Actions, SliceName> & {
+  computed: Computed;
+}): Slice<Actions, SliceState, SliceName, Computed>;
 export function createSlice<
   Actions extends ActionsMap,
   SliceState,
@@ -247,6 +253,17 @@ export function createSlice<
 export function createSlice<
   Actions extends ActionsMap,
   SliceState,
+  SliceName extends string,
+  Computed extends { [c: string]: (state: SliceState) => any }
+>({
+  cases,
+  initialState,
+}: InputWithoutSlice<SliceState, Actions> & {
+  computed: Computed;
+}): Slice<Actions, SliceState, '', Computed>;
+export function createSlice<
+  Actions extends ActionsMap,
+  SliceState,
   SliceName extends string
 >({
   cases,
@@ -256,12 +273,16 @@ export function createSlice<
 export function createSlice<
   Actions extends ActionsMap,
   SliceState,
-  SliceName extends string
+  SliceName extends string,
+  Computed extends { [c: string]: (state: SliceState) => any }
 >({
   cases,
   initialState,
-  slice = '' as any,
-}: InputWithOptionalSlice<SliceState, Actions, SliceName>) {
+  slice = '' as SliceName,
+  computed = {} as Computed,
+}: InputWithOptionalSlice<SliceState, Actions, SliceName> & {
+  computed?: Computed;
+}) {
   const actionKeys = Object.keys(cases) as Array<
     Extract<keyof Actions, string>
   >;
@@ -274,11 +295,21 @@ export function createSlice<
 
   const actions = makeActionCreators<Actions>(actionKeys);
 
-  const selectors = makeSelectors<SliceState, SliceName>(slice, initialState);
+  const selectors = {
+    ...makeSelectors(slice, initialState),
+    ...reMapComputed(computed, slice),
+  };
+
+  const reMapSelectorsTo = makeReMapableSelectors({
+    ...makeSelectors<SliceState, ''>('', initialState),
+    ...reMapComputed(computed),
+  });
+
   return {
     actions,
     reducer,
     slice,
+    reMapSelectorsTo,
     selectors,
   };
 }

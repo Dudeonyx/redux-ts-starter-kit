@@ -76,7 +76,7 @@
     "redux-devtools-extension": "^2.13.7",
     "redux-immutable-state-invariant": "^2.1.0",
     "redux-thunk": "^2.3.0",
-    "reselect": "^4.0.0"
+    "memoize-state": "^2.0.7"
   },
   "husky": {
     "hooks": {

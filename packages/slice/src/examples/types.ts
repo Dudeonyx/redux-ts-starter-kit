@@ -29,7 +29,8 @@ export const {
   actions: hiActions$,
   selectors: hiSelector$,
   reducer: hiReducer$,
-  ...hiSlice
+  reMapSelectorsTo: reMapSelectors,
+  // ...hiSlice
   // slice: hiSlice$,
 } = createSlice({
   slice: 'hi',
@@ -37,15 +38,21 @@ export const {
     set: (state, payload: string[]) => payload,
     reset: () => ['defaultState', 'jhj',],
   },
+  computed: {
+    getLength: (state)=> state.length,
+  },
   initialState: [] as string[],
 });
+// hiSelector$
+const newSelectors = reMapSelectors('hiSup');
+newSelectors.getLength;
 
 const hiArray = {
   hi: ['',],
   auth: { error: null, authenticating: false } as AuthSliceState,
   ords: {} as IordersReducerState,
 };
-hiSelector$.getSlice(hiArray);
+hiSelector$.selectSlice(hiArray);
 
 export const {
   actions: hiActions,
@@ -61,7 +68,7 @@ export const {
   initialState: defaultState,
 });
 
-const val = hiSelectors.getSlice({
+const val = hiSelectors.selectSlice({
   hi: defaultState,
 });
 
@@ -123,13 +130,16 @@ export const {
   slice: authSlice,
   actions: { authFail, authStart, authSuccess, authLogout },
   selectors: {
-    getSlice: getAuth,
+    selectSlice: getAuth,
     authenticating: getAuthAuthenticating,
     error: getAuthError,
     idToken: getAuthIdToken,
     userId: getAuthUserId,
   },
+  reMapSelectorsTo: reMapAuthSelectors,
 } = auth;
+
+const reMappedAuth = reMapAuthSelectors('hi', 'orders');
 
 export interface AuthActions$ {
   auth_Success$: AuthSuccess;
@@ -167,7 +177,7 @@ export const {
   slice: authSlice$,
   actions: { auth_Fail$, auth_Start$, auth_Success$, auth_Logout$ },
   selectors: {
-    getSlice: getAuth$,
+    selectSlice: getAuth$,
     authenticating: getAuthAuthenticating$,
     error: getAuthError$,
     idToken: getAuthIdToken$,
@@ -175,9 +185,7 @@ export const {
   },
 } = auth$;
 
-getAuth$({auth: {} as AuthSliceState,} as IState)
-
-
+getAuth$({ auth: {} as AuthSliceState } as IState);
 
 const auth$NoInterface = createSlice({
   slice: 'auth',
@@ -207,7 +215,7 @@ export const {
   slice: authSlice$2,
   actions: { auth_Fail$2, auth_Start$2, auth_Success$2, auth_Logout$2 },
   selectors: {
-    getSlice: getAuth$2,
+    selectSlice: getAuth$2,
     authenticating: getAuthAuthenticating$2,
     error: getAuthError$2,
     idToken: getAuthIdToken$2,

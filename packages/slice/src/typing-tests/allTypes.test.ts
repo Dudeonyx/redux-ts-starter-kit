@@ -1,5 +1,5 @@
 import { checkDirectory } from 'typings-tester';
 
-test('Types', () => {
+test('Types Test', () => {
   checkDirectory(`${__dirname}/files`);
 });

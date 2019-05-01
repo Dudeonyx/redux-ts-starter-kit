@@ -440,7 +440,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
         store.dispatch(formSlice.actions.setName('John'));
         store.dispatch(formSlice.actions.setSurname('Wayne'));
         store.dispatch(formSlice.actions.setMiddlename('Doe'));
-        expect(formSlice.selectors.getSlice(store.getState())).toEqual({
+        expect(formSlice.selectors.selectSlice(store.getState())).toEqual({
           name: 'John',
           surname: 'Wayne',
           middlename: 'Doe',
@@ -461,7 +461,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
       it('selects hi', () => {
         store.dispatch(hiSlice.actions.setWaves(5));
         store.dispatch(hiSlice.actions.setGreeting('Kaydo!'));
-        expect(hiSlice.selectors.getSlice(store.getState())).toEqual({
+        expect(hiSlice.selectors.selectSlice(store.getState())).toEqual({
           greeting: 'Kaydo!',
           waves: 5,
         });
@@ -481,7 +481,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
             userId: 'a user id',
           }),
         );
-        expect(authSlice.selectors.getSlice(store.getState())).toEqual({
+        expect(authSlice.selectors.selectSlice(store.getState())).toEqual({
           idToken: 'a random token',
           userId: 'a user id',
         });

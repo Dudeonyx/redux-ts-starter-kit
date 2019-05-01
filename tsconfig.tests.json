@@ -3,6 +3,7 @@
     "compilerOptions": {
         "noEmit": true,
         "baseUrl": ".",
+        "paths": { "*": ["types/*"] } 
     },
     "exclude": ["node_modules"],
     "include": ["./packages/**/src/tests/*.ts"]

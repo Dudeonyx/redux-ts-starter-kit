@@ -1,150 +1,169 @@
-import { AnyState } from './slice';
+import memoize from 'memoize-state';
 
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+export const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
-export function createSelector<
-  State extends AnyState = AnyState,
-  SliceState extends State = State
->(slice: ''): (state: State) => SliceState;
+type IncreaseNum<N extends number> = N extends 0
+  ? 1
+  : N extends 1
+  ? 2
+  : N extends 2
+  ? 3
+  : N extends 3
+  ? 4
+  : N extends 4
+  ? 5
+  : N extends 5
+  ? 6
+  : N extends 6
+  ? 7
+  : N extends 7
+  ? 8
+  : never;
 
-export function createSelector<
-  State extends AnyState = AnyState,
-  SliceState = any
->(slice: keyof State): (state: State) => SliceState;
+export type NestedObject<
+  S extends string[] | ReadonlyArray<string>,
+  Start extends number,
+  Max extends number,
+  Fin
+> = Start extends Max
+  ? Fin
+  : { [K in S[Start]]: NestedObject<S, IncreaseNum<Start>, Max, Fin> };
 
-export function createSelector<
-  State extends AnyState = AnyState,
-  SliceState = any
->(slice: keyof State): (state: State) => SliceState {
-  if (
-    !(
-      typeof slice === 'string' ||
-      typeof slice === 'number' ||
-      typeof slice === 'symbol'
-    )
-  ) {
-    throw new Error('slice argument must be a string or number or symbol');
-  }
-  if (slice === '') {
-    return (state: State) => {
-      if (state == null) {
-        // tslint:disable-next-line: no-unused-expression
-        IS_PRODUCTION ||
-          console.error(`A selector was called with a null or undefined state`);
-        return state;
-      }
-      return state as any;
-    };
-  }
-  return (state: State) => {
-    if (state == null) {
-      // tslint:disable-next-line: no-unused-expression
-      IS_PRODUCTION ||
-        console.error(
-          `${String(slice)} selector was called with a null or undefined state`,
-        );
-      return state;
-    }
-    if (!state.hasOwnProperty(slice)) {
-      // tslint:disable-next-line: no-unused-expression
-      IS_PRODUCTION ||
-        console.error(`${String(slice)} was not found in the given State,
-      This selector was either called with a bad state argument or
-      an incorrect slice name was given when instantiating the parent reducer,
-      check for spelling errors`);
-      return undefined;
-    }
-    return state[slice];
-  };
+export type GetArrayLength<S extends any[] | ReadonlyArray<any>> = S extends {
+  length: infer L;
 }
-export function createSubSelector<
-  State extends AnyState = AnyState,
-  SliceState extends AnyState = AnyState
->(slice: keyof State | '', subSlice: ''): never;
-export function createSubSelector<
-  State extends AnyState = AnyState,
-  SliceState extends AnyState = AnyState
->(
-  slice: '',
-  subSlice: keyof SliceState,
-): (state: AnyState) => SliceState[keyof SliceState];
-export function createSubSelector<
-  State extends AnyState = AnyState,
-  SliceState extends AnyState = AnyState
->(
-  slice: keyof State,
-  subSlice: keyof SliceState,
-): (state: State) => SliceState[keyof SliceState];
-export function createSubSelector<
-  State extends AnyState = AnyState,
-  SliceState extends AnyState = AnyState
->(
-  slice: keyof State,
-  subSlice: keyof SliceState,
-): (state: State) => SliceState[keyof SliceState] {
-  if (
-    subSlice == null ||
-    subSlice === '' ||
-    !(
-      typeof slice === 'string' ||
-      typeof slice === 'number' ||
-      typeof slice === 'symbol'
-    ) ||
-    !(
-      typeof subSlice === 'string' ||
-      typeof subSlice === 'number' ||
-      typeof subSlice === 'symbol'
-    )
-  ) {
-    throw new Error(
-      'SubSlice must not be blank, and slice & subSlice must be a string or number or symbol',
-    );
+  ? L
+  : never;
+
+type Getter<
+  P extends string[] | ReadonlyArray<string>,
+  O extends { [s: string]: any }
+> = GetArrayLength<P> extends 0
+  ? O
+  : GetArrayLength<P> extends 1
+  ? O[P[0]]
+  : GetArrayLength<P> extends 2
+  ? O[P[0]][P[1]]
+  : GetArrayLength<P> extends 3
+  ? O[P[0]][P[1]][P[2]]
+  : GetArrayLength<P> extends 4
+  ? O[P[0]][P[1]][P[2]][P[3]]
+  : GetArrayLength<P> extends 5
+  ? O[P[0]][P[1]][P[2]][P[3]][P[4]]
+  : GetArrayLength<P> extends 6
+  ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]]
+  : GetArrayLength<P> extends 7
+  ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]]
+  : GetArrayLength<P> extends 8
+  ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]][P[7]]
+  : never;
+
+export function makeTypeSafeSelector<
+  S extends '',
+  P extends string[] & {
+    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   }
-  if (!slice) {
-    return (state: State) => {
-      if (state == null) {
-        // tslint:disable-next-line: no-unused-expression
-        IS_PRODUCTION ||
-          console.error(
-            `${String(
-              subSlice,
-            )} sub-selector was called with a null or undefined state`,
-          );
-        return state as any;
+>(
+  slice: S,
+  ...paths: P
+): <V>() => (object: NestedObject<P, 0, GetArrayLength<P>, V>) => V;
+export function makeTypeSafeSelector<
+  P extends (string[]) & {
+    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  }
+>(
+  ...paths: P
+): <V>() => (object: NestedObject<P, 0, GetArrayLength<P>, V>) => V;
+export function makeTypeSafeSelector<
+  P extends (string[]) & {
+    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  }
+>(...paths: P) {
+  return paths[0] !== ''
+    ? <V>() => {
+        return (object: NestedObject<P, 0, GetArrayLength<P>, V>): V => {
+          return getter(paths, object as any) as any;
+        };
       }
-      return state[subSlice as keyof State];
-    };
-  }
-  return (state: State) => {
-    if (state == null) {
-      // tslint:disable-next-line: no-unused-expression
-      IS_PRODUCTION ||
-        console.error(
-          `${String(slice)}/${String(
-            subSlice,
-          )} sub-selector was called with a null or undefined state`,
-        );
-      return state;
-    }
-    if (!state.hasOwnProperty(slice)) {
-      // tslint:disable-next-line: no-unused-expression
-      IS_PRODUCTION ||
-        console.error(`${String(slice)} was not found in the given State,
-      This selector was either called with a bad state argument or
-      an incorrect slice name was given when instantiating the parent reducer,
-      check for spelling errors`);
-      return undefined;
-    }
-    if (!state[slice].hasOwnProperty(subSlice)) {
-      // tslint:disable-next-line: no-unused-expression
-      IS_PRODUCTION ||
-        console.error(
-          `${String(subSlice)} was not found in the given State[${String(
-            slice,
-          )}] slice,\nThis selector was either called with a bad state argument or\nan incorrect subSlice name was given when instantiating the parent reducer,\ncheck for spelling errors`,
-        );
-      return undefined;
-    }
-    return ((state[slice] as unknown) as SliceState)[subSlice];
-  };
+    : <V>() => {
+        return (object: any): V => {
+          return getter(paths.slice(1), object) as any;
+        };
+      };
 }
+
+export const makeGetter = <
+  P extends (string[]) & {
+    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  }
+>(
+  ...paths: P
+) => {
+  return (object: NestedObject<P, 0, GetArrayLength<P>, any>) => {
+    return getter(paths, object);
+  };
+};
+
+export const get = <
+  O extends NestedObject<P, 0, GetArrayLength<P>, any>,
+  P extends (string[] | ReadonlyArray<string>) & {
+    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  }
+>(
+  object: O,
+  ...paths: P
+) => getter(paths, object);
+
+function getter<
+  P extends string[] | ReadonlyArray<string>,
+  O extends NestedObject<P, I, GetArrayLength<P>, any>,
+  I extends number = 0
+>(
+  paths: P,
+  object: O | undefined,
+  index: I = 0 as I,
+): Getter<P, O> | undefined {
+  if (paths.length === 0) {
+    return object as any;
+  }
+  if (object == null) {
+    if (!IS_PRODUCTION) {
+      if (index !== 0) {
+        console.warn(
+          'There is a possible mis-match between the "paths" and "object" in a getter resulting in an undefined value before the last path, The potentially bad path is "%s". The combined path leading up to here is "%s"',
+          `['${paths[index - 1]}']`,
+          `['${paths.slice(0, index).join('\'][\'')}']`,
+        );
+      } else {
+        console.warn('A getter was called on an undefined or null value');
+      }
+    }
+    return object as any;
+  }
+  if (typeof object !== 'object') {
+    // tslint:disable-next-line: no-unused-expression
+    IS_PRODUCTION ||
+      console.warn(
+        'Warning: You attempted to call a getter on a Non-Object value, The value is "%s", and the path to the value is %s',
+        object,
+        index === 0 ? '""' : `"['${paths.slice(0, index).join('\'][\'')}']"`,
+      );
+  }
+  const key = paths[index];
+  const nextIndex = index + 1;
+  if (paths.length === nextIndex) {
+    return object[key];
+  }
+  return getter(paths, object[key], nextIndex);
+}
+
+export const A = <
+  Ar extends Array<
+    string | number | object | boolean | symbol | undefined | null
+  >
+>(
+  ...values: Ar
+): Ar => values;
+
+export const makeMemoSelector = <S, R>(selector: (state: S) => R) =>
+  memoize(selector);
