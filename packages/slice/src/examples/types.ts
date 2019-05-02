@@ -27,25 +27,22 @@ const defaultState = {
 
 export const {
   actions: hiActions$,
-  selectors: hiSelector$,
   reducer: hiReducer$,
-  reMapSelectorsTo: reMapSelectors,
+  mapSelectorsTo: reMapSelectors,
   // ...hiSlice
   // slice: hiSlice$,
 } = createSlice({
-  slice: 'hi',
   cases: {
     set: (state, payload: string[]) => payload,
     reset: () => ['defaultState', 'jhj',],
   },
   computed: {
-    getLength: (state)=> state.length,
+    getLength: (state) => state.length,
   },
   initialState: [] as string[],
 });
 // hiSelector$
-const newSelectors = reMapSelectors('hiSup');
-newSelectors.getLength;
+const hiSelector$ = reMapSelectors('hi');
 
 const hiArray = {
   hi: ['',],
@@ -56,17 +53,17 @@ hiSelector$.selectSlice(hiArray);
 
 export const {
   actions: hiActions,
-  selectors: hiSelectors,
   reducer: hiReducer,
-  slice: hi_slice,
-} = createSlice<Actions, HiSliceState, 'hi'>({
-  slice: 'hi',
+  mapSelectorsTo: reMapSelectorsTo,
+} = createSlice<Actions, HiSliceState, {}>({
   cases: {
     set: (state, payload) => payload,
     reset: () => defaultState,
   },
   initialState: defaultState,
 });
+
+const hiSelectors = reMapSelectorsTo('hi');
 
 const val = hiSelectors.selectSlice({
   hi: defaultState,
@@ -103,7 +100,6 @@ const initialState: AuthSliceState = {
 };
 
 const auth = createSlice({
-  slice: 'auth',
   initialState,
   cases: {
     authFail: (state, payload: Error) => {
@@ -127,19 +123,17 @@ const auth = createSlice({
 // You can destructure and export the reducer, action creators and selectors
 export const {
   reducer: authReducer,
-  slice: authSlice,
   actions: { authFail, authStart, authSuccess, authLogout },
-  selectors: {
-    selectSlice: getAuth,
-    authenticating: getAuthAuthenticating,
-    error: getAuthError,
-    idToken: getAuthIdToken,
-    userId: getAuthUserId,
-  },
-  reMapSelectorsTo: reMapAuthSelectors,
+  mapSelectorsTo: reMapAuthSelectors,
 } = auth;
 
-const reMappedAuth = reMapAuthSelectors('hi', 'orders');
+export const {
+  selectSlice: getAuth,
+  authenticating: getAuthAuthenticating,
+  error: getAuthError,
+  idToken: getAuthIdToken,
+  userId: getAuthUserId,
+} = reMapAuthSelectors('auth');
 
 export interface AuthActions$ {
   auth_Success$: AuthSuccess;
@@ -148,9 +142,7 @@ export interface AuthActions$ {
   auth_Logout$: never;
 }
 
-const slice = 'auth';
-const auth$ = createSlice<AuthActions$, AuthSliceState, typeof slice>({
-  slice,
+const auth$ = createSlice<AuthActions$, AuthSliceState, {}>({
   initialState,
   cases: {
     auth_Fail$: (state, payload) => {
@@ -174,22 +166,24 @@ const auth$ = createSlice<AuthActions$, AuthSliceState, typeof slice>({
 // You can destructure and export the reducer, action creators and selectors
 export const {
   reducer: authReducer$,
-  slice: authSlice$,
   actions: { auth_Fail$, auth_Start$, auth_Success$, auth_Logout$ },
-  selectors: {
-    selectSlice: getAuth$,
-    authenticating: getAuthAuthenticating$,
-    error: getAuthError$,
-    idToken: getAuthIdToken$,
-    userId: getAuthUserId$,
-  },
 } = auth$;
 
-getAuth$({ auth: {} as AuthSliceState } as IState);
+export const {
+  selectSlice: getAuth$,
+  authenticating: getAuthAuthenticating$,
+  error: getAuthError$,
+  idToken: getAuthIdToken$,
+  userId: getAuthUserId$,
+} = auth.mapSelectorsTo('auth');
+
+getAuth$({ auth: {} as AuthSliceState });
 
 const auth$NoInterface = createSlice({
-  slice: 'auth',
   initialState,
+  computed: {
+    authenticated: (state) => !!state.idToken,
+  },
   cases: {
     auth_Fail$2: (state, payload: Error) => {
       state.error = payload;
@@ -212,16 +206,17 @@ const auth$NoInterface = createSlice({
 // You can destructure and export the reducer, action creators and selectors
 export const {
   reducer: authReducer$2,
-  slice: authSlice$2,
   actions: { auth_Fail$2, auth_Start$2, auth_Success$2, auth_Logout$2 },
-  selectors: {
-    selectSlice: getAuth$2,
-    authenticating: getAuthAuthenticating$2,
-    error: getAuthError$2,
-    idToken: getAuthIdToken$2,
-    userId: getAuthUserId$2,
-  },
 } = auth$NoInterface;
+
+export const {
+  selectSlice: getAuth$2,
+  authenticating: getAuthAuthenticating$2,
+  error: getAuthError$2,
+  idToken: getAuthIdToken$2,
+  userId: getAuthUserId$2,
+  authenticated: getAuthenticated,
+} = auth$NoInterface.mapSelectorsTo('auth');
 
 export const authReducer2 = createReducer({
   initialState,
@@ -252,7 +247,6 @@ const initialStateOeds: IordersReducerState = {
 };
 
 const orderSlice = createSlice({
-  slice: 'ords',
   initialState: initialStateOeds,
   cases: {
     setOrders: (state, payload: IDbOrders) => {
@@ -274,7 +268,7 @@ const orderSlice = createSlice({
 export const {
   reducer: ordersReducer,
   actions: ordersActions,
-  selectors: ordersSelectors,
+  mapSelectorsTo: mapOrdersSelectorsTo,
 } = orderSlice;
 ordersActions.setOrdersLoading();
 const rootReducer = combineReducers<IState>({

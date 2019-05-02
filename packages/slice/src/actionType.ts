@@ -7,6 +7,6 @@ export const createActionType = (
   action: string | number | symbol,
 ) => {
   return slice != null && slice !== ''
-    ? `${String(slice)}/${allCapsSnakeCase(String(action))}`
-    : allCapsSnakeCase(String(action));
+    ? `${String(slice)}/${String(action)}`
+    : String(action);
 };

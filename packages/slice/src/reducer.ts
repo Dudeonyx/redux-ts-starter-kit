@@ -27,27 +27,6 @@ export interface CreateReducer<S = any, A = any> {
   cases: Cases<S, A>;
 }
 
-interface CreateReducer2<S, A, SliceName extends string>
-  extends CreateReducer<S, A> {
-  /**
-   * @description An optional property representing the key of the generated slice in the redux state tree.
-   *
-   * @type {string}
-   * @memberof CreateReducer
-   */
-  slice: SliceName;
-}
-interface CreateReducer3<S, A, SliceName extends string>
-  extends CreateReducer<S, A> {
-  /**
-   * @description An optional property representing the key of the generated slice in the redux state tree.
-   *
-   * @type {string}
-   * @memberof CreateReducer
-   */
-  slice?: SliceName;
-}
-
 /**
  * Creates a simple reducer
  *
@@ -60,43 +39,20 @@ interface CreateReducer3<S, A, SliceName extends string>
  * }
  * @returns
  */
-export function createReducer<
-  S,
-  A extends ActionsMap = ActionsMap,
-  SliceName extends string = string
->({
+
+export function createReducer<S, A extends ActionsMap = ActionsMap>({
   initialState,
   cases,
-  slice,
-}: CreateReducer2<S, A, SliceName>): Reducer<S, AnyAction, SliceName>;
-
-export function createReducer<
-  S,
-  A extends ActionsMap = ActionsMap,
-  SliceName extends string = string
->({ initialState, cases }: CreateReducer<S, A>): Reducer<S, AnyAction, ''>;
-
-export function createReducer<
-  S,
-  A extends ActionsMap = ActionsMap,
-  SliceName extends string = string
->({
-  initialState,
-  cases,
-  slice = '' as SliceName,
-}: CreateReducer3<S, A, SliceName>): Reducer<S> {
+}: CreateReducer<S, A>): Reducer<S, AnyAction> {
   const reducer = (state = initialState, action: AnyAction) => {
     return createNextState(state, (draft) => {
       const caseReducer = cases[action.type];
-
       if (caseReducer) {
         return caseReducer(draft, action.payload);
       }
-
       return draft;
     }) as S;
   };
 
-  reducer.toString = () => slice;
   return reducer;
 }

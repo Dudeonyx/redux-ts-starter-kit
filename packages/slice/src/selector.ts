@@ -58,47 +58,65 @@ type Getter<
   ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]][P[7]]
   : never;
 
-export function makeTypeSafeSelector<
-  S extends '',
-  P extends string[] & {
-    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-  }
->(
-  slice: S,
+export function makeTypeSafeSelector<P extends string[]>(
+  slice: '',
   ...paths: P
-): <V>() => (object: NestedObject<P, 0, GetArrayLength<P>, V>) => V;
-export function makeTypeSafeSelector<
-  P extends (string[]) & {
-    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-  }
->(
+): {
+  <V>(): (object: NestedObject<P, 0, GetArrayLength<P>, V>) => V;
+  bindToInput: <O extends NestedObject<P, 0, GetArrayLength<P>, any>>() => (
+    object: O,
+  ) => Getter<P, O>;
+};
+export function makeTypeSafeSelector<P extends string[]>(
   ...paths: P
-): <V>() => (object: NestedObject<P, 0, GetArrayLength<P>, V>) => V;
+): {
+  <V>(): (object: NestedObject<P, 0, GetArrayLength<P>, V>) => V;
+  bindToInput: <O extends NestedObject<P, 0, GetArrayLength<P>, any>>() => (
+    object: O,
+  ) => Getter<P, O>;
+};
+
 export function makeTypeSafeSelector<
   P extends (string[]) & {
     length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   }
 >(...paths: P) {
   return paths[0] !== ''
-    ? <V>() => {
-        return (object: NestedObject<P, 0, GetArrayLength<P>, V>): V => {
-          return getter(paths, object as any) as any;
-        };
-      }
-    : <V>() => {
-        return (object: any): V => {
-          return getter(paths.slice(1), object) as any;
-        };
-      };
+    ? Object.assign(
+        <V>() => {
+          return (object: NestedObject<P, 0, GetArrayLength<P>, V>): V => {
+            return getter(paths, object as any) as any;
+          };
+        },
+        {
+          bindToInput: <
+            O extends NestedObject<P, 0, GetArrayLength<P>, any>
+          >() => {
+            return (object: O): Getter<P, O> => {
+              return getter(paths, object as any) as any;
+            };
+          },
+        },
+      )
+    : Object.assign(
+        <V>() => {
+          return (object: any): V => {
+            return getter(paths.slice(1), object) as any;
+          };
+        },
+        {
+          bindToInput: <
+            O extends NestedObject<P, 0, GetArrayLength<P>, any>
+          >() => {
+            return (object: O): any => {
+              return getter(paths.slice(1), object);
+            };
+          },
+        },
+      );
 }
 
-export const makeGetter = <
-  P extends (string[]) & {
-    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-  }
->(
-  ...paths: P
-) => {
+export const makeGetter = <P extends string[]>(...paths: P) => {
   return (object: NestedObject<P, 0, GetArrayLength<P>, any>) => {
     return getter(paths, object);
   };
@@ -106,9 +124,7 @@ export const makeGetter = <
 
 export const get = <
   O extends NestedObject<P, 0, GetArrayLength<P>, any>,
-  P extends (string[] | ReadonlyArray<string>) & {
-    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-  }
+  P extends string[] | ReadonlyArray<string>
 >(
   object: O,
   ...paths: P

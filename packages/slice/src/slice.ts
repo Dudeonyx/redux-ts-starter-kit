@@ -20,14 +20,10 @@ type CaseReducer<S = any, P = any> = (
 ) => S | void | undefined;
 
 /** Type alias for the generated reducer */
-export interface Reducer<
-  S = any,
-  A extends AnyAction = AnyAction,
-  SliceName extends string = string
-> {
-  (state: S | undefined, action: A): S;
-  toString: () => SliceName;
-}
+export type Reducer<S = any, A extends AnyAction = AnyAction> = (
+  state: S | undefined,
+  action: A,
+) => S;
 
 /**
  * A map of case reducers for creating a standard reducer
@@ -55,16 +51,16 @@ export interface AnyState {
 }
 
 /** Type alias for generated selectors */
-export type Selectors<SS, S> = SS extends any[]
+export type Selectors<SS> = SS extends any[] | ReadonlyArray<any>
   ? {
-      selectSlice: (state: S) => SS;
+      selectSlice: (state: SS) => SS;
     }
   : SS extends AnyState
-  ? ({ [key in keyof SS]: (state: S) => SS[key] } & {
-      selectSlice: (state: S) => SS;
+  ? ({ [key in keyof SS]: (state: SS) => SS[key] } & {
+      selectSlice: (state: SS) => SS;
     })
   : {
-      selectSlice: (state: S) => SS;
+      selectSlice: (state: SS) => SS;
     };
 /** Type alias for generated action creators */
 export type ActionCreators<A> = {
@@ -111,31 +107,16 @@ export type ActionCreators<A> = {
 export interface Slice<
   A,
   SS,
-  SliceName extends string,
-  Computed extends { [s: string]: (s: any) => any } = {}
+  SelectorMap extends { [s: string]: (s: SS) => any },
+  Computed extends { [s: string]: (s: SS) => any } = {}
 > {
-  /**
-   * @description The name of the slice generated, i.e it's key in the redux state tree.
-   * @type {SliceName}
-   * @memberof Slice
-   */
-  slice: SliceName;
   /**
    * @description The generated reducer
    *
    * @type {Reducer<SS, Action>}
    * @memberof Slice
    */
-  reducer: Reducer<SS, AnyAction, SliceName>;
-  /**
-   * The automatically generated selectors
-   *
-   * @memberof Slice
-   */
-  selectors: SliceName extends ''
-    ? Selectors<SS, SS> & ComputedSelectors<SS, Computed>
-    : Selectors<SS, { [slice in SliceName]: SS }> &
-        ComputedSelectors<{ [slice in SliceName]: SS }, Computed>;
+  reducer: Reducer<SS, AnyAction>;
   /**
    * The automatically generated action creators
    *
@@ -143,12 +124,12 @@ export interface Slice<
    */
   actions: ActionCreators<A>;
 
-  reMapSelectorsTo: <P extends string[]>(
+  mapSelectorsTo: <P extends string[]>(
     ...paths: P
-  ) => ReMappedSelectors<SS, P, Computed>;
+  ) => ReMappedSelectors<P, SS, SelectorMap & Computed>;
 }
 
-interface InputWithoutSlice<SS, Ax> {
+interface CreateSliceOptions<SS, Ax, Cx> {
   /**
    * The initial State, same as standard reducer
    *
@@ -164,33 +145,15 @@ interface InputWithoutSlice<SS, Ax> {
    * @memberof InputWithoutSlice
    */
   cases: Cases<SS, Ax>;
+
+  computed?: ComputedMap<SS, Cx>;
 }
 
-interface InputWithSlice<SS, Ax, SliceName extends string>
-  extends InputWithoutSlice<SS, Ax> {
-  /**
-   * @description An optional property representing the key of the generated slice in the redux state tree.
-   *
-   * @type {keyof S}
-   * @memberof InputWithSlice
-   */
-  slice: SliceName;
-}
-
-interface InputWithOptionalSlice<SS, Ax, SliceName extends string>
-  extends InputWithoutSlice<SS, Ax> {
-  /**
-   * @description An optional property representing the key of the generated slice in the redux state tree.
-   *
-   * @type {keyof S}
-   * @memberof InputWithOptionalSlice
-   */
-  slice?: SliceName;
-}
-
-type ComputedSelectors<S, C extends { [s: string]: (...args: any) => any }> = {
-  [K in keyof C]: (state: S) => ReturnType<C[K]>
-};
+type ComputedMap<S, C extends {}> = C extends NotEmptyObject
+  ? { [K in keyof C]: (state: S) => C[K] }
+  : {} extends C
+  ? {}
+  : { [K in keyof C]: (state: S) => C[K] };
 /**
  * @description Generates a redux state tree slice, complete with a `reducer`,
  *  `action creators` and `selectors`
@@ -227,62 +190,39 @@ type ComputedSelectors<S, C extends { [s: string]: (...args: any) => any }> = {
 export function createSlice<
   Actions extends ActionsMap,
   SliceState,
-  SliceName extends string,
-  Computed extends { [c: string]: (state: SliceState) => any }
+  Computed extends ActionsMap
 >({
   cases,
   initialState,
-  slice,
-}: InputWithSlice<SliceState, Actions, SliceName> & {
-  computed: Computed;
-}): Slice<Actions, SliceState, SliceName, Computed>;
+}: CreateSliceOptions<SliceState, Actions, Computed>): Slice<
+  Actions,
+  SliceState,
+  Selectors<SliceState>,
+  ComputedMap<SliceState, Computed>
+>;
 export function createSlice<
   Actions extends ActionsMap,
   SliceState,
-  SliceName extends string
+  Computed extends ActionsMap
 >({
   cases,
   initialState,
-  slice,
-}: InputWithSlice<SliceState, Actions, SliceName>): Slice<
+}: CreateSliceOptions<SliceState, Actions, Computed>): Slice<
   Actions,
   SliceState,
-  SliceName
+  Selectors<SliceState>,
+  ComputedMap<SliceState, Computed>
 >;
 
 export function createSlice<
   Actions extends ActionsMap,
   SliceState,
-  SliceName extends string,
-  Computed extends { [c: string]: (state: SliceState) => any }
+  Computed extends ActionsMap
 >({
   cases,
   initialState,
-}: InputWithoutSlice<SliceState, Actions> & {
-  computed: Computed;
-}): Slice<Actions, SliceState, '', Computed>;
-export function createSlice<
-  Actions extends ActionsMap,
-  SliceState,
-  SliceName extends string
->({
-  cases,
-  initialState,
-}: InputWithoutSlice<SliceState, Actions>): Slice<Actions, SliceState, ''>;
-
-export function createSlice<
-  Actions extends ActionsMap,
-  SliceState,
-  SliceName extends string,
-  Computed extends { [c: string]: (state: SliceState) => any }
->({
-  cases,
-  initialState,
-  slice = '' as SliceName,
-  computed = {} as Computed,
-}: InputWithOptionalSlice<SliceState, Actions, SliceName> & {
-  computed?: Computed;
-}) {
+  computed = {} as any,
+}: CreateSliceOptions<SliceState, Actions, Computed>) {
   const actionKeys = Object.keys(cases) as Array<
     Extract<keyof Actions, string>
   >;
@@ -290,26 +230,19 @@ export function createSlice<
   const reducer = createReducer({
     cases,
     initialState,
-    slice,
   });
 
   const actions = makeActionCreators<Actions>(actionKeys);
+  const baseSelectors = makeSelectors(initialState);
 
-  const selectors = {
-    ...makeSelectors(slice, initialState),
-    ...reMapComputed(computed, slice),
-  };
-
-  const reMapSelectorsTo = makeReMapableSelectors({
-    ...makeSelectors<SliceState, ''>('', initialState),
+  const mapSelectorsTo = makeReMapableSelectors({
+    ...baseSelectors,
     ...reMapComputed(computed),
   });
 
   return {
     actions,
     reducer,
-    slice,
-    reMapSelectorsTo,
-    selectors,
+    mapSelectorsTo,
   };
 }

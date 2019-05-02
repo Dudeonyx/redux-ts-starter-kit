@@ -8,7 +8,6 @@ type InferSelectorMapState<Slctr> = Slctr extends {
 }
   ? S
   : never;
-
 type InferMapFnInput<MapFn> = MapFn extends (o: infer O) => any ? O : never;
 
 export const reMapComputed = <
@@ -27,11 +26,12 @@ export const reMapComputed = <
     { [K in keyof ComputedMap]: (state: Obj) => ReturnType<ComputedMap[K]> }
   >(
     (map, key) => {
-      const memoed = memoize(computed[key])
-      return ({
-      ...map,
-      [key]: (s: Obj) => memoed(mapFn(s)),
-    })},
+      const memoed = memoize(computed[key]);
+      return {
+        ...map,
+        [key]: (s: Obj) => memoed(mapFn(s)),
+      };
+    },
     {} as any,
   );
 };
@@ -58,18 +58,20 @@ export const reMapSelectors = <
   );
 };
 
-type IsFunc<F> = F extends (...args: any[]) => any ? F : never;
-
-export type ReMappedSelectors<SS extends any, P extends string[], CS extends {[s:string]: (state: SS)=> any}> = {
-  [K in keyof Selectors<SS, SS>]: (
+export type ReMappedSelectors<
+  P extends string[],
+  SS,
+  Selects extends { [s: string]: (state: SS) => any }
+> = {
+  [K in keyof Selects]: (
     state: NestedObject<P, 0, GetArrayLength<P>, SS>,
-  ) => ReturnType<IsFunc<Selectors<SS, SS>[K]>>
-} & {
-  [K in keyof CS]: (state: NestedObject<P, 0, GetArrayLength<P>, SS>) => ReturnType<CS[K]>
+  ) => ReturnType<Selects[K]>
 };
 
-export const makeReMapableSelectors = <SliceState>(
-  selectors: Selectors<SliceState, SliceState>,
+export const makeReMapableSelectors = <
+  SelectorMap extends { [s: string]: (s: any) => any }
+>(
+  selectors: SelectorMap,
 ) => {
   return <
     P extends string[] & {
@@ -93,27 +95,15 @@ export const makeActionCreators = <Actions extends ActionsMap>(
 };
 
 export interface MakeSelectors {
-  <SliceState = any, SliceName extends '' = ''>(slice: SliceName): {
-    selectSlice: (state: SliceState) => SliceState;
-  };
-  <SliceState = any, SliceName extends string = string>(slice: SliceName): {
-    selectSlice: (state: { [slice in SliceName]: SliceState }) => SliceState;
-  };
-  <SliceState, SliceName extends ''>(
-    slice: SliceName,
+  <SliceState>(initialState: SliceState, paths?: ''): Selectors<SliceState>;
+  <SliceState, P extends string[]>(
     initialState: SliceState,
-  ): Selectors<SliceState, SliceState>;
-  <SliceState, SliceName extends string>(
-    slice: SliceName,
-    initialState: SliceState,
-  ): Selectors<SliceState, { [slice in SliceName]: SliceState }>;
+    ...paths: P
+  ): ReMappedSelectors<P, SliceState, Selectors<SliceState>>;
 }
-export const makeSelectors: MakeSelectors = <
-  SliceState,
-  SliceName extends string
->(
-  slice: SliceName,
-  initialState?: SliceState,
+export const makeSelectors: MakeSelectors = <SliceState, P extends string[]>(
+  initialState: SliceState,
+  ...paths: P
 ) => {
   let initialStateKeys: Array<Extract<keyof SliceState, string>> = [];
   if (
@@ -128,18 +118,18 @@ export const makeSelectors: MakeSelectors = <
   const otherSelectors = initialStateKeys.reduce<
     {
       [key in Extract<keyof SliceState, string>]: (
-        state: { [sliceKey in SliceName]: SliceState },
+        state: SliceState,
       ) => SliceState[key]
     }
   >(
     (map, key) => ({
       ...map,
-      [key]: makeTypeSafeSelector(slice, key)<SliceState[typeof key]>(),
+      [key]: makeTypeSafeSelector(...paths, key)<SliceState[typeof key]>(),
     }),
     {} as any,
   );
   return {
-    selectSlice: makeTypeSafeSelector(slice)<SliceState>(),
+    selectSlice: makeTypeSafeSelector(...paths)<SliceState>(),
     ...otherSelectors,
   };
 };

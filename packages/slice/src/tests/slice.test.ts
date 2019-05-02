@@ -35,7 +35,7 @@ describe('makeSelectors', () => {
     describe('initialState is not an object', () => {
       const initialState = ['Foo',];
       const state = { list: ['Foo', 'Bar', 'Baz',] };
-      const selectors = makeSelectors('list', initialState);
+      const selectors = makeSelectors(initialState, 'list');
       it('only creates a `selectSlice` selector', () => {
         expect(Object.hasOwnProperty.call(selectors, 'selectSlice')).toBe(true);
         expect(Object.hasOwnProperty.call(selectors, 'length')).toBe(false);
@@ -44,15 +44,6 @@ describe('makeSelectors', () => {
 
       it('creates a working `selectSlice` selector', () => {
         expect(selectors.selectSlice(state)).toEqual(['Foo', 'Bar', 'Baz',]);
-      });
-      it('can be called without giving the initialState', () => {
-        const selectors2 = makeSelectors('list');
-        expect(Object.hasOwnProperty.call(selectors2, 'selectSlice')).toBe(
-          true,
-        );
-        expect(Object.hasOwnProperty.call(selectors2, 'length')).toBe(false);
-        expect(Object.keys(selectors2).length).toBe(1);
-        expect(selectors2.selectSlice(state)).toEqual(['Foo', 'Bar', 'Baz',]);
       });
     });
     describe('initialState is an object', () => {
@@ -69,7 +60,7 @@ describe('makeSelectors', () => {
         },
       };
 
-      const selectors = makeSelectors('form', initialState);
+      const selectors = makeSelectors(initialState, 'form');
 
       it('creates a `selectSlice` selector and additional selectors', () => {
         expect(Object.hasOwnProperty.call(selectors, 'selectSlice')).toBe(true);
@@ -95,7 +86,7 @@ describe('makeSelectors', () => {
   describe('without slice', () => {
     describe('state is not an object', () => {
       const state = ['Foo', 'Bar', 'Baz',];
-      const selectors = makeSelectors('');
+      const selectors = makeSelectors(state, '');
       it('only creates a `selectSlice` selector', () => {
         expect(Object.hasOwnProperty.call(selectors, 'selectSlice')).toBe(true);
         expect(Object.hasOwnProperty.call(selectors, 'length')).toBe(false);
@@ -113,7 +104,7 @@ describe('makeSelectors', () => {
         surname: 'Baz',
       };
 
-      const selectors = makeSelectors('', state);
+      const selectors = makeSelectors(state, '');
 
       it('creates a `selectSlice` selector and additional selectors', () => {
         expect(Object.hasOwnProperty.call(selectors, 'selectSlice')).toBe(true);
@@ -161,7 +152,7 @@ describe('ReMapSelectors', () => {
     },
   };
 
-  const selectors = makeSelectors('form', initialState);
+  const selectors = makeSelectors(initialState, 'form');
 
   const reMappedSelectors = reMapSelectors(
     selectors,
@@ -205,14 +196,18 @@ describe('createSlice', () => {
       increment: never;
       multiply: number;
     }
-    const { actions, reducer, selectors } = createSlice<Actions, State, ''>({
+    const { actions, reducer, mapSelectorsTo } = createSlice<
+      Actions,
+      State,
+      {}
+    >({
       cases: {
         increment: (state) => state + 1,
         multiply: (state, payload) => state * payload,
       },
       initialState: 0,
     });
-
+    const selectors = mapSelectorsTo();
     it('should create increment action', () => {
       expect(actions.hasOwnProperty('increment')).toBe(true);
     });
@@ -257,14 +252,14 @@ describe('createSlice', () => {
   });
 
   describe('when passing slice', () => {
-    const { actions, reducer, selectors } = createSlice({
+    const { actions, reducer, mapSelectorsTo } = createSlice({
       cases: {
         increment: (state) => state + 1,
         multiply: (state: number, payload: number) => state * payload,
       },
       initialState: 0,
-      slice: 'cool',
     });
+    const selectors = mapSelectorsTo('cool');
 
     it('should create increment action', () => {
       expect(actions.hasOwnProperty('increment')).toBe(true);
@@ -304,11 +299,10 @@ describe('createSlice', () => {
 
   // tslint:disable: no-shadowed-variable
   describe('createSlice selectors when initialState is an object, and reMapSelectors', () => {
-    let nameAndSurnameCalled = 0
-    let fullNameCalled = 0
-    const { selectors, reMapSelectorsTo: reMapSelectors } = createSlice({
+    let nameAndSurnameCalled = 0;
+    let fullNameCalled = 0;
+    const { mapSelectorsTo } = createSlice({
       cases: {},
-      slice: 'form',
       initialState: {
         name: '',
         surname: '',
@@ -319,7 +313,7 @@ describe('createSlice', () => {
           nameAndSurnameCalled++;
           return state.name + ' ' + state.surname;
         },
-        fullName: (state)=> {
+        fullName: (state) => {
           fullNameCalled++;
           return state.name + ' ' + state.middlename + ' ' + state.surname;
         },
@@ -344,8 +338,8 @@ describe('createSlice', () => {
         },
       },
     };
-
-    const reMappedSelectors = reMapSelectors('users', 'userA', 'details');
+    const selectors = mapSelectorsTo('form');
+    const reMappedSelectors = mapSelectorsTo('users', 'userA', 'details');
 
     it('should create selector with correct name', () => {
       expect(selectors.hasOwnProperty('selectSlice')).toBe(true);
@@ -397,55 +391,73 @@ describe('createSlice', () => {
     it('should select the computed fullName', () => {
       expect(selectors.fullName(state)).toEqual('John Wayne Doe');
       expect(fullNameCalled).toBe(1);
-      expect(reMappedSelectors.fullName(alternateState)).toEqual('John2 Wayne2 Doe2');
+      expect(reMappedSelectors.fullName(alternateState)).toEqual(
+        'John2 Wayne2 Doe2',
+      );
       expect(fullNameCalled).toBe(2);
     });
     it('should select the computed nameAndSurname', () => {
       expect(selectors.nameAndSurname(state)).toEqual('John Doe');
       expect(nameAndSurnameCalled).toBe(1);
-      expect(reMappedSelectors.nameAndSurname(alternateState)).toEqual('John2 Doe2');
+      expect(reMappedSelectors.nameAndSurname(alternateState)).toEqual(
+        'John2 Doe2',
+      );
       expect(nameAndSurnameCalled).toBe(2);
     });
     it('should memoize the computed nameAndSurname', () => {
       expect(selectors.nameAndSurname(state)).toEqual('John Doe');
       expect(nameAndSurnameCalled).toBe(2);
-      expect(reMappedSelectors.nameAndSurname(alternateState)).toEqual('John2 Doe2');
+      expect(reMappedSelectors.nameAndSurname(alternateState)).toEqual(
+        'John2 Doe2',
+      );
       expect(nameAndSurnameCalled).toBe(2);
-      expect(selectors.nameAndSurname({form: {
-        name: 'John',
-        surname: 'Doe',
-        middlename: 'Wayne has changed',
-      }})).toEqual('John Doe');
+      expect(
+        selectors.nameAndSurname({
+          form: {
+            name: 'John',
+            surname: 'Doe',
+            middlename: 'Wayne has changed',
+          },
+        }),
+      ).toEqual('John Doe');
       expect(nameAndSurnameCalled).toBe(2);
-      expect(reMappedSelectors.nameAndSurname({
-        users: {
-          userA: {
-            details: {
-              name: 'John2',
-              middlename: 'Wayne2 has changed',
-              surname: 'Doe2',
+      expect(
+        reMappedSelectors.nameAndSurname({
+          users: {
+            userA: {
+              details: {
+                name: 'John2',
+                middlename: 'Wayne2 has changed',
+                surname: 'Doe2',
+              },
             },
           },
-        },
-      })).toEqual('John2 Doe2');
+        }),
+      ).toEqual('John2 Doe2');
       expect(nameAndSurnameCalled).toBe(2);
-      expect(selectors.nameAndSurname({form: {
-        name: 'John',
-        surname: 'Doe has changed',
-        middlename: 'Wayne has changed',
-      }})).toEqual('John Doe has changed');
+      expect(
+        selectors.nameAndSurname({
+          form: {
+            name: 'John',
+            surname: 'Doe has changed',
+            middlename: 'Wayne has changed',
+          },
+        }),
+      ).toEqual('John Doe has changed');
       expect(nameAndSurnameCalled).toBe(3);
-      expect(reMappedSelectors.nameAndSurname({
-        users: {
-          userA: {
-            details: {
-              name: 'John2',
-              middlename: 'Wayne2 has changed',
-              surname: 'Doe2 has changed',
+      expect(
+        reMappedSelectors.nameAndSurname({
+          users: {
+            userA: {
+              details: {
+                name: 'John2',
+                middlename: 'Wayne2 has changed',
+                surname: 'Doe2 has changed',
+              },
             },
           },
-        },
-      })).toEqual('John2 Doe2 has changed');
+        }),
+      ).toEqual('John2 Doe2 has changed');
       expect(nameAndSurnameCalled).toBe(4);
     });
   });
@@ -494,9 +506,7 @@ describe('multiple createSlice slices used to create a redux store', () => {
     waves: 0,
   };
 
-  const hiSlice = createSlice<HiActions, HiSliceState, 'hi'>({
-    // interfaces supplied to createSlice
-    slice: 'hi', // The key/name of the slice, it is type checked to ensure it is a key in IState
+  const hiSlice = createSlice<HiActions, HiSliceState, {}>({
     cases: {
       setWaves: (state, payload) => {
         state.waves = payload;
@@ -536,7 +546,6 @@ describe('multiple createSlice slices used to create a redux store', () => {
       },
       resetForm: (state, _: never) => formInitialState,
     },
-    slice: 'form',
     initialState: formInitialState,
   });
 
@@ -558,8 +567,7 @@ describe('multiple createSlice slices used to create a redux store', () => {
     userId: null,
   };
 
-  const authSlice = createSlice<AuthActions, AuthSliceState, 'auth'>({
-    slice: 'auth',
+  const authSlice = createSlice<AuthActions, AuthSliceState, {}>({
     initialState: authInitialState,
     cases: {
       authLogout: (state) => {
@@ -578,6 +586,10 @@ describe('multiple createSlice slices used to create a redux store', () => {
     form: formSlice.reducer,
     hi: hiSlice.reducer,
   });
+
+  const authSelectors = authSlice.mapSelectorsTo('auth');
+  const formSelectors = formSlice.mapSelectorsTo('form');
+  const hiSelectors = hiSlice.mapSelectorsTo('hi');
 
   it('returns the combined initial states', () => {
     expect(rootReducer(undefined, { type: '@@invalid@@' })).toEqual({
@@ -849,49 +861,49 @@ describe('multiple createSlice slices used to create a redux store', () => {
     };
     describe('Selectors in formSlice', () => {
       it('selects form', () => {
-        expect(formSlice.selectors.selectSlice(state)).toEqual({
+        expect(formSelectors.selectSlice(state)).toEqual({
           name: 'John',
           surname: 'Wayne',
           middlename: 'Doe',
         });
       });
       it('selects name in form', () => {
-        expect(formSlice.selectors.name(state)).toEqual('John');
+        expect(formSelectors.name(state)).toEqual('John');
       });
       it('selects surname in form', () => {
-        expect(formSlice.selectors.surname(state)).toEqual('Wayne');
+        expect(formSelectors.surname(state)).toEqual('Wayne');
       });
       it('selects middlename in form', () => {
-        expect(formSlice.selectors.middlename(state)).toEqual('Doe');
+        expect(formSelectors.middlename(state)).toEqual('Doe');
       });
     });
 
     describe('Selectors in hiSlice', () => {
       it('selects hi', () => {
-        expect(hiSlice.selectors.selectSlice(state)).toEqual({
+        expect(hiSelectors.selectSlice(state)).toEqual({
           greeting: 'Kaydo!',
           waves: 5,
         });
       });
       it('selects greeting in hi', () => {
-        expect(hiSlice.selectors.greeting(state)).toEqual('Kaydo!');
+        expect(hiSelectors.greeting(state)).toEqual('Kaydo!');
       });
       it('selects waves in hi', () => {
-        expect(hiSlice.selectors.waves(state)).toEqual(5);
+        expect(hiSelectors.waves(state)).toEqual(5);
       });
     });
     describe('Selectors in authSlice', () => {
       it('selects auth', () => {
-        expect(authSlice.selectors.selectSlice(state)).toEqual({
+        expect(authSelectors.selectSlice(state)).toEqual({
           idToken: 'a random token',
           userId: 'a user id',
         });
       });
       it('selects idToken in auth', () => {
-        expect(authSlice.selectors.idToken(state)).toEqual('a random token');
+        expect(authSelectors.idToken(state)).toEqual('a random token');
       });
       it('selects userId in auth', () => {
-        expect(authSlice.selectors.userId(state)).toEqual('a user id');
+        expect(authSelectors.userId(state)).toEqual('a user id');
       });
     });
   });
