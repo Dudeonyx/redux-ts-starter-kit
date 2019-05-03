@@ -6,11 +6,13 @@
       "allowSyntheticDefaultImports": true,
       "moduleResolution": "node",
       "esModuleInterop": true,
+      "strict": true,
+      "noImplicitAny": true,
       "baseUrl":".",
       "paths":{
         "@redux-ts-starter-kit/slice": ["../../src"]
       }
     },
-    "include": ["./"]
+    "include": ["./**/*.ts"]
   }
   

@@ -3,6 +3,7 @@ import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { createReducer } from '../reducer';
+import { createType } from '../action';
 
 interface HiSliceState {
   test: string;
@@ -183,6 +184,9 @@ const auth$NoInterface = createSlice({
   initialState,
   computed: {
     authenticated: (state) => !!state.idToken,
+  },
+  typeOverrides: {
+    auth_Fail$2: createType('auth/Fail'),
   },
   cases: {
     auth_Fail$2: (state, payload: Error) => {

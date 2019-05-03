@@ -1,193 +1,6 @@
 import { createSlice } from '../slice';
-import {
-  makeActionCreators,
-  makeSelectors,
-  reMapSelectors,
-} from '../slice-utils';
 import { combineReducers } from 'redux';
-
-describe('makeActionCreators', () => {
-  const actions = makeActionCreators(['setName', 'resetName',]);
-  it('creates an object of action creators', () => {
-    expect(Object.hasOwnProperty.call(actions, 'setName')).toBe(true);
-    expect(Object.hasOwnProperty.call(actions, 'resetName')).toBe(true);
-  });
-
-  it('s action creators toString method returns the action type', () => {
-    expect(actions.setName.toString()).toEqual('setName');
-    expect(actions.resetName.toString()).toEqual('resetName');
-  });
-
-  it('s actions creators work as expected', () => {
-    expect(actions.setName('Paul')).toEqual({
-      type: 'setName',
-      payload: 'Paul',
-    });
-    expect(actions.resetName()).toEqual({
-      type: 'resetName',
-      payload: undefined,
-    });
-  });
-});
-
-describe('makeSelectors', () => {
-  describe('with slice', () => {
-    describe('initialState is not an object', () => {
-      const initialState = ['Foo',];
-      const state = { list: ['Foo', 'Bar', 'Baz',] };
-      const selectors = makeSelectors(initialState, 'list');
-      it('only creates a `selectSlice` selector', () => {
-        expect(Object.hasOwnProperty.call(selectors, 'selectSlice')).toBe(true);
-        expect(Object.hasOwnProperty.call(selectors, 'length')).toBe(false);
-        expect(Object.keys(selectors).length).toBe(1);
-      });
-
-      it('creates a working `selectSlice` selector', () => {
-        expect(selectors.selectSlice(state)).toEqual(['Foo', 'Bar', 'Baz',]);
-      });
-    });
-    describe('initialState is an object', () => {
-      const initialState = {
-        name: '',
-        middlename: '',
-        surname: '',
-      };
-      const state = {
-        form: {
-          name: 'Foo',
-          middlename: 'Bar',
-          surname: 'Baz',
-        },
-      };
-
-      const selectors = makeSelectors(initialState, 'form');
-
-      it('creates a `selectSlice` selector and additional selectors', () => {
-        expect(Object.hasOwnProperty.call(selectors, 'selectSlice')).toBe(true);
-        expect(Object.hasOwnProperty.call(selectors, 'name')).toBe(true);
-        expect(Object.hasOwnProperty.call(selectors, 'middlename')).toBe(true);
-        expect(Object.hasOwnProperty.call(selectors, 'surname')).toBe(true);
-        expect(Object.hasOwnProperty.call(selectors, 'lastname')).toBe(false);
-        expect(Object.keys(selectors).length).toBe(4);
-      });
-
-      it('creates working selectors', () => {
-        expect(selectors.selectSlice(state)).toEqual({
-          name: 'Foo',
-          middlename: 'Bar',
-          surname: 'Baz',
-        });
-        expect(selectors.name(state)).toEqual('Foo');
-        expect(selectors.middlename(state)).toEqual('Bar');
-        expect(selectors.surname(state)).toEqual('Baz');
-      });
-    });
-  });
-  describe('without slice', () => {
-    describe('state is not an object', () => {
-      const state = ['Foo', 'Bar', 'Baz',];
-      const selectors = makeSelectors(state, '');
-      it('only creates a `selectSlice` selector', () => {
-        expect(Object.hasOwnProperty.call(selectors, 'selectSlice')).toBe(true);
-        expect(Object.hasOwnProperty.call(selectors, 'length')).toBe(false);
-        expect(Object.keys(selectors).length).toBe(1);
-      });
-
-      it('creates a working `selectSlice` selector', () => {
-        expect(selectors.selectSlice(state)).toEqual(['Foo', 'Bar', 'Baz',]);
-      });
-    });
-    describe('state is an object', () => {
-      const state = {
-        name: 'Foo',
-        middlename: 'Bar',
-        surname: 'Baz',
-      };
-
-      const selectors = makeSelectors(state, '');
-
-      it('creates a `selectSlice` selector and additional selectors', () => {
-        expect(Object.hasOwnProperty.call(selectors, 'selectSlice')).toBe(true);
-        expect(Object.hasOwnProperty.call(selectors, 'name')).toBe(true);
-        expect(Object.hasOwnProperty.call(selectors, 'middlename')).toBe(true);
-        expect(Object.hasOwnProperty.call(selectors, 'surname')).toBe(true);
-        expect(Object.hasOwnProperty.call(selectors, 'lastname')).toBe(false);
-        expect(Object.keys(selectors).length).toBe(4);
-      });
-
-      it('creates working selectors', () => {
-        expect(selectors.selectSlice(state)).toEqual({
-          name: 'Foo',
-          middlename: 'Bar',
-          surname: 'Baz',
-        });
-        expect(selectors.name(state)).toEqual('Foo');
-        expect(selectors.middlename(state)).toEqual('Bar');
-        expect(selectors.surname(state)).toEqual('Baz');
-      });
-    });
-  });
-});
-
-describe('ReMapSelectors', () => {
-  const initialState = {
-    name: '',
-    middlename: '',
-    surname: '',
-  };
-
-  const altState = {
-    data: {
-      userA: {
-        personalDetails: {
-          updated: {
-            form: {
-              name: 'Foo',
-              middlename: 'Bar',
-              surname: 'Baz',
-            },
-          },
-        },
-      },
-    },
-  };
-
-  const selectors = makeSelectors(initialState, 'form');
-
-  const reMappedSelectors = reMapSelectors(
-    selectors,
-    'data',
-    'userA',
-    'personalDetails',
-    'updated',
-  );
-
-  it('creates a reMapped `selectSlice` selector and additional selectors', () => {
-    expect(Object.hasOwnProperty.call(reMappedSelectors, 'selectSlice')).toBe(
-      true,
-    );
-    expect(Object.hasOwnProperty.call(reMappedSelectors, 'name')).toBe(true);
-    expect(Object.hasOwnProperty.call(reMappedSelectors, 'middlename')).toBe(
-      true,
-    );
-    expect(Object.hasOwnProperty.call(reMappedSelectors, 'surname')).toBe(true);
-    expect(Object.hasOwnProperty.call(reMappedSelectors, 'lastname')).toBe(
-      false,
-    );
-    expect(Object.keys(reMappedSelectors).length).toBe(4);
-  });
-
-  it('creates working reMapped selectors', () => {
-    expect(reMappedSelectors.selectSlice(altState)).toEqual({
-      name: 'Foo',
-      middlename: 'Bar',
-      surname: 'Baz',
-    });
-    expect(reMappedSelectors.name(altState)).toEqual('Foo');
-    expect(reMappedSelectors.middlename(altState)).toEqual('Bar');
-    expect(reMappedSelectors.surname(altState)).toEqual('Baz');
-  });
-});
+import { createType } from '../action';
 
 describe('createSlice', () => {
   describe('when slice is empty', () => {
@@ -298,7 +111,7 @@ describe('createSlice', () => {
   });
 
   // tslint:disable: no-shadowed-variable
-  describe('createSlice selectors when initialState is an object, and reMapSelectors', () => {
+  describe('createSlice mapSelectorsTo when initialState is an object, and reMapSelectors', () => {
     let nameAndSurnameCalled = 0;
     let fullNameCalled = 0;
     const { mapSelectorsTo } = createSlice({
@@ -478,9 +291,38 @@ describe('createSlice', () => {
       });
     });
   });
+
+  describe('When overridding types', () => {
+    const { actions } = createSlice({
+      initialState: 0,
+      cases: {
+        increaseBy: (state, payload: number) => state + payload,
+        increase: (state) => state + 1,
+        decreaseBy: (state, payload: number) => state - payload,
+        decrease: (state) => state - 1,
+        reset: () => 0,
+      },
+      typeOverrides: {
+        increase: 'counter/increase' as const,
+        decreaseBy: createType('counter/decreaseBy'),
+        reset: createType('RESET'),
+      },
+    });
+
+    test('should leave unspecified actions types untouched', () => {
+      expect(actions.decrease.type).toEqual('decrease');
+      expect(actions.increaseBy.type).toEqual('increaseBy');
+    });
+
+    test('should override specified actions types', () => {
+      expect(actions.reset.type).toEqual('RESET');
+      expect(actions.increase.type).toEqual('counter/increase');
+      expect(actions.decreaseBy.type).toEqual('counter/decreaseBy');
+    });
+  });
 });
 
-describe('multiple createSlice slices used to create a redux store', () => {
+describe('multiple createSlice slices combined with `combineReducers`', () => {
   interface IState {
     // The interface of the combined state
     hi: HiSliceState;

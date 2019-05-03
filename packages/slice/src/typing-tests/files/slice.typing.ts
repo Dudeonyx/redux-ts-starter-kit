@@ -5,11 +5,11 @@ import {
   ActionCreators,
   Reducer,
 } from '@redux-ts-starter-kit/slice';
+import { createType } from '../../action';
 
 /** Test: createSlice types */
 {
   const hiSlice = createSlice({
-    slice: 'hi',
     cases: {
       set: (_state, payload: string[]) => payload,
       add: (state, payload: string) => [...state, payload,],
@@ -19,12 +19,7 @@ import {
     initialState: ['defaultState', 'jhj',],
   });
 
-  const {
-    actions: hiActions$,
-    selectors: hiSelector$,
-    reducer: hiReducer$,
-    slice: hiSlice$,
-  } = hiSlice;
+  const { actions: hiActions$, reducer: hiReducer$ } = hiSlice;
 
   let actions: ActionCreators<{
     set: string[];
@@ -69,7 +64,7 @@ import {
   hiActions$.removeLast();
   hiActions$.removeLast(0);
 
-  let selectors = hiSelector$;
+  let selectors = hiSlice.mapSelectorsTo('hi');
 
   selectors = {
     selectSlice: (state: { hi: string[] }) => state.hi,
@@ -82,25 +77,10 @@ import {
 
   let reducer = hiReducer$;
 
-  reducer = Object.assign((state: string[], action: AnyAction) => state, {
-    toString: () => 'hi' as const,
-  });
+  reducer = (state: string[] = [], action: AnyAction) => state;
 
   // typings:expect-error
-  reducer = Object.assign((state: number[], action: AnyAction) => state, {
-    toString: () => 'hi' as const,
-  });
-
-  // typings:expect-error
-  reducer = Object.assign((state: string[], action: AnyAction) => state, {
-    toString: () => 'wow' as const,
-  });
-
-  let slice = hiSlice$;
-
-  slice = 'hi';
-  // typings:expect-error
-  slice = 'wow';
+  reducer = (state: number[] = [], action: AnyAction) => state;
 }
 
 /** Test: createSlice with obj initialState */
@@ -112,7 +92,6 @@ import {
   };
 
   const formSlice = createSlice({
-    slice: 'form',
     cases: {
       setName: (state, payload: string) => {
         state.name = payload;
@@ -148,7 +127,7 @@ import {
   // typings:expect-error
   formSlice.actions.resetForm5(true);
 
-  const selectors = formSlice.selectors;
+  const selectors = formSlice.mapSelectorsTo('form');
 
   selectors.selectSlice = (state) => state.form;
   // typings:expect-error
@@ -163,15 +142,52 @@ import {
   // typings:expect-error
   selectors.lastName;
 
-  let reducer = formSlice.reducer;
+  let reducer1: Reducer<typeof formInitialState, AnyAction>;
+  let reducer3: Reducer<any[], AnyAction>;
 
-  let reducer1: Reducer<typeof formInitialState, AnyAction, 'form'>;
-  let reducer2: Reducer<typeof formInitialState, AnyAction, string>;
-  let reducer3: Reducer<any[], AnyAction, 'form'>;
+  reducer1 = formSlice.reducer;
+  // typings:expect-error
+  reducer3 = formSlice.reducer;
+}
 
-  reducer = reducer1;
+/** Test: TypeOverrides */
+{
+  const { actions } = createSlice({
+    initialState: 0,
+    cases: {
+      increaseBy: (state, payload: number) => state + payload,
+      increase: (state) => state + 1,
+      decreaseBy: (state, payload: number) => state - payload,
+      decrease: (state) => state - 1,
+      reset: () => 0,
+    },
+    typeOverrides: {
+      increase: createType('counter/increase'),
+      decrease: createType('counter/decrease'),
+      reset: createType('reset'),
+    },
+  });
+
+  let increase = actions.increase.type;
+  let decrease = actions.decrease.type;
+  let increaseBy = actions.increaseBy.type;
+  let decreaseBy = actions.decreaseBy.type;
+  let reset = actions.reset.type;
+
+  increase = 'counter/increase';
+  decrease = 'counter/decrease';
+  increaseBy = 'increaseBy';
+  decreaseBy = 'decreaseBy';
+  reset = 'reset';
+
   // typings:expect-error
-  reducer = reducer2;
+  increase = 'increase';
   // typings:expect-error
-  reducer = reducer3;
+  decrease = 'decrease';
+  // typings:expect-error
+  increaseBy = 'counter/increaseBy';
+  // typings:expect-error
+  decreaseBy = 'counter/decreaseBy';
+  // typings:expect-error
+  reset = 'counter/reset';
 }

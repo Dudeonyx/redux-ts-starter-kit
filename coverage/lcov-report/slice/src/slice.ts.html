@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for slice/src/slice.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="..\..\prettify.css" />
+    <link rel="stylesheet" href="..\..\base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(..\..\sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="..\..\index.html">All files</a> / <a href="index.html">slice/src</a> slice.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>13/13</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>4/4</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>1/1</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>13/13</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { PayloadAction, AnyAction } from './types';
+import {
+  makeActionCreators,
+  makeSelectors,
+  makeReMapableSelectors,
+  ReMappedSelectors,
+} from './slice-utils';
+import { Draft } from 'immer';
+import { createReducer } from './reducer';
+&nbsp;
+interface NotEmptyObject {
+  [s: string]: string | number | symbol | boolean | object | undefined | null;
+  [s: number]: string | number | symbol | boolean | object | undefined | null;
+}
+/** Type alias for case reducers when `slice` is blank or undefined */
+type CaseReducer&lt;S = any, P = any&gt; = (
+  state: Draft&lt;S&gt;,
+  payload: P,
+) =&gt; S | void | undefined;
+&nbsp;
+/** Type alias for the generated reducer */
+export type Reducer&lt;S = any, A extends AnyAction = AnyAction&gt; = (
+  state: S | undefined,
+  action: A,
+) =&gt; S;
+&nbsp;
+/**
+ * A map of case reducers for creating a standard reducer
+ * @export
+ * @template SS is the [SliceState] or [State]
+ * @template A  is the [Action]
+ */
+export type Cases&lt;SS = any, Ax = any&gt; = {
+  [K in keyof Ax]: CaseReducer&lt;SS, Ax[K]&gt;
+};
+&nbsp;
+// type PayloadActionMap&lt;A extends ActionCreators&lt;any&gt;&gt; = {
+//   [T in keyof A]: ReturnType&lt;A[T]&gt;
+// };
+&nbsp;
+/** Generic Actions Map interface */
+export interface ActionsMap&lt;P = any&gt; {
+  [Action: string]: P;
+}
+/** Generic State interface
+ * @export
+ */
+export interface AnyState {
+  [slice: string]: any;
+}
+&nbsp;
+/** Type alias for generated selectors */
+export type Selectors&lt;SS&gt; = SS extends any[] | ReadonlyArray&lt;any&gt;
+  ? {
+      selectSlice: (state: SS) =&gt; SS;
+    }
+  : SS extends AnyState
+  ? ({ [key in keyof SS]: (state: SS) =&gt; SS[key] } &amp; {
+      selectSlice: (state: SS) =&gt; SS;
+    })
+  : {
+      selectSlice: (state: SS) =&gt; SS;
+    };
+&nbsp;
+type InferType&lt;Type, Fallback extends string&gt; = Type extends string
+  ? Type
+  : Fallback;
+/** Type alias for generated action creators */
+export type ActionCreators&lt;A, TyO extends { [K in keyof A]?: string } = {}&gt; = {
+  [key in Extract&lt;keyof A, string&gt;]: unknown extends A[key] // hacky ternary for `A[key]` = `any`
+    ? {
+        (payload?: any): PayloadAction&lt;any, InferType&lt;TyO[key], key&gt;&gt;;
+        type: InferType&lt;TyO[key], key&gt;;
+        toString: () =&gt; InferType&lt;TyO[key], key&gt;;
+      }
+    : A[key] extends never | undefined | void // No payload when type is `never`
+    ? {
+        (): PayloadAction&lt;undefined, InferType&lt;TyO[key], key&gt;&gt;;
+        type: InferType&lt;TyO[key], key&gt;;
+        toString: () =&gt; InferType&lt;TyO[key], key&gt;;
+      }
+    : A[key] extends NotEmptyObject
+    ? {
+        (payload: A[key]): PayloadAction&lt;A[key], InferType&lt;TyO[key], key&gt;&gt;;
+        type: InferType&lt;TyO[key], key&gt;;
+        toString: () =&gt; InferType&lt;TyO[key], key&gt;;
+      }
+    : {} extends A[key] // ensures payload isn't inferred as {}
+    ? {
+        (): PayloadAction&lt;undefined, InferType&lt;TyO[key], key&gt;&gt;;
+        type: InferType&lt;TyO[key], key&gt;;
+        toString: () =&gt; InferType&lt;TyO[key], key&gt;;
+      }
+    : {
+        (payload: A[key]): PayloadAction&lt;A[key], InferType&lt;TyO[key], key&gt;&gt;;
+        type: InferType&lt;TyO[key], key&gt;;
+        toString: () =&gt; InferType&lt;TyO[key], key&gt;;
+      }
+};
+&nbsp;
+/** */
+/**
+ * @interface Slice
+ * @description The interface of the object returned by createSlice
+ * @template Ax - is the [Action] creator interface
+ * @template SS - [SliceState]
+ * @template S - [State]
+ * @template Slc - [slice]
+ */
+export interface Slice&lt;
+  Ax,
+  SS,
+  SelectorMap extends { [s: string]: (s: SS) =&gt; any },
+  Computed extends { [s: string]: (s: SS) =&gt; any },
+  TyO extends { [K in keyof Ax]?: string }
+&gt; {
+  /**
+   * @description The generated reducer
+   *
+   * @type {Reducer&lt;SS, Action&gt;}
+   * @memberof Slice
+   */
+  reducer: Reducer&lt;SS, AnyAction&gt;;
+  /**
+   * The automatically generated action creators
+   *
+   * @memberof Slice
+   */
+  actions: ActionCreators&lt;Ax, TyO&gt;;
+&nbsp;
+  mapSelectorsTo: &lt;P extends string[]&gt;(
+    ...paths: P
+  ) =&gt; ReMappedSelectors&lt;P, SS, SelectorMap &amp; Computed&gt;;
+}
+&nbsp;
+interface CreateSliceOptions&lt;SS, Ax, Cx, TyO&gt; {
+  /**
+   * The initial State, same as standard reducer
+   *
+   * @type {SS}
+   * @memberof InputWithoutSlice
+   */
+  initialState: SS;
+  /**
+   * @description - An object whose methods represent the cases the generated reducer handles,
+   * can be thought of as the equivalent of [switch-case] statements in a standard reducer.
+   *
+   * @type {Cases&lt;SS, Ax&gt;}
+   * @memberof InputWithoutSlice
+   */
+  cases: Cases&lt;SS, Ax&gt;;
+&nbsp;
+  computed?: ComputedMap&lt;SS, Cx&gt;;
+&nbsp;
+  typeOverrides?: TyO;
+}
+&nbsp;
+type ComputedMap&lt;S, C extends {}&gt; = { [K in keyof C]: (state: S) =&gt; C[K] };
+&nbsp;
+/**
+ * @description Generates a redux state tree slice, complete with a `reducer`,
+ *  `action creators` and `selectors`
+ *
+ * @export
+ *
+ * @template Actions - A map of action creator names and payloads, in the form `{[actionName]: typeof payload}`,
+ *  a payload type of `never` can be used to indicate that no payload is expected
+ *
+ * @template SliceState - The interface of the initial state,
+ *  it is also the interface of the slice of state.
+ *
+ * @template State - The interface of the entire redux state tree
+ *
+ * @param {{cases: Cases&lt;SS, Ax&gt;, initialState: SS, slice: string}} {
+ *   cases,
+ *   initialState,
+ *   slice
+ * }
+ *
+ * @returns {Slice&lt;
+ *   Actions,
+ *   NoEmptyArray&lt;SliceState&gt;,
+ *   State,
+ *   typeof slice
+ * &gt;} {
+ *   reducer,
+ *   actions,
+ *   selectors,
+ *   slice
+ * }
+ */
+&nbsp;
+export function createSlice&lt;
+  Actions extends ActionsMap,
+  SliceState,
+  Computed extends ActionsMap = {},
+  TypeOverrides extends { [K in keyof Actions]?: string } = {}
+&gt;({
+  cases,
+  initialState,
+}: CreateSliceOptions&lt;SliceState, Actions, Computed, TypeOverrides&gt;): Slice&lt;
+  Actions,
+  SliceState,
+  Selectors&lt;SliceState&gt;,
+  ComputedMap&lt;SliceState, Computed&gt;,
+  TypeOverrides
+&gt;;
+export function createSlice&lt;
+  Actions extends ActionsMap,
+  SliceState,
+  Computed extends ActionsMap = {},
+  TypeOverrides extends { [K in keyof Actions]?: string } = {}
+&gt;({
+  cases,
+  initialState,
+}: CreateSliceOptions&lt;SliceState, Actions, Computed, TypeOverrides&gt;): Slice&lt;
+  Actions,
+  SliceState,
+  Selectors&lt;SliceState&gt;,
+  ComputedMap&lt;SliceState, Computed&gt;,
+  TypeOverrides
+&gt;;
+&nbsp;
+export function createSlice&lt;
+  Actions extends ActionsMap,
+  SliceState,
+  Computed extends ActionsMap = {},
+  TypeOverrides extends { [K in keyof Actions]?: string } = {}
+&gt;({
+  cases,
+  initialState,
+  computed = {} as any,
+  typeOverrides = {} as TypeOverrides,
+}: CreateSliceOptions&lt;SliceState, Actions, Computed, TypeOverrides&gt;) {
+  const actionKeys = Object.keys(cases) as Array&lt;
+    Extract&lt;keyof Actions, string&gt;
+  &gt;;
+&nbsp;
+  const reducer = createReducer({
+    cases,
+    initialState,
+  });
+&nbsp;
+  const actions = makeActionCreators&lt;Actions, TypeOverrides&gt;(
+    actionKeys,
+    typeOverrides,
+  );
+  const baseSelectors = makeSelectors(initialState);
+&nbsp;
+  const mapSelectorsTo = makeReMapableSelectors(baseSelectors, computed);
+&nbsp;
+  return {
+    actions,
+    reducer,
+    mapSelectorsTo,
+  };
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Fri May 03 2019 01:03:50 GMT+0100 (West Africa Standard Time)
+</div>
+</div>
+<script src="..\..\prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="..\..\sorter.js"></script>
+</body>
+</html>

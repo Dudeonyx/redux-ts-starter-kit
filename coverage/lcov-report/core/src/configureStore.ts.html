@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for core/src/configureStore.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="..\..\prettify.css" />
+    <link rel="stylesheet" href="..\..\base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(..\..\sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="..\..\index.html">All files</a> / <a href="index.html">core/src</a> configureStore.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>25/25</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>16/16</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>2/2</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>25/25</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202</td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import {
+  createStore,
+  compose,
+  applyMiddleware,
+  combineReducers,
+  Middleware,
+  Reducer,
+  StoreEnhancer,
+  DeepPartial,
+  ReducersMapObject,
+  Action,
+  Store,
+} from 'redux';
+import { composeWithDevTools, EnhancerOptions } from 'redux-devtools-extension';
+import thunk, { ThunkDispatch } from 'redux-thunk';
+import createSerializableStateInvariantMiddleware from './serializableStateInvariantMiddleware';
+&nbsp;
+import isPlainObject from './isPlainObject';
+&nbsp;
+export function getDefaultMiddleware() {
+  return process.env.NODE_ENV === 'production'
+    ? [thunk,]
+    : [
+        require('redux-immutable-state-invariant').default() as Middleware,
+        thunk,
+        createSerializableStateInvariantMiddleware(),
+      ];
+}
+&nbsp;
+/**
+ * An options object which [configureStore] accepts as it's sole argument.
+ *
+ * @interface ConfigureStoreOptions
+ * @template S  The type of state to be held by the store.
+ * @template A The type of actions which may be dispatched.
+ */
+interface ConfigureStoreDefaultOptions&lt;S, A extends Action, Ext, StateExt&gt; {
+  /**
+   * @param reducer A function or an object of functions
+   *  that returns the next state tree, given the
+   *  current state tree and the action to handle.
+   *
+   * @type {(Reducer&lt;S&gt; | ReducersMapObject&lt;S&gt;)}
+   * @memberof ConfigureStoreOptions
+   */
+  reducer: Reducer&lt;S, A&gt; | ReducersMapObject&lt;S, A&gt;;
+  /**
+   * @param [preloadedState] The initial state. You may optionally specify it to
+   *   hydrate the state from the server in universal apps, or to restore a
+   *   previously serialized user session. If you use an object of reducers as
+   *   the `reducer` param, this must be an object with the same
+   *   shape as `reducer` keys.
+   *
+   * @type {DeepPartial&lt;S&gt;}
+   * @memberof ConfigureStoreOptions
+   */
+  preloadedState?: DeepPartial&lt;S extends any ? S : S&gt;; // ensures preloadedState's inferred type does not overide S
+  /**
+   * @param [devTools] A boolean indicating if [redux-devtools] should be enabled or not
+   *
+   * @type {boolean}
+   * @default true
+   * @memberof ConfigureStoreOptions
+   */
+  devTools?: boolean;
+  /**
+   * @param [enhancer] An array of store enhancers. You may optionally specify store enhancers to
+   *   enhance the store with third-party capabilities such as middleware, time
+   *   travel, persistence, etc. The only store enhancer that ships with Redux
+   *   is `applyMiddleware()`.
+   * @type {StoreEnhancer[]}
+   * @memberof ConfigureStoreOptions
+   */
+  enhancers?: Array&lt;StoreEnhancer&lt;Ext, StateExt&gt;&gt;;
+}
+&nbsp;
+interface ConfigureStoreOptions0&lt;S, A extends Action, Ext, StateExt&gt;
+  extends ConfigureStoreDefaultOptions&lt;S, A, Ext, StateExt&gt; {
+  /**
+   * @param [middleware] An array of middlewares. A middleware is a higher-order function that
+   *  composes a dispatch function
+   *  to return a new dispatch function. It often turns async actions into
+   *  actions.
+   *
+   * @type {Middleware[]}
+   * @memberof ConfigureStoreOptions
+   */
+  middleware: [];
+}
+interface ConfigureStoreOptions1&lt;
+  S,
+  A extends Action,
+  Ext,
+  StateExt,
+  DispatchExt
+&gt; extends ConfigureStoreDefaultOptions&lt;S, A, Ext, StateExt&gt; {
+  /**
+   * @param [middleware] An array of middlewares. A middleware is a higher-order function that
+   *  composes a dispatch function
+   *  to return a new dispatch function. It often turns async actions into
+   *  actions.
+   *
+   * @type {Middleware[]}
+   * @memberof ConfigureStoreOptions
+   */
+  middleware: Array&lt;Middleware&lt;DispatchExt&gt;&gt;;
+}
+&nbsp;
+/**
+ * Simplifies creation of a redux store.
+ *
+ * @export
+ * @template S The type of state to be held by the store.
+ * @template A The type of actions which may be dispatched.
+ * @template Ext Store extension that is mixed in to the Store type.
+ * @template StateExt State extension that is mixed into the state type.
+ * @template DispatchExt Dispatch signature added by a middleware..
+ * @param {ConfigureStoreDefaultOptions&lt;S,PS&gt;} [options={} as any]
+ * @returns {Store&lt;S &amp; StateExt, A&gt; &amp; Ext} store
+ */
+export function configureStore&lt;
+  S,
+  A extends Action = Action,
+  Ext extends {} = {},
+  StateExt = {}
+&gt;({
+  reducer,
+  devTools,
+  preloadedState,
+  enhancers,
+  middleware,
+}: ConfigureStoreOptions0&lt;S, A, Ext, StateExt&gt;): Store&lt;S &amp; StateExt, A&gt; &amp; Ext;
+export function configureStore&lt;
+  S,
+  A extends Action = Action,
+  Ext extends {} = {},
+  StateExt = {},
+  DispatchExt = {}
+&gt;({
+  reducer,
+  devTools,
+  preloadedState,
+  enhancers,
+  middleware,
+}: ConfigureStoreOptions1&lt;S, A, Ext, StateExt, DispatchExt&gt;): Store&lt;
+  S &amp; StateExt,
+  A
+&gt; &amp;
+  Ext &amp; { dispatch: DispatchExt };
+&nbsp;
+export function configureStore&lt;
+  S,
+  A extends Action = Action,
+  Ext extends {} = {},
+  StateExt = {}
+&gt;({
+  reducer,
+  devTools,
+  preloadedState,
+  enhancers,
+}: ConfigureStoreDefaultOptions&lt;S, A, Ext, StateExt&gt;): Store&lt;S &amp; StateExt, A&gt; &amp;
+  Ext &amp; { dispatch: ThunkDispatch&lt;S, any, A&gt; };
+&nbsp;
+export function configureStore(
+  {
+    reducer,
+    middleware = getDefaultMiddleware(),
+    devTools = true,
+    preloadedState,
+    enhancers = [],
+  } = {} as any,
+) {
+  let rootReducer;
+&nbsp;
+  if (typeof reducer === 'function') {
+    rootReducer = reducer;
+  } else if (isPlainObject(reducer)) {
+    rootReducer = combineReducers(reducer);
+  } else {
+    throw new Error(
+      'Reducer argument must be a function or an object of functions that can be passed to combineReducers',
+    );
+  }
+&nbsp;
+  const middlewareEnhancer = applyMiddleware(...middleware);
+&nbsp;
+  const storeEnhancers = [middlewareEnhancer, ...enhancers,];
+&nbsp;
+  const finalCompose =
+    devTools === true
+      ? composeWithDevTools({
+          // Enable capture of stack traces for dispatched Redux actions
+          trace: !(process.env.NODE_ENV === 'production'),
+        } as EnhancerOptions)
+      : compose;
+&nbsp;
+  const composedEnhancer: StoreEnhancer = finalCompose(...storeEnhancers);
+&nbsp;
+  const store = createStore(rootReducer, preloadedState, composedEnhancer);
+  return store;
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="https://istanbul.js.org/" target="_blank">istanbul</a> at Fri May 03 2019 01:03:50 GMT+0100 (West Africa Standard Time)
+</div>
+</div>
+<script src="..\..\prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="..\..\sorter.js"></script>
+</body>
+</html>

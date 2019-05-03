@@ -1,5 +1,42 @@
-import { ActionsMap, Slice } from '../slice';
+import { ActionsMap, Slice, Cases } from '../slice';
 import { Draft } from 'immer';
+import { PayloadAction } from '../types';
+import { createTypeSafeAction } from '../action';
+
+interface CRO<S, Ax, Ac> {
+  state: S;
+  cases: Cases<S, Ax>;
+  actionCreators?: Ac;
+}
+
+const createType = <T extends string>(type: T) => type;
+
+type InferType<A, F extends string> = A extends { [K in F]: string } ? A[F] : F;
+
+function crSl<S, Ax extends {}, Ac extends { [K in keyof Ax]?: string }>(
+  o: CRO<S, Ax, Ac>,
+): { [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType<Ac, C>> };
+
+function crSl<S, Ax extends {}, Ac extends { [K in keyof Ax]?: string }>(
+  o: CRO<S, Ax, Ac>,
+): {
+  [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType<Ac[C], C>>
+};
+
+function crSl(o: any): any {
+  return null as any;
+}
+
+const tsf = crSl({
+  actionCreators: {
+    fth: createType('TypeSafe'),
+  },
+  cases: {
+    fth: (state, payload: number) => payload,
+    qew: (state, payload: number) => payload,
+  },
+  state: 5,
+});
 
 type IncreaseNum<N extends number> = N extends 0
   ? 1

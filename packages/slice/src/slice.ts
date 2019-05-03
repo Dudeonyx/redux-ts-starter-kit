@@ -4,7 +4,6 @@ import {
   makeSelectors,
   makeReMapableSelectors,
   ReMappedSelectors,
-  reMapComputed,
 } from './slice-utils';
 import { Draft } from 'immer';
 import { createReducer } from './reducer';
@@ -62,36 +61,40 @@ export type Selectors<SS> = SS extends any[] | ReadonlyArray<any>
   : {
       selectSlice: (state: SS) => SS;
     };
+
+type InferType<Type, Fallback extends string> = Type extends string
+  ? Type
+  : Fallback;
 /** Type alias for generated action creators */
-export type ActionCreators<A> = {
-  [key in keyof A]: unknown extends A[key] // hacky ternary for `A[key]` = `any`
+export type ActionCreators<A, TyO extends { [K in keyof A]?: string } = {}> = {
+  [key in Extract<keyof A, string>]: unknown extends A[key] // hacky ternary for `A[key]` = `any`
     ? {
-        (payload?: any): PayloadAction<any, Extract<key, string>>;
-        type: key;
-        toString: () => key;
+        (payload?: any): PayloadAction<any, InferType<TyO[key], key>>;
+        type: InferType<TyO[key], key>;
+        toString: () => InferType<TyO[key], key>;
       }
     : A[key] extends never | undefined | void // No payload when type is `never`
     ? {
-        (): PayloadAction<undefined, Extract<key, string>>;
-        type: key;
-        toString: () => key;
+        (): PayloadAction<undefined, InferType<TyO[key], key>>;
+        type: InferType<TyO[key], key>;
+        toString: () => InferType<TyO[key], key>;
       }
     : A[key] extends NotEmptyObject
     ? {
-        (payload: A[key]): PayloadAction<A[key], Extract<key, string>>;
-        type: key;
-        toString: () => key;
+        (payload: A[key]): PayloadAction<A[key], InferType<TyO[key], key>>;
+        type: InferType<TyO[key], key>;
+        toString: () => InferType<TyO[key], key>;
       }
     : {} extends A[key] // ensures payload isn't inferred as {}
     ? {
-        (): PayloadAction<undefined, Extract<key, string>>;
-        type: key;
-        toString: () => key;
+        (): PayloadAction<undefined, InferType<TyO[key], key>>;
+        type: InferType<TyO[key], key>;
+        toString: () => InferType<TyO[key], key>;
       }
     : {
-        (payload: A[key]): PayloadAction<A[key], Extract<key, string>>;
-        type: key;
-        toString: () => key;
+        (payload: A[key]): PayloadAction<A[key], InferType<TyO[key], key>>;
+        type: InferType<TyO[key], key>;
+        toString: () => InferType<TyO[key], key>;
       }
 };
 
@@ -99,16 +102,17 @@ export type ActionCreators<A> = {
 /**
  * @interface Slice
  * @description The interface of the object returned by createSlice
- * @template A - is the [Action] creator interface
+ * @template Ax - is the [Action] creator interface
  * @template SS - [SliceState]
  * @template S - [State]
  * @template Slc - [slice]
  */
 export interface Slice<
-  A,
+  Ax,
   SS,
   SelectorMap extends { [s: string]: (s: SS) => any },
-  Computed extends { [s: string]: (s: SS) => any } = {}
+  Computed extends { [s: string]: (s: SS) => any },
+  TyO extends { [K in keyof Ax]?: string }
 > {
   /**
    * @description The generated reducer
@@ -122,14 +126,14 @@ export interface Slice<
    *
    * @memberof Slice
    */
-  actions: ActionCreators<A>;
+  actions: ActionCreators<Ax, TyO>;
 
   mapSelectorsTo: <P extends string[]>(
     ...paths: P
   ) => ReMappedSelectors<P, SS, SelectorMap & Computed>;
 }
 
-interface CreateSliceOptions<SS, Ax, Cx> {
+interface CreateSliceOptions<SS, Ax, Cx, TyO> {
   /**
    * The initial State, same as standard reducer
    *
@@ -147,13 +151,12 @@ interface CreateSliceOptions<SS, Ax, Cx> {
   cases: Cases<SS, Ax>;
 
   computed?: ComputedMap<SS, Cx>;
+
+  typeOverrides?: TyO;
 }
 
-type ComputedMap<S, C extends {}> = C extends NotEmptyObject
-  ? { [K in keyof C]: (state: S) => C[K] }
-  : {} extends C
-  ? {}
-  : { [K in keyof C]: (state: S) => C[K] };
+type ComputedMap<S, C extends {}> = { [K in keyof C]: (state: S) => C[K] };
+
 /**
  * @description Generates a redux state tree slice, complete with a `reducer`,
  *  `action creators` and `selectors`
@@ -190,39 +193,45 @@ type ComputedMap<S, C extends {}> = C extends NotEmptyObject
 export function createSlice<
   Actions extends ActionsMap,
   SliceState,
-  Computed extends ActionsMap
+  Computed extends ActionsMap = {},
+  TypeOverrides extends { [K in keyof Actions]?: string } = {}
 >({
   cases,
   initialState,
-}: CreateSliceOptions<SliceState, Actions, Computed>): Slice<
+}: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
   Actions,
   SliceState,
   Selectors<SliceState>,
-  ComputedMap<SliceState, Computed>
+  ComputedMap<SliceState, Computed>,
+  TypeOverrides
 >;
 export function createSlice<
   Actions extends ActionsMap,
   SliceState,
-  Computed extends ActionsMap
+  Computed extends ActionsMap = {},
+  TypeOverrides extends { [K in keyof Actions]?: string } = {}
 >({
   cases,
   initialState,
-}: CreateSliceOptions<SliceState, Actions, Computed>): Slice<
+}: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
   Actions,
   SliceState,
   Selectors<SliceState>,
-  ComputedMap<SliceState, Computed>
+  ComputedMap<SliceState, Computed>,
+  TypeOverrides
 >;
 
 export function createSlice<
   Actions extends ActionsMap,
   SliceState,
-  Computed extends ActionsMap
+  Computed extends ActionsMap = {},
+  TypeOverrides extends { [K in keyof Actions]?: string } = {}
 >({
   cases,
   initialState,
   computed = {} as any,
-}: CreateSliceOptions<SliceState, Actions, Computed>) {
+  typeOverrides = {} as TypeOverrides,
+}: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>) {
   const actionKeys = Object.keys(cases) as Array<
     Extract<keyof Actions, string>
   >;
@@ -232,13 +241,13 @@ export function createSlice<
     initialState,
   });
 
-  const actions = makeActionCreators<Actions>(actionKeys);
+  const actions = makeActionCreators<Actions, TypeOverrides>(
+    actionKeys,
+    typeOverrides,
+  );
   const baseSelectors = makeSelectors(initialState);
 
-  const mapSelectorsTo = makeReMapableSelectors({
-    ...baseSelectors,
-    ...reMapComputed(computed),
-  });
+  const mapSelectorsTo = makeReMapableSelectors(baseSelectors, computed);
 
   return {
     actions,

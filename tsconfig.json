@@ -1,5 +1,4 @@
 {
-  "compilerOptions": { "baseUrl": ".", "paths": { "*": ["types/*"] } },
   "extends": "./tsconfig.base.json",
   "include": ["./packages/**/*.ts"],
   "exclude": [

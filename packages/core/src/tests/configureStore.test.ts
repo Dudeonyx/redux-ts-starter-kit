@@ -175,8 +175,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     waves: 0,
   };
 
-  const hiSlice = createSlice<Actions, HiSliceState, 'hi'>({
-    slice: 'hi',
+  const hiSlice = createSlice<Actions, HiSliceState, {}>({
     cases: {
       setGreeting: (state, payload) => {
         state.greeting = payload;
@@ -214,7 +213,6 @@ describe('multiple createSlice reducers used to create a redux store', () => {
       },
       resetForm: (state, _: never) => formInitialState,
     },
-    slice: 'form',
     initialState: formInitialState,
   });
 
@@ -236,8 +234,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     userId: '',
   };
 
-  const authSlice = createSlice<AuthActions, AuthSliceState, 'auth'>({
-    slice: 'auth',
+  const authSlice = createSlice<AuthActions, AuthSliceState>({
     initialState: authInitialState,
     cases: {
       authLogout: (state) => {
@@ -431,70 +428,6 @@ describe('multiple createSlice reducers used to create a redux store', () => {
               userId: '',
             },
           });
-      });
-    });
-  });
-  describe('Selectors work as expected', () => {
-    describe('Selectors in formSlice', () => {
-      it('selects form', () => {
-        store.dispatch(formSlice.actions.setName('John'));
-        store.dispatch(formSlice.actions.setSurname('Wayne'));
-        store.dispatch(formSlice.actions.setMiddlename('Doe'));
-        expect(formSlice.selectors.selectSlice(store.getState())).toEqual({
-          name: 'John',
-          surname: 'Wayne',
-          middlename: 'Doe',
-        });
-      });
-      it('selects name in form', () => {
-        expect(formSlice.selectors.name(store.getState())).toEqual('John');
-      });
-      it('selects surname in form', () => {
-        expect(formSlice.selectors.surname(store.getState())).toEqual('Wayne');
-      });
-      it('selects middlename in form', () => {
-        expect(formSlice.selectors.middlename(store.getState())).toEqual('Doe');
-      });
-    });
-
-    describe('Selectors in hiSlice', () => {
-      it('selects hi', () => {
-        store.dispatch(hiSlice.actions.setWaves(5));
-        store.dispatch(hiSlice.actions.setGreeting('Kaydo!'));
-        expect(hiSlice.selectors.selectSlice(store.getState())).toEqual({
-          greeting: 'Kaydo!',
-          waves: 5,
-        });
-      });
-      it('selects greeting in hi', () => {
-        expect(hiSlice.selectors.greeting(store.getState())).toEqual('Kaydo!');
-      });
-      it('selects waves in hi', () => {
-        expect(hiSlice.selectors.waves(store.getState())).toEqual(5);
-      });
-    });
-    describe('Selectors in authSlice', () => {
-      it('selects auth', () => {
-        store.dispatch(
-          authSlice.actions.authLogin({
-            idToken: 'a random token',
-            userId: 'a user id',
-          }),
-        );
-        expect(authSlice.selectors.selectSlice(store.getState())).toEqual({
-          idToken: 'a random token',
-          userId: 'a user id',
-        });
-      });
-      it('selects idToken in auth', () => {
-        expect(authSlice.selectors.idToken(store.getState())).toEqual(
-          'a random token',
-        );
-      });
-      it('selects userId in auth', () => {
-        expect(authSlice.selectors.userId(store.getState())).toEqual(
-          'a user id',
-        );
       });
     });
   });

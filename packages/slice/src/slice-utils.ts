@@ -10,23 +10,23 @@ type InferSelectorMapState<Slctr> = Slctr extends {
   : never;
 type InferMapFnInput<MapFn> = MapFn extends (o: infer O) => any ? O : never;
 
-export const reMapComputed = <
+export const makeComputedSelectors = <
   P extends string[] & {
     length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   },
   ComputedMap extends { [s: string]: (s: any) => any }
 >(
-  computed: ComputedMap,
+  selectors: ComputedMap,
   ...paths: P
 ) => {
   type State = InferSelectorMapState<ComputedMap>;
   const mapFn = makeTypeSafeSelector(...paths)<State>();
   type Obj = InferMapFnInput<typeof mapFn>;
-  return (Object.keys(computed) as Array<keyof ComputedMap>).reduce<
+  return (Object.keys(selectors) as Array<keyof ComputedMap>).reduce<
     { [K in keyof ComputedMap]: (state: Obj) => ReturnType<ComputedMap[K]> }
   >(
     (map, key) => {
-      const memoed = memoize(computed[key]);
+      const memoed = memoize(selectors[key]);
       return {
         ...map,
         [key]: (s: Obj) => memoed(mapFn(s)),
@@ -69,9 +69,11 @@ export type ReMappedSelectors<
 };
 
 export const makeReMapableSelectors = <
-  SelectorMap extends { [s: string]: (s: any) => any }
+  SelectorMap extends { [s: string]: (s: any) => any },
+  ComputedMap extends { [s: string]: (s: any) => any }
 >(
   selectors: SelectorMap,
+  computed: ComputedMap,
 ) => {
   return <
     P extends string[] & {
@@ -79,15 +81,29 @@ export const makeReMapableSelectors = <
     }
   >(
     ...paths: P
-  ) => reMapSelectors(selectors, ...paths);
+  ) =>
+    reMapSelectors(
+      { ...selectors, ...makeComputedSelectors(computed) },
+      ...paths,
+    );
 };
 
-export const makeActionCreators = <Actions extends ActionsMap>(
+export const makeActionCreators = <
+  Actions extends ActionsMap,
+  TypeOverrides extends { [K in keyof Actions]?: string }
+>(
   actionKeys: Array<Extract<keyof Actions, string>>,
-): ActionCreators<Actions> => {
+  typeOverrides?: TypeOverrides,
+): ActionCreators<Actions, TypeOverrides> => {
   return actionKeys.reduce(
     (map, action) => {
-      map[action] = createAction(action);
+      const type =
+        typeOverrides &&
+        typeof typeOverrides[action] === 'string' &&
+        typeOverrides[action] !== ''
+          ? typeOverrides[action]!
+          : action;
+      map[action] = createAction(type);
       return map;
     },
     {} as any,
