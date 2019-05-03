@@ -5,4 +5,5 @@
 .rpt2_cache/
 lerna-debug.log
 .vscode/
+coverage/
 packages/core/src/examples/builtcheck.ts
