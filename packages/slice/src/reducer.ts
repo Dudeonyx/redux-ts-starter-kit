@@ -48,7 +48,7 @@ export function createReducer<S, A extends ActionsMap = ActionsMap>({
     return createNextState(state, (draft) => {
       const caseReducer = cases[action.type];
       if (caseReducer) {
-        return caseReducer(draft, action.payload);
+        return caseReducer(draft, action.payload, action.type);
       }
       return draft;
     }) as S;

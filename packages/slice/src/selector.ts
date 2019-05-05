@@ -1,5 +1,3 @@
-import memoize from 'memoize-state';
-
 export const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 type IncreaseNum<N extends number> = N extends 0
@@ -143,31 +141,44 @@ function getter<
     return object as any;
   }
   if (object == null) {
-    if (!IS_PRODUCTION) {
-      if (index !== 0) {
+    if (index !== 0) {
+      // tslint:disable-next-line: no-unused-expression
+      IS_PRODUCTION ||
         console.warn(
           'There is a possible mis-match between the "paths" and "object" in a getter resulting in an undefined value before the last path, The potentially bad path is "%s". The combined path leading up to here is "%s"',
           `['${paths[index - 1]}']`,
           `['${paths.slice(0, index).join('\'][\'')}']`,
         );
-      } else {
+    } else {
+      // tslint:disable-next-line: no-unused-expression
+      IS_PRODUCTION ||
         console.warn('A getter was called on an undefined or null value');
-      }
     }
+
     return object as any;
   }
   if (typeof object !== 'object') {
     // tslint:disable-next-line: no-unused-expression
     IS_PRODUCTION ||
       console.warn(
-        'Warning: You attempted to call a getter on a Non-Object value, The value is "%s", and the path to the value is %s',
+        'Warning: You attempted to call a getter on a Non-Object value, The value is "%s", and the path to the value is "%s"',
         object,
-        index === 0 ? '""' : `"['${paths.slice(0, index).join('\'][\'')}']"`,
+        index === 0 ? '' : `['${paths.slice(0, index).join('\'][\'')}']`,
       );
+    return undefined;
   }
   const key = paths[index];
   const nextIndex = index + 1;
   if (paths.length === nextIndex) {
+    if (!(key in object)) {
+      // tslint:disable-next-line: no-unused-expression
+      IS_PRODUCTION ||
+        console.warn(
+          'There is a possible mis-match between the final "path" argument and "object" in a getter resulting in an undefined value, The potentially bad final path is "%s". The combined path leading up to here is "%s"',
+          `['${key}']`,
+          `['${paths.join('\'][\'')}']`,
+        );
+    }
     return object[key];
   }
   return getter(paths, object[key], nextIndex);
@@ -180,6 +191,3 @@ export const A = <
 >(
   ...values: Ar
 ): Ar => values;
-
-export const makeMemoSelector = <S, R>(selector: (state: S) => R) =>
-  memoize(selector);

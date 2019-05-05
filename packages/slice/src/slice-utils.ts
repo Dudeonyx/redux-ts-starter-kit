@@ -1,7 +1,8 @@
 import { createAction } from './action';
 import { makeTypeSafeSelector, NestedObject, GetArrayLength } from './selector';
-import { ActionsMap, ActionCreators, Selectors } from './slice';
+import { ActionsMap, ActionCreators, Selectors, Cases } from './slice';
 import memoize from 'memoize-state';
+import { createReducer } from './reducer';
 
 type InferSelectorMapState<Slctr> = Slctr extends {
   [K in keyof Slctr]: (s: infer S) => any
@@ -110,6 +111,34 @@ export const makeActionCreators = <
   );
 };
 
+export const makeReducer = <
+  Ax extends ActionsMap,
+  TyO extends { [K in keyof Ax]?: string },
+  S
+>(
+  initialState: S,
+  casesInput: Cases<S, Ax, TyO>,
+  typeOverrides: TyO,
+) => {
+  const cases = (Object.keys(casesInput) as Array<keyof Ax>).reduce(
+    (map, key) => {
+      const type =
+        typeOverrides &&
+        typeof typeOverrides[key] === 'string' &&
+        typeOverrides[key] !== ''
+          ? typeOverrides[key]!
+          : key;
+      map[type] = casesInput[key];
+      return map;
+    },
+    {} as any,
+  );
+
+  return createReducer({
+    initialState,
+    cases,
+  });
+};
 export interface MakeSelectors {
   <SliceState>(initialState: SliceState, paths?: ''): Selectors<SliceState>;
   <SliceState, P extends string[]>(
@@ -121,16 +150,12 @@ export const makeSelectors: MakeSelectors = <SliceState, P extends string[]>(
   initialState: SliceState,
   ...paths: P
 ) => {
-  let initialStateKeys: Array<Extract<keyof SliceState, string>> = [];
-  if (
+  const initialStateKeys: Array<Extract<keyof SliceState, string>> =
     typeof initialState === 'object' &&
     initialState !== null &&
     !Array.isArray(initialState)
-  ) {
-    initialStateKeys = Object.keys(initialState) as Array<
-      Extract<keyof SliceState, string>
-    >;
-  }
+      ? (Object.keys(initialState) as Array<Extract<keyof SliceState, string>>)
+      : [];
   const otherSelectors = initialStateKeys.reduce<
     {
       [key in Extract<keyof SliceState, string>]: (

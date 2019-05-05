@@ -4,18 +4,19 @@ import {
   makeSelectors,
   makeReMapableSelectors,
   ReMappedSelectors,
+  makeReducer,
 } from './slice-utils';
 import { Draft } from 'immer';
-import { createReducer } from './reducer';
 
 interface NotEmptyObject {
   [s: string]: string | number | symbol | boolean | object | undefined | null;
   [s: number]: string | number | symbol | boolean | object | undefined | null;
 }
 /** Type alias for case reducers when `slice` is blank or undefined */
-type CaseReducer<S = any, P = any> = (
+type CaseReducer<S = any, P = any, T extends string = string> = (
   state: Draft<S>,
   payload: P,
+  type: T,
 ) => S | void | undefined;
 
 /** Type alias for the generated reducer */
@@ -30,8 +31,12 @@ export type Reducer<S = any, A extends AnyAction = AnyAction> = (
  * @template SS is the [SliceState] or [State]
  * @template A  is the [Action]
  */
-export type Cases<SS = any, Ax = any> = {
-  [K in keyof Ax]: CaseReducer<SS, Ax[K]>
+export type Cases<
+  SS,
+  Ax extends {},
+  TyO extends { [C in keyof Ax]?: string } = {}
+> = {
+  [K in keyof Ax]: CaseReducer<SS, Ax[K], InferType<TyO, Extract<K, string>>>
 };
 
 // type PayloadActionMap<A extends ActionCreators<any>> = {
@@ -62,39 +67,40 @@ export type Selectors<SS> = SS extends any[] | ReadonlyArray<any>
       selectSlice: (state: SS) => SS;
     };
 
-type InferType<Type, Fallback extends string> = Type extends string
-  ? Type
-  : Fallback;
+type InferType<
+  TyO extends { [s: string]: string | undefined },
+  Fallback extends string
+> = TyO extends { [K in Fallback]: string } ? TyO[Fallback] : Fallback;
 /** Type alias for generated action creators */
 export type ActionCreators<A, TyO extends { [K in keyof A]?: string } = {}> = {
   [key in Extract<keyof A, string>]: unknown extends A[key] // hacky ternary for `A[key]` = `any`
     ? {
-        (payload?: any): PayloadAction<any, InferType<TyO[key], key>>;
-        type: InferType<TyO[key], key>;
-        toString: () => InferType<TyO[key], key>;
+        (payload?: any): PayloadAction<any, InferType<TyO, key>>;
+        type: InferType<TyO, key>;
+        toString: () => InferType<TyO, key>;
       }
     : A[key] extends never | undefined | void // No payload when type is `never`
     ? {
-        (): PayloadAction<undefined, InferType<TyO[key], key>>;
-        type: InferType<TyO[key], key>;
-        toString: () => InferType<TyO[key], key>;
+        (): PayloadAction<undefined, InferType<TyO, key>>;
+        type: InferType<TyO, key>;
+        toString: () => InferType<TyO, key>;
       }
     : A[key] extends NotEmptyObject
     ? {
-        (payload: A[key]): PayloadAction<A[key], InferType<TyO[key], key>>;
-        type: InferType<TyO[key], key>;
-        toString: () => InferType<TyO[key], key>;
+        (payload: A[key]): PayloadAction<A[key], InferType<TyO, key>>;
+        type: InferType<TyO, key>;
+        toString: () => InferType<TyO, key>;
       }
     : {} extends A[key] // ensures payload isn't inferred as {}
     ? {
-        (): PayloadAction<undefined, InferType<TyO[key], key>>;
-        type: InferType<TyO[key], key>;
-        toString: () => InferType<TyO[key], key>;
+        (): PayloadAction<undefined, InferType<TyO, key>>;
+        type: InferType<TyO, key>;
+        toString: () => InferType<TyO, key>;
       }
     : {
-        (payload: A[key]): PayloadAction<A[key], InferType<TyO[key], key>>;
-        type: InferType<TyO[key], key>;
-        toString: () => InferType<TyO[key], key>;
+        (payload: A[key]): PayloadAction<A[key], InferType<TyO, key>>;
+        type: InferType<TyO, key>;
+        toString: () => InferType<TyO, key>;
       }
 };
 
@@ -148,7 +154,7 @@ interface CreateSliceOptions<SS, Ax, Cx, TyO> {
    * @type {Cases<SS, Ax>}
    * @memberof InputWithoutSlice
    */
-  cases: Cases<SS, Ax>;
+  cases: Cases<SS, Ax, TyO>;
 
   computed?: ComputedMap<SS, Cx>;
 
@@ -236,10 +242,7 @@ export function createSlice<
     Extract<keyof Actions, string>
   >;
 
-  const reducer = createReducer({
-    cases,
-    initialState,
-  });
+  const reducer = makeReducer(initialState, cases, typeOverrides);
 
   const actions = makeActionCreators<Actions, TypeOverrides>(
     actionKeys,

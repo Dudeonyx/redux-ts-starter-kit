@@ -186,18 +186,18 @@ const auth$NoInterface = createSlice({
     authenticated: (state) => !!state.idToken,
   },
   typeOverrides: {
-    auth_Fail$2: createType('auth/Fail'),
+    auth_Fail$2: createType('AUTH/FAIL'),
   },
   cases: {
-    auth_Fail$2: (state, payload: Error) => {
+    auth_Fail$2: (state, payload: Error, type) => {
       state.error = payload;
       state.authenticating = false;
     },
-    auth_Logout$2: (state, _n: never) => {
+    auth_Logout$2: (state, _n: never, type) => {
       state.idToken = null;
       state.userId = null;
     },
-    auth_Start$2: (state, payload) => {
+    auth_Start$2: (state, payload, type) => {
       state.authenticating = true;
     },
     auth_Success$2: (state, payload: AuthSuccess) => {

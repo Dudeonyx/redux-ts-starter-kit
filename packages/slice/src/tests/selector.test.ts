@@ -1,12 +1,6 @@
-import {
-  A,
-  makeGetter,
-  makeTypeSafeSelector,
-  get,
-  makeMemoSelector,
-} from '../selector';
+import { A, makeGetter, makeTypeSafeSelector, get } from '../selector';
 
-describe('makeGetter', () => {
+describe('makeGetter/makeTypeSafeSelector', () => {
   const property = A('property', 'fdf');
   const deepState = {
     some: {
@@ -63,6 +57,13 @@ describe('makeGetter', () => {
     'property',
     '0',
   )<string>();
+  const getter1D = makeTypeSafeSelector(
+    'another',
+    'deeply',
+    'nested',
+    'property',
+    '0',
+  ).bindToInput<typeof deepState2>();
   const getter2 = makeGetter(
     'anotherdf',
     'deeplyf',
@@ -78,171 +79,6 @@ describe('makeGetter', () => {
     'nested',
     'value1',
   )<number>();
-  let called = 0;
-  let called2 = 0;
-
-  it('should memo', () => {
-    const memoGetter1A = makeMemoSelector(
-      (state: {
-        another: {
-          deeply: {
-            nested: {
-              property: string[];
-            };
-          };
-        };
-      }) => {
-        called++;
-        return getter1A(state).length;
-      },
-    );
-
-    expect(memoGetter1A(deepState2)).toEqual(2);
-    expect(called).toBe(1);
-    expect(
-      memoGetter1A({
-        another: {
-          deeply: {
-            nested: {
-              property,
-            },
-          },
-        },
-      }),
-    ).toEqual(2);
-    expect(called).toBe(1);
-    expect(
-      memoGetter1A({
-        another: {
-          deeply: {
-            nested: {
-              property: ['property', 'fdf',],
-              otherProperty: 'fdfj',
-            },
-          },
-        },
-      } as any),
-    ).toEqual(2);
-    expect(called).toBe(1);
-    expect(
-      memoGetter1A({
-        another: {
-          deeply: {
-            nested: {
-              property: ['property', 'fdf', 'hello',],
-            },
-          },
-        },
-      }),
-    ).toEqual(3);
-    expect(called).toBe(2);
-    expect(
-      memoGetter1A({
-        another: {
-          deeply: {
-            nested: {
-              property: ['property', 'fdf', 'hello',],
-              meToo: 'asWell',
-            },
-          },
-        },
-      } as any),
-    ).toEqual(3);
-    expect(called).toBe(2);
-    expect(
-      memoGetter1A({
-        another: {
-          deeply: {
-            nested: {
-              property: ['prty', 'fd', 'hell',],
-              meToo: 'asWellds',
-            },
-          },
-        },
-      } as any),
-    ).toEqual(3);
-    expect(called).toBe(2);
-  });
-
-  it('should memo2', () => {
-    const deepState3 = {
-      some: {
-        very: {
-          really: {
-            deeply: {
-              nested: {
-                value: 'actual value',
-                value1: 1,
-                value2: 'irrelevant',
-              },
-            },
-          },
-        },
-      },
-    };
-    const memoGetter = makeMemoSelector((state: typeof deepState3) => {
-      called2++;
-      const nested = state.some.very.really.deeply.nested;
-      return nested.value + ' ' + nested.value1;
-    });
-
-    expect(memoGetter(deepState3)).toEqual('actual value 1');
-    expect(called2).toBe(1);
-    expect(
-      memoGetter({
-        some: {
-          very: {
-            really: {
-              deeply: {
-                nested: {
-                  value: 'actual value',
-                  value1: 1,
-                  value2: 'irrelevant',
-                },
-              },
-            },
-          },
-        },
-      }),
-    ).toEqual('actual value 1');
-    expect(called2).toBe(1);
-    expect(
-      memoGetter({
-        some: {
-          very: {
-            really: {
-              deeply: {
-                nested: {
-                  value: 'actual value',
-                  value1: 1,
-                  value2: 'irrelevant and unknown',
-                },
-              },
-            },
-          },
-        },
-      }),
-    ).toEqual('actual value 1');
-    expect(called2).toBe(1);
-    expect(
-      memoGetter({
-        some: {
-          very: {
-            really: {
-              deeply: {
-                nested: {
-                  value: 'actual value',
-                  value1: 2,
-                  value2: 'irrelevant and unknown',
-                },
-              },
-            },
-          },
-        },
-      }),
-    ).toEqual('actual value 2');
-    expect(called2).toBe(2);
-  });
 
   it('should make working selectors', () => {
     expect(getter0(deepState)).toEqual('actual value');
@@ -250,6 +86,7 @@ describe('makeGetter', () => {
     expect(getter1A(deepState)).toEqual(['property', 'fdf',]);
     expect(getter1B(deepState)).toEqual('property');
     expect(getter1C(deepState)).toEqual('property');
+    expect(getter1D(deepState)).toEqual('property');
     expect(getter3(deepState)).toEqual(1);
   });
 
@@ -261,7 +98,7 @@ describe('makeGetter', () => {
   });
   it('should warn for bad paths', () => {
     expect(getter2B(deepState as any)).toEqual(undefined);
-    expect(console.warn).toHaveBeenCalled();
+    expect(console.warn).toHaveBeenCalledTimes(1);
     const [message, badPath, paths,] = (console.warn as any).mock.calls[0];
     expect(message).toContain(
       'There is a possible mis-match between the "paths" and "object"',
@@ -273,5 +110,99 @@ describe('makeGetter', () => {
     expect(
       get(deepState, 'some', 'very', 'really', 'deeply', 'nested', 'value1'),
     ).toBe(1);
+  });
+  it('should warn when called with a null or undefined value', () => {
+    expect(get(null as any, 'a', 'path')).toBe(null);
+    expect(console.warn).toHaveBeenCalledTimes(1);
+    const [message,] = (console.warn as any).mock.calls[0];
+    expect(message).toContain(
+      'A getter was called on an undefined or null value',
+    );
+  });
+  it('should warn when called with non-object value', () => {
+    expect(get(5 as any, 'a', 'path', 'to', 'nowhere')).toBe(undefined);
+    expect(console.warn).toHaveBeenCalledTimes(1);
+    const [message, object, path,] = (console.warn as any).mock.calls[0];
+    expect(message).toContain(
+      'Warning: You attempted to call a getter on a Non-Object value, The value is',
+    );
+    expect(object).toBe(5);
+    expect(path).toBe('');
+  });
+  it('should warn when encountered non-object value along the paths', () => {
+    expect(get({ a: { path: 5 } as any }, 'a', 'path', 'to', 'nowhere')).toBe(
+      undefined,
+    );
+    expect(console.warn).toHaveBeenCalledTimes(1);
+    const [message, object, path,] = (console.warn as any).mock.calls[0];
+    expect(message).toContain(
+      'Warning: You attempted to call a getter on a Non-Object value, The value is',
+    );
+    expect(object).toBe(5);
+    expect(path).toBe('[\'a\'][\'path\']');
+  });
+});
+
+describe('makeTypeSafeSelector when first path argument is bad', () => {
+  const state = {
+    path: {
+      suddenly: {
+        appears: true,
+      },
+    },
+  };
+  it('should ignore the first arg if it is a blank string', () => {
+    const selector1 = makeTypeSafeSelector('', 'path', 'suddenly', 'appears')<
+      boolean
+    >();
+    const selector2 = makeTypeSafeSelector(
+      '',
+      'path',
+      'suddenly',
+      'appears',
+    ).bindToInput<typeof state>();
+    expect(selector1(state)).toBe(true);
+    expect(selector2(state)).toBe(true);
+  });
+});
+describe('makeTypeSafeSelector when final path argument is bad', () => {
+  const state = {
+    path: {
+      suddenly: {
+        appears: true,
+      },
+    },
+  };
+  beforeEach(() => {
+    console.warn = jest.fn();
+  });
+  it('should warn if the last path is not valid', () => {
+    const selector1 = makeTypeSafeSelector(
+      '',
+      'path',
+      'suddenly',
+      'appearssss',
+    )<boolean>();
+    const selector2 = makeTypeSafeSelector(
+      '',
+      'path',
+      'suddenly',
+      'appearssss',
+    ).bindToInput<any>();
+    expect(selector1(state as any)).not.toBeDefined();
+    expect(selector2(state as any)).not.toBeDefined();
+    expect(console.warn).toHaveBeenCalledTimes(2);
+    const [message0, path0, paths0,] = (console.warn as any).mock.calls[0];
+    const [message1, path1, paths1,] = (console.warn as any).mock.calls[1];
+    expect(message0).toContain(
+      'There is a possible mis-match between the final "path" argument and "object"',
+    );
+    expect(message1).toContain(
+      'There is a possible mis-match between the final "path" argument and "object"',
+    );
+    expect(path0).toBe('[\'appearssss\']');
+    expect(path1).toBe('[\'appearssss\']');
+    expect(paths0).toBe('[\'path\'][\'suddenly\'][\'appearssss\']');
+    expect(paths1).toBe('[\'path\'][\'suddenly\'][\'appearssss\']');
   });
 });
