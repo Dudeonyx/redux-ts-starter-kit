@@ -5,6 +5,17 @@ import { IordersReducerState, IDbOrders } from './types.d';
 import { createReducer } from '../reducer';
 import { createType } from '../action';
 
+export type Filters = 'ALL' | 'COMPLETE' | 'PENDING';
+const visibilitySlice = createSlice({
+  initialState: 'ALL' as Filters,
+  cases: {
+    setVisibilityFilter: (state, payload: Filters) => payload,
+  },
+});
+
+export const selectr = visibilitySlice.mapSelectorsTo('any').selectSlice;
+
+// type SFDF = Selectors<Filters>;
 interface HiSliceState {
   test: string;
   wow: number;

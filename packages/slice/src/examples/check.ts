@@ -128,3 +128,85 @@ const newLocal = {
   yolo: '',
 };
 const gs = ff(newLocal);
+
+function intGet<O extends { [s: string]: any }>(
+  object: O,
+  ...paths: never[]
+): O;
+function intGet<O extends { [s: string]: any }, P0 extends keyof O>(
+  object: O,
+  p0: P0,
+): O[P0];
+function intGet<
+  O extends { [s: string]: any },
+  P0 extends keyof O,
+  P1 extends keyof O[P0]
+>(object: O, p0: P0, p1: P1): O[P0][P1];
+function intGet<
+  O extends { [s: string]: any },
+  P0 extends keyof O,
+  P1 extends keyof O[P0],
+  P2 extends keyof O[P0][P1]
+>(object: O, p0: P0, p1: P1, p2: P2): O[P0][P1][P2];
+function intGet<
+  O extends { [s: string]: any },
+  P0 extends keyof O,
+  P1 extends keyof O[P0],
+  P2 extends keyof O[P0][P1],
+  P3 extends keyof O[P0][P1][P2]
+>(object: O, p0: P0, p1: P1, p2: P2, p3: P3): O[P0][P1][P2][P3];
+function intGet<
+  O extends { [s: string]: any },
+  P0 extends keyof O,
+  P1 extends keyof O[P0],
+  P2 extends keyof O[P0][P1],
+  P3 extends keyof O[P0][P1][P2],
+  P4 extends keyof O[P0][P1][P2][P3]
+>(object: O, p0: P0, p1: P1, p2: P2, p3: P3, p4: P4): O[P0][P1][P2][P3][P4];
+function intGet<
+  O extends { [s: string]: any },
+  P0 extends keyof O,
+  P1 extends keyof O[P0],
+  P2 extends keyof O[P0][P1],
+  P3 extends keyof O[P0][P1][P2],
+  P4 extends keyof O[P0][P1][P2][P3],
+  P5 extends keyof O[P0][P1][P2][P3][P4]
+>(
+  object: O,
+  p0: P0,
+  p1: P1,
+  p2: P2,
+  p3: P3,
+  p4: P4,
+  p5: P5,
+): O[P0][P1][P2][P3][P4][P5];
+function intGet(object: any, ...paths: any[]) {
+  return getter(paths, object);
+}
+
+type SlMp<S, M> = { [K in keyof M]: (s: S) => any };
+function reMapSelectors<
+  P extends string[] & {
+    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  },
+  S extends {},
+  MapS extends { [s: string]: any }
+>(selectors: SlMp<S, MapS>, ...paths: P): S {
+  return null as any;
+}
+
+const newLocale = {
+  sel: (state: { key: number }) => state.key,
+  sel1: (state: { key: number }) => state,
+};
+const chk = reMapSelectors(newLocale);
+type Selector<S, R> = (state: S) => R;
+export function createStructuredSelector<S, T>(
+  selectors: { [K in keyof T]: Selector<{ [E in keyof S]: S[E] }, T[K]> },
+): Selector<S, T> {
+  return selectors as any;
+}
+
+const chk2 = createStructuredSelector({
+  sel: (state: { key: number }) => state.key,
+});

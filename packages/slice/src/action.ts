@@ -1,14 +1,29 @@
 import { IS_PRODUCTION } from './selector';
 
-export function createAction<P = any, T extends string = string>(type: T) {
+function createAction<P = any, T extends string = string>(type: T) {
   const action = (payload: P) => ({
     type,
     payload,
   });
-
   action.type = `${type}` as T;
   action.toString = (): T => `${type}` as T;
   return action;
+}
+export function createSliceAction<T extends string, Sl extends string>(
+  type: T,
+  slice: Sl,
+) {
+  return <P>() => {
+    const action = (payload: P) => ({
+      type,
+      payload,
+      slice,
+    });
+    action.type = String(type) as T;
+    action.slice = String(slice) as Sl;
+    action.toString = (): T => String(type) as T;
+    return action;
+  };
 }
 
 export function createType(type: ''): never;
@@ -27,16 +42,7 @@ export function createType<T extends string>(type: T) {
 }
 
 export function createTypeSafeAction<T extends string>(type: T) {
-  return <P>() => {
-    const action = (payload: P) => ({
-      type,
-      payload,
-    });
-
-    action.type = `${type}` as T;
-    action.toString = (): T => `${type}` as T;
-    return action;
-  };
+  return <P>() => createAction<P, T>(type);
 }
 
 export const getActionType = (action: any) => `${action}`;

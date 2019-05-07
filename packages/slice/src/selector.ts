@@ -16,16 +16,24 @@ type IncreaseNum<N extends number> = N extends 0
   ? 7
   : N extends 7
   ? 8
+  : N extends 8
+  ? 9
+  : N extends 9
+  ? 10
+  : N extends 10
+  ? 11
   : never;
 
 export type NestedObject<
   S extends string[] | ReadonlyArray<string>,
   Start extends number,
-  Max extends number,
-  Fin
-> = Start extends Max
+  Fin,
+  Max extends number = GetArrayLength<S>
+> = number extends Start
+  ? never
+  : Start extends Max
   ? Fin
-  : { [K in S[Start]]: NestedObject<S, IncreaseNum<Start>, Max, Fin> };
+  : { [K in S[Start]]: NestedObject<S, IncreaseNum<Start>, Fin, Max> };
 
 export type GetArrayLength<S extends any[] | ReadonlyArray<any>> = S extends {
   length: infer L;
@@ -54,22 +62,26 @@ type Getter<
   ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]]
   : GetArrayLength<P> extends 8
   ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]][P[7]]
+  : GetArrayLength<P> extends 9
+  ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]][P[7]][P[8]]
+  : GetArrayLength<P> extends 10
+  ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]][P[7]][P[8]][P[9]]
   : never;
 
 export function makeTypeSafeSelector<P extends string[]>(
   slice: '',
   ...paths: P
 ): {
-  <V>(): (object: NestedObject<P, 0, GetArrayLength<P>, V>) => V;
-  bindToInput: <O extends NestedObject<P, 0, GetArrayLength<P>, any>>() => (
+  <V>(): (object: NestedObject<P, 0, V>) => V;
+  bindToInput: <O extends NestedObject<P, 0, any>>() => (
     object: O,
   ) => Getter<P, O>;
 };
 export function makeTypeSafeSelector<P extends string[]>(
   ...paths: P
 ): {
-  <V>(): (object: NestedObject<P, 0, GetArrayLength<P>, V>) => V;
-  bindToInput: <O extends NestedObject<P, 0, GetArrayLength<P>, any>>() => (
+  <V>(): (object: NestedObject<P, 0, V>) => V;
+  bindToInput: <O extends NestedObject<P, 0, any>>() => (
     object: O,
   ) => Getter<P, O>;
 };
@@ -82,14 +94,12 @@ export function makeTypeSafeSelector<
   return paths[0] !== ''
     ? Object.assign(
         <V>() => {
-          return (object: NestedObject<P, 0, GetArrayLength<P>, V>): V => {
-            return getter(paths, object as any) as any;
+          return (object: NestedObject<P, 0, V>): V => {
+            return getter(paths, object) as any;
           };
         },
         {
-          bindToInput: <
-            O extends NestedObject<P, 0, GetArrayLength<P>, any>
-          >() => {
+          bindToInput: <O extends NestedObject<P, 0, any>>() => {
             return (object: O): Getter<P, O> => {
               return getter(paths, object as any) as any;
             };
@@ -103,9 +113,7 @@ export function makeTypeSafeSelector<
           };
         },
         {
-          bindToInput: <
-            O extends NestedObject<P, 0, GetArrayLength<P>, any>
-          >() => {
+          bindToInput: <O extends NestedObject<P, 0, any>>() => {
             return (object: O): any => {
               return getter(paths.slice(1), object);
             };
@@ -115,13 +123,13 @@ export function makeTypeSafeSelector<
 }
 
 export const makeGetter = <P extends string[]>(...paths: P) => {
-  return (object: NestedObject<P, 0, GetArrayLength<P>, any>) => {
+  return (object: NestedObject<P, 0, any>) => {
     return getter(paths, object);
   };
 };
 
 export const get = <
-  O extends NestedObject<P, 0, GetArrayLength<P>, any>,
+  O extends NestedObject<P, 0, any>,
   P extends string[] | ReadonlyArray<string>
 >(
   object: O,
@@ -130,7 +138,7 @@ export const get = <
 
 function getter<
   P extends string[] | ReadonlyArray<string>,
-  O extends NestedObject<P, I, GetArrayLength<P>, any>,
+  O extends NestedObject<P, I, any>,
   I extends number = 0
 >(
   paths: P,

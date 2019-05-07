@@ -3,7 +3,10 @@ import {
   makeSelectors,
   reMapSelectors,
   makeComputedSelectors,
+  makeReducer,
+  makeReMapableSelectors,
 } from '../slice-utils';
+import { createType } from '../action';
 
 describe('makeActionCreators', () => {
   const actions = makeActionCreators(['setName', 'resetName',]);
@@ -183,7 +186,7 @@ describe('makeSelectors', () => {
   });
 });
 
-describe('makeComputedSelectors *incomplete*', () => {
+describe('makeComputedSelectors *could be more OCD*', () => {
   const testState = {
     a: {
       value: {
@@ -201,8 +204,6 @@ describe('makeComputedSelectors *incomplete*', () => {
 
   let calc0Called = 0;
   let calc1Called = 0;
-  let calc2Called = 0;
-  let calc3Called = 0;
 
   const computedSelectors = makeComputedSelectors({
     calc0: (state: typeof testState) => {
@@ -213,28 +214,11 @@ describe('makeComputedSelectors *incomplete*', () => {
       calc1Called++;
       return (state.onlyTheThirdIsUsed[2] as number) * state.anotherValue;
     },
-    calc2: (state: typeof testState) => {
-      calc2Called++;
-      return (
-        state.a.value.used.in.calculation *
-        (state.onlyTheThirdIsUsed[2] as number)
-      );
-    },
-    calc3: (state: typeof testState) => {
-      calc3Called++;
-      return (
-        state.anotherValue *
-        state.a.value.used.in.calculation *
-        (state.onlyTheThirdIsUsed[2] as number)
-      );
-    },
   });
   it('Works (calc0)', () => {
     expect(computedSelectors.calc0(testState)).toEqual(45);
     expect(calc0Called).toBe(1);
     expect(calc1Called).toBe(0);
-    expect(calc2Called).toBe(0);
-    expect(calc3Called).toBe(0);
     expect(
       computedSelectors.calc0({
         a: {
@@ -268,6 +252,96 @@ describe('makeComputedSelectors *incomplete*', () => {
     ).toEqual(90);
     expect(calc0Called).toBe(2);
   });
+
+  it('should work (calc1)', () => {
+    expect(computedSelectors.calc1(testState)).toEqual(27);
+    expect(calc1Called).toBe(1);
+    expect(
+      computedSelectors.calc1({
+        a: {
+          value: {
+            used: {
+              in: {
+                calculation: 5,
+              },
+            },
+          },
+        },
+        anotherValue: 9,
+
+        onlyTheThirdIsUsed: ['', '', 3,],
+      }),
+    ).toEqual(27);
+    expect(calc1Called).toBe(1);
+    expect(
+      computedSelectors.calc1({
+        a: {
+          value: {
+            used: {
+              in: {
+                calculation: 20, // changed
+              },
+            },
+          },
+        },
+        anotherValue: 9,
+
+        onlyTheThirdIsUsed: ['', '', 3,],
+      }),
+    ).toEqual(27);
+    expect(calc1Called).toBe(1);
+    expect(
+      computedSelectors.calc1({
+        a: {
+          value: {
+            used: {
+              in: {
+                calculation: 20,
+              },
+            },
+          },
+        },
+        anotherValue: 10, // changed
+
+        onlyTheThirdIsUsed: ['', '', 3,],
+      }),
+    ).toEqual(30);
+    expect(calc1Called).toBe(2);
+    expect(
+      computedSelectors.calc1({
+        a: {
+          value: {
+            used: {
+              in: {
+                calculation: 20,
+              },
+            },
+          },
+        },
+        anotherValue: 10, // changed
+
+        onlyTheThirdIsUsed: [5, '0', 3,], // no relevant change
+      }),
+    ).toEqual(30);
+    expect(calc1Called).toBe(2);
+    expect(
+      computedSelectors.calc1({
+        a: {
+          value: {
+            used: {
+              in: {
+                calculation: 20,
+              },
+            },
+          },
+        },
+        anotherValue: 10, // changed
+
+        onlyTheThirdIsUsed: [5, '0', 4,], // relevant change
+      }),
+    ).toEqual(40);
+    expect(calc1Called).toBe(3);
+  });
 });
 
 describe('ReMapSelectors', () => {
@@ -294,6 +368,7 @@ describe('ReMapSelectors', () => {
   };
 
   const selectors = makeSelectors(initialState, 'form');
+  const selectors1 = makeSelectors(initialState);
 
   const reMappedSelectors = reMapSelectors(
     selectors,
@@ -301,6 +376,14 @@ describe('ReMapSelectors', () => {
     'userA',
     'personalDetails',
     'updated',
+  );
+  const reMappedSelectors1 = reMapSelectors(
+    selectors1,
+    'data',
+    'userA',
+    'personalDetails',
+    'updated',
+    'form',
   );
 
   it('creates a reMapped `selectSlice` selector and additional selectors', () => {
@@ -316,6 +399,20 @@ describe('ReMapSelectors', () => {
       false,
     );
     expect(Object.keys(reMappedSelectors).length).toBe(4);
+    expect(Object.hasOwnProperty.call(reMappedSelectors1, 'selectSlice')).toBe(
+      true,
+    );
+    expect(Object.hasOwnProperty.call(reMappedSelectors1, 'name')).toBe(true);
+    expect(Object.hasOwnProperty.call(reMappedSelectors1, 'middlename')).toBe(
+      true,
+    );
+    expect(Object.hasOwnProperty.call(reMappedSelectors1, 'surname')).toBe(
+      true,
+    );
+    expect(Object.hasOwnProperty.call(reMappedSelectors1, 'lastname')).toBe(
+      false,
+    );
+    expect(Object.keys(reMappedSelectors1).length).toBe(4);
   });
 
   it('creates working reMapped selectors', () => {
@@ -327,5 +424,141 @@ describe('ReMapSelectors', () => {
     expect(reMappedSelectors.name(altState)).toEqual('Foo');
     expect(reMappedSelectors.middlename(altState)).toEqual('Bar');
     expect(reMappedSelectors.surname(altState)).toEqual('Baz');
+    expect(reMappedSelectors1.selectSlice(altState)).toEqual({
+      name: 'Foo',
+      middlename: 'Bar',
+      surname: 'Baz',
+    });
+    expect(reMappedSelectors1.name(altState)).toEqual('Foo');
+    expect(reMappedSelectors1.middlename(altState)).toEqual('Bar');
+    expect(reMappedSelectors1.surname(altState)).toEqual('Baz');
+  });
+});
+
+describe('makeReMappableSelectors', () => {
+  const initialState = {
+    name: '',
+    middlename: '',
+    surname: '',
+  };
+
+  const altState = {
+    data: {
+      userA: {
+        personalDetails: {
+          updated: {
+            form: {
+              name: 'Foo',
+              middlename: 'Bar',
+              surname: 'Baz',
+            },
+          },
+        },
+      },
+    },
+  };
+
+  const selectors = makeSelectors(initialState, 'form');
+  const computedSelectors = {
+    fullName: (state: { form: typeof initialState }) =>
+      state.form.name + ' ' + state.form.middlename + ' ' + state.form.surname,
+  };
+  const selectors1 = makeSelectors(initialState);
+  const computedSelectors1 = {
+    fullName: (state: typeof initialState) =>
+      state.name + ' ' + state.middlename + ' ' + state.surname,
+  };
+  const mapTo = makeReMapableSelectors(selectors, computedSelectors);
+  const mapTo1 = makeReMapableSelectors(selectors1, computedSelectors1);
+  it('should create a working mapTo utility', () => {
+    const reMapped = mapTo('data', 'userA', 'personalDetails', 'updated');
+    const reMapped1 = mapTo1(
+      'data',
+      'userA',
+      'personalDetails',
+      'updated',
+      'form',
+    );
+    expect(reMapped.selectSlice(altState)).toEqual({
+      name: 'Foo',
+      middlename: 'Bar',
+      surname: 'Baz',
+    });
+    expect(reMapped.name(altState)).toEqual('Foo');
+    expect(reMapped.middlename(altState)).toEqual('Bar');
+    expect(reMapped.surname(altState)).toEqual('Baz');
+    expect(reMapped.fullName(altState)).toEqual('Foo Bar Baz');
+    expect(reMapped1.selectSlice(altState)).toEqual({
+      name: 'Foo',
+      middlename: 'Bar',
+      surname: 'Baz',
+    });
+    expect(reMapped1.name(altState)).toEqual('Foo');
+    expect(reMapped1.middlename(altState)).toEqual('Bar');
+    expect(reMapped1.surname(altState)).toEqual('Baz');
+    expect(reMapped1.fullName(altState)).toEqual('Foo Bar Baz');
+  });
+});
+
+describe('makeReducer', () => {
+  const cases = {
+    increaseBy: (state: number, payload: number) => state + payload,
+    increase: (state: number) => state + 1,
+    decreaseBy: (state: number, payload: number) => state - payload,
+    decrease: (state: number) => state - 1,
+    reset: () => 0,
+  };
+  const typeOverrides = {
+    increase: 'counter/increase' as const,
+    decreaseBy: createType('counter/decreaseBy'),
+    reset: createType('RESET'),
+  };
+  describe('with typeOverrides', () => {
+    const reducer = makeReducer(0, cases, typeOverrides);
+    it('should respond to both overidden and non-overriden types', () => {
+      expect(
+        reducer(undefined, {
+          type: 'counter/increase',
+        }),
+      ).toEqual(1);
+      expect(
+        reducer(2, {
+          type: 'increaseBy',
+          payload: 5,
+        }),
+      ).toEqual(7);
+      expect(reducer(10, { type: 'decrease' })).toEqual(9);
+      expect(
+        reducer(10, {
+          type: 'counter/decreaseBy',
+          payload: 5,
+        }),
+      ).toEqual(5);
+      expect(reducer(10, { type: 'RESET' })).toEqual(0);
+    });
+  });
+  describe('without typeOverrides', () => {
+    const reducer = makeReducer(0, cases);
+    it('should work as expected with default types', () => {
+      expect(
+        reducer(undefined, {
+          type: 'increase',
+        }),
+      ).toEqual(1);
+      expect(
+        reducer(2, {
+          type: 'increaseBy',
+          payload: 5,
+        }),
+      ).toEqual(7);
+      expect(reducer(10, { type: 'decrease' })).toEqual(9);
+      expect(
+        reducer(10, {
+          type: 'decreaseBy',
+          payload: 5,
+        }),
+      ).toEqual(5);
+      expect(reducer(10, { type: 'reset' })).toEqual(0);
+    });
   });
 });

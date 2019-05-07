@@ -1,40 +1,42 @@
-import { createAction } from './action';
-import { makeTypeSafeSelector, NestedObject, GetArrayLength } from './selector';
-import { ActionsMap, ActionCreators, Selectors, Cases } from './slice';
+import { createTypeSafeAction, createSliceAction } from './action';
+import { makeTypeSafeSelector, NestedObject } from './selector';
+import { ActionsMap, ActionCreators, Selectors, Cases, Reducer } from './slice';
 import memoize from 'memoize-state';
 import { createReducer } from './reducer';
+import { AnyAction, PayloadAction } from './types';
 
-type InferSelectorMapState<Slctr> = Slctr extends {
-  [K in keyof Slctr]: (s: infer S) => any
-}
-  ? S
-  : never;
-type InferMapFnInput<MapFn> = MapFn extends (o: infer O) => any ? O : never;
+// type InferSelectorMapState<Slctr> = Slctr extends {
+//   [K in keyof Slctr]: (s: infer S) => any
+// }
+//   ? S
+//   : never;
+export type ArgOf<Fn> = Fn extends (o: infer O) => any ? O : never;
 
 export const makeComputedSelectors = <
-  P extends string[] & {
-    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-  },
   ComputedMap extends { [s: string]: (s: any) => any }
 >(
   selectors: ComputedMap,
-  ...paths: P
 ) => {
-  type State = InferSelectorMapState<ComputedMap>;
-  const mapFn = makeTypeSafeSelector(...paths)<State>();
-  type Obj = InferMapFnInput<typeof mapFn>;
   return (Object.keys(selectors) as Array<keyof ComputedMap>).reduce<
-    { [K in keyof ComputedMap]: (state: Obj) => ReturnType<ComputedMap[K]> }
+    ComputedMap
   >(
     (map, key) => {
       const memoed = memoize(selectors[key]);
       return {
         ...map,
-        [key]: (s: Obj) => memoed(mapFn(s)),
+        [key]: memoed,
       };
     },
     {} as any,
   );
+};
+const reMapSelector = <S, R, P extends string[]>(
+  selector: (state: S) => R,
+  ...paths: P
+): ReMappedSelector<P, typeof selector> => {
+  const mapFn = makeTypeSafeSelector(...paths)<S>();
+  type Obj = ArgOf<typeof mapFn>;
+  return (state: Obj) => selector(mapFn(state));
 };
 export const reMapSelectors = <
   P extends string[] & {
@@ -44,16 +46,13 @@ export const reMapSelectors = <
 >(
   selectors: SelectorMap,
   ...paths: P
-) => {
-  type State = InferSelectorMapState<SelectorMap>;
-  const mapFn = makeTypeSafeSelector(...paths)<State>();
-  type Obj = InferMapFnInput<typeof mapFn>;
+): ReMappedSelectors<P, SelectorMap> => {
   return (Object.keys(selectors) as Array<keyof SelectorMap>).reduce<
-    { [K in keyof SelectorMap]: (state: Obj) => ReturnType<SelectorMap[K]> }
+    ReMappedSelectors<P, SelectorMap>
   >(
     (map, key) => ({
       ...map,
-      [key]: (s: Obj) => selectors[key](mapFn(s)),
+      [key]: reMapSelector(selectors[key], ...paths),
     }),
     {} as any,
   );
@@ -61,21 +60,44 @@ export const reMapSelectors = <
 
 export type ReMappedSelectors<
   P extends string[],
-  SS,
-  Selects extends { [s: string]: (state: SS) => any }
-> = {
-  [K in keyof Selects]: (
-    state: NestedObject<P, 0, GetArrayLength<P>, SS>,
-  ) => ReturnType<Selects[K]>
-};
+  Selects extends { [s: string]: (state: any) => any }
+> = { [K in keyof Selects]: ReMappedSelector<P, Selects[K]> };
 
-export const makeReMapableSelectors = <
+type ReMappedSelector<
+  P extends string[],
+  Select extends (state: any) => any
+> = (state: NestedObject<P, 0, ArgOf<Select>>) => ReturnType<Select>;
+
+export function makeReMapableSelectors<
+  SelectorMap extends { [s: string]: (s: any) => any }
+>(
+  selectors: SelectorMap,
+): <
+  P extends string[] & {
+    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  }
+>(
+  ...paths: P
+) => ReMappedSelectors<P, SelectorMap>;
+
+export function makeReMapableSelectors<
   SelectorMap extends { [s: string]: (s: any) => any },
   ComputedMap extends { [s: string]: (s: any) => any }
 >(
   selectors: SelectorMap,
   computed: ComputedMap,
-) => {
+): <
+  P extends string[] & {
+    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  }
+>(
+  ...paths: P
+) => ReMappedSelectors<P, SelectorMap & ComputedMap>;
+
+export function makeReMapableSelectors<
+  SelectorMap extends { [s: string]: (s: any) => any },
+  ComputedMap extends { [s: string]: (s: any) => any }
+>(selectors: SelectorMap, computed: ComputedMap = {} as any) {
   return <
     P extends string[] & {
       length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
@@ -87,24 +109,19 @@ export const makeReMapableSelectors = <
       { ...selectors, ...makeComputedSelectors(computed) },
       ...paths,
     );
-};
+}
 
 export const makeActionCreators = <
   Actions extends ActionsMap,
   TypeOverrides extends { [K in keyof Actions]?: string }
 >(
   actionKeys: Array<Extract<keyof Actions, string>>,
-  typeOverrides?: TypeOverrides,
+  typeOverrides: TypeOverrides = {} as TypeOverrides,
 ): ActionCreators<Actions, TypeOverrides> => {
   return actionKeys.reduce(
     (map, action) => {
-      const type =
-        typeOverrides &&
-        typeof typeOverrides[action] === 'string' &&
-        typeOverrides[action] !== ''
-          ? typeOverrides[action]!
-          : action;
-      map[action] = createAction(type);
+      const type = pickType<Actions, TypeOverrides>(typeOverrides, action);
+      map[action] = createTypeSafeAction(type)();
       return map;
     },
     {} as any,
@@ -113,21 +130,18 @@ export const makeActionCreators = <
 
 export const makeReducer = <
   Ax extends ActionsMap,
-  TyO extends { [K in keyof Ax]?: string },
-  S
+  S,
+  TyO extends { [K in keyof Ax]?: string }
 >(
   initialState: S,
   casesInput: Cases<S, Ax, TyO>,
-  typeOverrides: TyO,
+  typeOverrides: TyO = {} as TyO,
 ) => {
-  const cases = (Object.keys(casesInput) as Array<keyof Ax>).reduce(
+  const cases = (Object.keys(casesInput) as Array<
+    Extract<keyof Ax, string>
+  >).reduce(
     (map, key) => {
-      const type =
-        typeOverrides &&
-        typeof typeOverrides[key] === 'string' &&
-        typeOverrides[key] !== ''
-          ? typeOverrides[key]!
-          : key;
+      const type = pickType<Ax, TyO>(typeOverrides, key);
       map[type] = casesInput[key];
       return map;
     },
@@ -144,7 +158,7 @@ export interface MakeSelectors {
   <SliceState, P extends string[]>(
     initialState: SliceState,
     ...paths: P
-  ): ReMappedSelectors<P, SliceState, Selectors<SliceState>>;
+  ): ReMappedSelectors<P, Selectors<SliceState>>;
 }
 export const makeSelectors: MakeSelectors = <SliceState, P extends string[]>(
   initialState: SliceState,
@@ -174,3 +188,47 @@ export const makeSelectors: MakeSelectors = <SliceState, P extends string[]>(
     ...otherSelectors,
   };
 };
+
+export const makeNameSpacedReducer = <S, A extends ActionCreators<any, any>>(
+  reducer: Reducer<S>,
+  actions: A,
+) => {
+  return <Sl extends string>(slice: Sl) => {
+    const initialState = reducer(undefined, { type: '^&&@@^&&^$$&**%' });
+    const sliceReducer = (state: S = initialState, action: AnyAction) => {
+      if (slice !== action.slice) {
+        return state;
+      }
+      return reducer(state, action);
+    };
+    sliceReducer.toString = (): Sl => String(slice) as Sl;
+    const sliceActions = (Object.entries(actions) as Array<
+      [keyof A, A[keyof A]]
+    >).reduce<{ [K in keyof A]: A[K] & { slice: Sl } }>(
+      (map, [key, fn,]) => {
+        return {
+          ...map,
+          [key]: createSliceAction(fn.type, slice)<
+            InferActionCreatorPayload<typeof fn>
+          >(),
+        };
+      },
+      {} as any,
+    );
+
+    return { sliceReducer, sliceActions };
+  };
+};
+
+type InferActionCreatorPayload<A> = A extends () => PayloadAction<infer P, any>
+  ? P
+  : never;
+
+function pickType<
+  Ax extends ActionsMap,
+  TyO extends { [K in keyof Ax]?: string }
+>(typeOverrides: TyO, key: Extract<keyof Ax, string>) {
+  return typeof typeOverrides[key] === 'string' && typeOverrides[key] !== ''
+    ? typeOverrides[key]!
+    : key;
+}

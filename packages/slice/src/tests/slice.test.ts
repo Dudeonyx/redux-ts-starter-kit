@@ -3,7 +3,7 @@ import { combineReducers } from 'redux';
 import { createType } from '../action';
 
 describe('createSlice', () => {
-  describe('when slice is empty', () => {
+  describe('General useage', () => {
     type State = number;
     interface Actions {
       increment: never;
@@ -61,52 +61,6 @@ describe('createSlice', () => {
       it('should return the slice state data', () => {
         expect(selectors.selectSlice(2)).toEqual(2);
       });
-    });
-  });
-
-  describe('when passing slice', () => {
-    const { actions, reducer, mapSelectorsTo } = createSlice({
-      cases: {
-        increment: (state) => state + 1,
-        multiply: (state: number, payload: number) => state * payload,
-      },
-      initialState: 0,
-    });
-    const selectors = mapSelectorsTo('cool');
-
-    it('should create increment action', () => {
-      expect(actions.hasOwnProperty('increment')).toBe(true);
-    });
-    it('should create multiply action', () => {
-      expect(actions.hasOwnProperty('multiply')).toBe(true);
-    });
-
-    it('should have the correct action for increment', () => {
-      expect(actions.increment()).toEqual({
-        type: 'increment',
-        payload: undefined,
-      });
-    });
-    it('should have the correct action for multiply', () => {
-      expect(actions.multiply(5)).toEqual({
-        type: 'multiply',
-        payload: 5,
-      });
-    });
-
-    it('should return the correct value from reducer', () => {
-      expect(reducer(undefined, actions.increment())).toEqual(1);
-    });
-    it('should return the correct value from reducer when multiplying', () => {
-      expect(reducer(5, actions.multiply(5))).toEqual(25);
-    });
-
-    it('should create selector with correct name', () => {
-      expect(selectors.hasOwnProperty('selectSlice')).toBe(true);
-    });
-
-    it('should return the slice state data', () => {
-      expect(selectors.selectSlice({ cool: 2 })).toEqual(2);
     });
   });
 
@@ -293,7 +247,7 @@ describe('createSlice', () => {
   });
 
   describe('When overridding types', () => {
-    const { actions } = createSlice({
+    const { actions, reducer } = createSlice({
       initialState: 0,
       cases: {
         increaseBy: (state, payload: number) => state + payload,
@@ -312,12 +266,218 @@ describe('createSlice', () => {
     test('should leave unspecified actions types untouched', () => {
       expect(actions.decrease.type).toEqual('decrease');
       expect(actions.increaseBy.type).toEqual('increaseBy');
+      expect(actions.decrease()).toEqual({
+        type: 'decrease',
+        payload: undefined,
+      });
+      expect(actions.increaseBy(5)).toEqual({ type: 'increaseBy', payload: 5 });
     });
 
     test('should override specified actions types', () => {
       expect(actions.reset.type).toEqual('RESET');
       expect(actions.increase.type).toEqual('counter/increase');
       expect(actions.decreaseBy.type).toEqual('counter/decreaseBy');
+      expect(actions.reset()).toEqual({ type: 'RESET', payload: undefined });
+      expect(actions.increase()).toEqual({
+        type: 'counter/increase',
+        payload: undefined,
+      });
+      expect(actions.decreaseBy(3)).toEqual({
+        type: 'counter/decreaseBy',
+        payload: 3,
+      });
+    });
+    it('should respond to non-overridden types in its reducer', () => {
+      expect(reducer(11, actions.decrease())).toEqual(10);
+      expect(reducer(10, actions.increaseBy(5))).toEqual(15);
+    });
+    it('should respond to overridden types in its reducer', () => {
+      expect(reducer(0, actions.increase())).toEqual(1);
+      expect(reducer(10, actions.decreaseBy(5))).toEqual(5);
+      expect(reducer(25, actions.reset())).toEqual(0);
+    });
+  });
+
+  describe('createNameSpacedReducer', () => {
+    const { createNameSpacedReducer, actions } = createSlice({
+      initialState: 0,
+      cases: {
+        increaseBy: (state, payload: number) => state + payload,
+        increase: (state) => state + 1,
+        decreaseBy: (state, payload: number) => state - payload,
+        decrease: (state) => state - 1,
+        reset: () => 0,
+      },
+      typeOverrides: {
+        increase: 'counter/increase' as const,
+        decreaseBy: createType('counter/decreaseBy'),
+        reset: createType('RESET'),
+      },
+    });
+    const counter_A = createNameSpacedReducer('counter_A');
+    const counter_B = createNameSpacedReducer('counter_B');
+
+    describe('sliceActions', () => {
+      it('should create slice actions', () => {
+        expect(counter_A.sliceActions.decrease()).toEqual({
+          type: 'decrease',
+          payload: undefined,
+          slice: 'counter_A',
+        });
+        expect(counter_B.sliceActions.decrease()).toEqual({
+          type: 'decrease',
+          payload: undefined,
+          slice: 'counter_B',
+        });
+        expect(counter_A.sliceActions.decreaseBy(3)).toEqual({
+          type: 'counter/decreaseBy',
+          payload: 3,
+          slice: 'counter_A',
+        });
+        expect(counter_B.sliceActions.decreaseBy(3)).toEqual({
+          type: 'counter/decreaseBy',
+          payload: 3,
+          slice: 'counter_B',
+        });
+      });
+    });
+
+    describe('sliceReducers', () => {
+      it('should initialize correctly', () => {
+        expect(counter_A.sliceReducer(undefined, { type: '@@init@@' })).toEqual(
+          0,
+        );
+        expect(counter_B.sliceReducer(undefined, { type: '@@init@@' })).toEqual(
+          0,
+        );
+      });
+      it('should ignore actions without matching `slice` prop', () => {
+        expect(
+          counter_A.sliceReducer(undefined, { type: actions.increase.type }),
+        ).toEqual(0);
+        expect(
+          counter_B.sliceReducer(undefined, { type: actions.increase.type }),
+        ).toEqual(0);
+        expect(
+          counter_A.sliceReducer(2, { type: 'increaseBy', payload: 5 }),
+        ).toEqual(2);
+        expect(
+          counter_B.sliceReducer(2, { type: 'increaseBy', payload: 5 }),
+        ).toEqual(2);
+        expect(
+          counter_A.sliceReducer(10, {
+            type: 'counter/decreaseBy',
+            payload: 5,
+            slice: 'counter_B',
+          }),
+        ).toEqual(10);
+        expect(
+          counter_B.sliceReducer(10, {
+            type: 'counter/decreaseBy',
+            payload: 5,
+            slice: 'counter_A',
+          }),
+        ).toEqual(10);
+        expect(
+          counter_A.sliceReducer(10, { type: 'RESET', slice: 'counter_B' }),
+        ).toEqual(10);
+        expect(
+          counter_B.sliceReducer(10, { type: 'RESET', slice: 'counter_A' }),
+        ).toEqual(10);
+        expect(
+          counter_A.sliceReducer(10, counter_B.sliceActions.decrease()),
+        ).toEqual(10);
+        expect(
+          counter_B.sliceReducer(10, counter_A.sliceActions.decrease()),
+        ).toEqual(10);
+      });
+
+      it('should respond to actions with a matching slice prop', () => {
+        expect(
+          counter_A.sliceReducer(undefined, {
+            type: actions.increase.type,
+            slice: 'counter_A',
+          }),
+        ).toEqual(1);
+        expect(
+          counter_B.sliceReducer(undefined, {
+            type: actions.increase.type,
+            slice: 'counter_B',
+          }),
+        ).toEqual(1);
+        expect(
+          counter_A.sliceReducer(2, {
+            type: 'increaseBy',
+            payload: 5,
+            slice: 'counter_A',
+          }),
+        ).toEqual(7);
+        expect(
+          counter_B.sliceReducer(2, {
+            type: 'increaseBy',
+            payload: 5,
+            slice: 'counter_B',
+          }),
+        ).toEqual(7);
+        expect(
+          counter_A.sliceReducer(10, { type: 'decrease', slice: 'counter_A' }),
+        ).toEqual(9);
+        expect(
+          counter_B.sliceReducer(10, { type: 'decrease', slice: 'counter_B' }),
+        ).toEqual(9);
+        expect(
+          counter_A.sliceReducer(10, {
+            type: 'counter/decreaseBy',
+            payload: 5,
+            slice: 'counter_A',
+          }),
+        ).toEqual(5);
+        expect(
+          counter_B.sliceReducer(10, {
+            type: 'counter/decreaseBy',
+            payload: 5,
+            slice: 'counter_B',
+          }),
+        ).toEqual(5);
+        expect(
+          counter_A.sliceReducer(10, { type: 'RESET', slice: 'counter_A' }),
+        ).toEqual(0);
+        expect(
+          counter_B.sliceReducer(10, { type: 'RESET', slice: 'counter_B' }),
+        ).toEqual(0);
+      });
+      it('should create action creators that create actions with matching slice prop', () => {
+        expect(
+          counter_A.sliceReducer(undefined, counter_A.sliceActions.increase()),
+        ).toEqual(1);
+        expect(
+          counter_B.sliceReducer(undefined, counter_B.sliceActions.increase()),
+        ).toEqual(1);
+        expect(
+          counter_A.sliceReducer(2, counter_A.sliceActions.increaseBy(5)),
+        ).toEqual(7);
+        expect(
+          counter_B.sliceReducer(2, counter_B.sliceActions.increaseBy(5)),
+        ).toEqual(7);
+        expect(
+          counter_A.sliceReducer(10, counter_A.sliceActions.decrease()),
+        ).toEqual(9);
+        expect(
+          counter_B.sliceReducer(10, counter_B.sliceActions.decrease()),
+        ).toEqual(9);
+        expect(
+          counter_A.sliceReducer(10, counter_A.sliceActions.decreaseBy(5)),
+        ).toEqual(5);
+        expect(
+          counter_B.sliceReducer(10, counter_B.sliceActions.decreaseBy(5)),
+        ).toEqual(5);
+        expect(
+          counter_A.sliceReducer(10, counter_A.sliceActions.reset()),
+        ).toEqual(0);
+        expect(
+          counter_B.sliceReducer(10, counter_B.sliceActions.reset()),
+        ).toEqual(0);
+      });
     });
   });
 });

@@ -5,6 +5,7 @@ import {
   makeReMapableSelectors,
   ReMappedSelectors,
   makeReducer,
+  makeNameSpacedReducer,
 } from './slice-utils';
 import { Draft } from 'immer';
 
@@ -114,11 +115,9 @@ export type ActionCreators<A, TyO extends { [K in keyof A]?: string } = {}> = {
  * @template Slc - [slice]
  */
 export interface Slice<
-  Ax,
+  Ax extends ActionCreators<any, any>,
   SS,
-  SelectorMap extends { [s: string]: (s: SS) => any },
-  Computed extends { [s: string]: (s: SS) => any },
-  TyO extends { [K in keyof Ax]?: string }
+  SelectorMap extends { [s: string]: (s: SS) => any }
 > {
   /**
    * @description The generated reducer
@@ -132,11 +131,26 @@ export interface Slice<
    *
    * @memberof Slice
    */
-  actions: ActionCreators<Ax, TyO>;
+  actions: Ax;
 
-  mapSelectorsTo: <P extends string[]>(
+  mapSelectorsTo: <
+    P extends string[] & {
+      length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+    }
+  >(
     ...paths: P
-  ) => ReMappedSelectors<P, SS, SelectorMap & Computed>;
+  ) => ReMappedSelectors<P, SelectorMap>;
+
+  createNameSpacedReducer: <Sl extends string>(
+    slice: Sl,
+  ) => {
+    sliceReducer: Reducer<SS> & { toString: () => Sl };
+    sliceActions: {
+      [K in keyof Ax]: Ax[K] & {
+        slice: Sl;
+      }
+    };
+  };
 }
 
 interface CreateSliceOptions<SS, Ax, Cx, TyO> {
@@ -205,11 +219,9 @@ export function createSlice<
   cases,
   initialState,
 }: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
-  Actions,
+  ActionCreators<Actions, TypeOverrides>,
   SliceState,
-  Selectors<SliceState>,
-  ComputedMap<SliceState, Computed>,
-  TypeOverrides
+  (Selectors<SliceState>) & ComputedMap<SliceState, Computed>
 >;
 export function createSlice<
   Actions extends ActionsMap,
@@ -220,11 +232,9 @@ export function createSlice<
   cases,
   initialState,
 }: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
-  Actions,
+  ActionCreators<Actions, TypeOverrides>,
   SliceState,
-  Selectors<SliceState>,
-  ComputedMap<SliceState, Computed>,
-  TypeOverrides
+  (Selectors<SliceState>) & ComputedMap<SliceState, Computed>
 >;
 
 export function createSlice<
@@ -237,7 +247,11 @@ export function createSlice<
   initialState,
   computed = {} as any,
   typeOverrides = {} as TypeOverrides,
-}: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>) {
+}: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
+  ActionCreators<Actions, TypeOverrides>,
+  SliceState,
+  (Selectors<SliceState>) & ComputedMap<SliceState, Computed>
+> {
   const actionKeys = Object.keys(cases) as Array<
     Extract<keyof Actions, string>
   >;
@@ -250,11 +264,14 @@ export function createSlice<
   );
   const baseSelectors = makeSelectors(initialState);
 
+  const createNameSpacedReducer = makeNameSpacedReducer(reducer, actions);
+
   const mapSelectorsTo = makeReMapableSelectors(baseSelectors, computed);
 
   return {
     actions,
     reducer,
     mapSelectorsTo,
+    createNameSpacedReducer,
   };
 }
