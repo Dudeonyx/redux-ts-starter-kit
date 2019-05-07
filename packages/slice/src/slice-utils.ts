@@ -17,18 +17,13 @@ export const makeComputedSelectors = <
 >(
   selectors: ComputedMap,
 ) => {
-  return (Object.keys(selectors) as Array<keyof ComputedMap>).reduce<
-    ComputedMap
-  >(
-    (map, key) => {
-      const memoed = memoize(selectors[key]);
-      return {
-        ...map,
-        [key]: memoed,
-      };
-    },
-    {} as any,
-  );
+  const temp = {} as ComputedMap;
+  (Object.keys(selectors) as Array<keyof ComputedMap>).forEach((key) => {
+    temp[key] = memoize(selectors[key].bind(
+      temp,
+    ) as ComputedMap[keyof ComputedMap]);
+  });
+  return temp;
 };
 const reMapSelector = <S, R, P extends string[]>(
   selector: (state: S) => R,
@@ -68,36 +63,45 @@ export type ReMappedSelector<
   Select extends (state: any) => any
 > = (state: NestedObject<P, 0, ArgOf<Select>>) => ReturnType<Select>;
 
+export interface Paths<
+  SelectorMap extends { [s: string]: (state: any) => any }
+> {
+  <
+    P extends string[] & {
+      length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+    }
+  >(
+    p0: '',
+    ...paths: P
+  ): ReMappedSelectors<P, SelectorMap>;
+  <
+    P extends string[] & {
+      length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+    }
+  >(
+    ...paths: P
+  ): ReMappedSelectors<P, SelectorMap>;
+}
 export function makeReMapableSelectors<
   SelectorMap extends { [s: string]: (s: any) => any }
->(
-  selectors: SelectorMap,
-): <
-  P extends string[] & {
-    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-  }
->(
-  ...paths: P
-) => ReMappedSelectors<P, SelectorMap>;
+>(selectors: SelectorMap): Paths<SelectorMap>;
 
 export function makeReMapableSelectors<
   SelectorMap extends { [s: string]: (s: any) => any },
-  ComputedMap extends { [s: string]: (s: any) => any }
+  ComputedMap extends { [s: string]: (s: any) => any },
+  S
 >(
   selectors: SelectorMap,
   computed: ComputedMap,
-): <
-  P extends string[] & {
-    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-  }
->(
-  ...paths: P
-) => ReMappedSelectors<P, SelectorMap & ComputedMap>;
+): Paths<SelectorMap & ComputedMap>;
 
 export function makeReMapableSelectors<
   SelectorMap extends { [s: string]: (s: any) => any },
   ComputedMap extends { [s: string]: (s: any) => any }
->(selectors: SelectorMap, computed: ComputedMap = {} as any) {
+>(
+  selectors: SelectorMap,
+  computed: ComputedMap = {} as any,
+): Paths<SelectorMap & ComputedMap> {
   return <
     P extends string[] & {
       length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
@@ -189,10 +193,21 @@ export const makeSelectors: MakeSelectors = <SliceState, P extends string[]>(
   };
 };
 
+export type CreateNameSpace<SS, Ax> = <Sl extends string>(
+  slice: Sl,
+) => {
+  sliceReducer: Reducer<SS> & { toString: () => Sl };
+  sliceActions: {
+    [K in keyof Ax]: Ax[K] & {
+      slice: Sl;
+    }
+  };
+};
+
 export const makeNameSpacedReducer = <S, A extends ActionCreators<any, any>>(
   reducer: Reducer<S>,
   actions: A,
-) => {
+): CreateNameSpace<S, A> => {
   return <Sl extends string>(slice: Sl) => {
     const initialState = reducer(undefined, { type: '^&&@@^&&^$$&**%' });
     const sliceReducer = (state: S = initialState, action: AnyAction) => {

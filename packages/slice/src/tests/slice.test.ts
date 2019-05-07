@@ -299,7 +299,7 @@ describe('createSlice', () => {
   });
 
   describe('createNameSpacedReducer', () => {
-    const { createNameSpacedReducer, actions } = createSlice({
+    const { createNameSpace: createNameSpacedReducer, actions } = createSlice({
       initialState: 0,
       cases: {
         increaseBy: (state, payload: number) => state + payload,

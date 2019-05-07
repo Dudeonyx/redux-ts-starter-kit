@@ -1,18 +1,24 @@
-import { createSlice } from '../slice';
+import { createSlice, Selectors } from '../slice';
 import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { createReducer } from '../reducer';
 import { createType } from '../action';
+import { ReMappedSelectors } from '../slice-utils';
 
 export type Filters = 'ALL' | 'COMPLETE' | 'PENDING';
-export const visibilitySlice = createSlice({
+const visibilitySlice = createSlice({
   initialState: 'ALL' as Filters,
   cases: {
     setVisibilityFilter: (state, payload: Filters) => payload,
   },
 });
 
+export const selectr = visibilitySlice.mapSelectorsTo().selectSlice('ALL');
+
+type SFDF = Selectors<Filters>;
+
+export type ADs = ReMappedSelectors<[], SFDF>;
 interface HiSliceState {
   test: string;
   wow: number;
@@ -191,7 +197,12 @@ getAuth$({ auth: {} as AuthSliceState });
 const auth$NoInterface = createSlice({
   initialState,
   computed: {
-    authenticated: (state) => !!state.idToken,
+    authenticated(state) {
+      return !!state.idToken;
+    },
+    getAuthlist(state) {
+      return this.authenticated(state as any);
+    },
   },
   typeOverrides: {
     auth_Fail$2: createType('AUTH/FAIL'),
@@ -228,8 +239,7 @@ export const {
   idToken: getAuthIdToken$2,
   userId: getAuthUserId$2,
   authenticated: getAuthenticated,
-} = auth$NoInterface.mapSelectorsTo('auth');
-
+} = auth$NoInterface.mapSelectorsTo('');
 export const authReducer2 = createReducer({
   initialState,
   cases: {

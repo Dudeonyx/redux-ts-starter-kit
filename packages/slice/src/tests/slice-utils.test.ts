@@ -458,21 +458,43 @@ describe('makeReMappableSelectors', () => {
     },
   };
 
+  let computedNameAndMiddleNameCalled = 0;
+  let computedNameAndMiddleNameCalled1 = 0;
+
   const selectors = makeSelectors(initialState, 'form');
   const computedSelectors = {
-    fullName: (state: { form: typeof initialState }) =>
-      state.form.name + ' ' + state.form.middlename + ' ' + state.form.surname,
+    nameAndMiddleName: (state: { form: typeof initialState }) => {
+      computedNameAndMiddleNameCalled++;
+      return state.form.name + ' ' + state.form.middlename;
+    },
+    fullName(state: { form: typeof initialState }) {
+      return this.nameAndMiddleName(state) + ' ' + state.form.surname;
+    },
   };
   const selectors1 = makeSelectors(initialState);
   const computedSelectors1 = {
-    fullName: (state: typeof initialState) =>
-      state.name + ' ' + state.middlename + ' ' + state.surname,
+    nameAndMiddleName: (state: typeof initialState) => {
+      computedNameAndMiddleNameCalled1++;
+      return state.name + ' ' + state.middlename;
+    },
+    fullName(state: typeof initialState) {
+      return this.nameAndMiddleName(state) + ' ' + state.surname;
+    },
   };
   const mapTo = makeReMapableSelectors(selectors, computedSelectors);
   const mapTo1 = makeReMapableSelectors(selectors1, computedSelectors1);
+  const mapTo2 = makeReMapableSelectors(selectors1);
+
   it('should create a working mapTo utility', () => {
     const reMapped = mapTo('data', 'userA', 'personalDetails', 'updated');
     const reMapped1 = mapTo1(
+      'data',
+      'userA',
+      'personalDetails',
+      'updated',
+      'form',
+    );
+    const reMapped2 = mapTo2(
       'data',
       'userA',
       'personalDetails',
@@ -487,7 +509,28 @@ describe('makeReMappableSelectors', () => {
     expect(reMapped.name(altState)).toEqual('Foo');
     expect(reMapped.middlename(altState)).toEqual('Bar');
     expect(reMapped.surname(altState)).toEqual('Baz');
+    expect(reMapped.nameAndMiddleName(altState)).toEqual('Foo Bar');
+    expect(computedNameAndMiddleNameCalled).toBe(1);
     expect(reMapped.fullName(altState)).toEqual('Foo Bar Baz');
+    expect(computedNameAndMiddleNameCalled).toBe(1);
+    expect(
+      reMapped.fullName({
+        data: {
+          userA: {
+            personalDetails: {
+              updated: {
+                form: {
+                  name: 'Foo',
+                  middlename: 'Bar',
+                  surname: 'Bazzy', // changed
+                },
+              },
+            },
+          },
+        },
+      }),
+    ).toEqual('Foo Bar Bazzy');
+    expect(computedNameAndMiddleNameCalled).toBe(1);
     expect(reMapped1.selectSlice(altState)).toEqual({
       name: 'Foo',
       middlename: 'Bar',
@@ -496,7 +539,37 @@ describe('makeReMappableSelectors', () => {
     expect(reMapped1.name(altState)).toEqual('Foo');
     expect(reMapped1.middlename(altState)).toEqual('Bar');
     expect(reMapped1.surname(altState)).toEqual('Baz');
+    expect(reMapped1.nameAndMiddleName(altState)).toEqual('Foo Bar');
+    expect(computedNameAndMiddleNameCalled1).toBe(1);
     expect(reMapped1.fullName(altState)).toEqual('Foo Bar Baz');
+    expect(computedNameAndMiddleNameCalled1).toBe(1);
+    expect(
+      reMapped1.fullName({
+        data: {
+          userA: {
+            personalDetails: {
+              updated: {
+                form: {
+                  name: 'Foo',
+                  middlename: 'Bar',
+                  surname: 'Bazzy', // changed
+                },
+              },
+            },
+          },
+        },
+      }),
+    ).toEqual('Foo Bar Bazzy');
+    expect(computedNameAndMiddleNameCalled1).toBe(1);
+
+    expect(reMapped2.selectSlice(altState)).toEqual({
+      name: 'Foo',
+      middlename: 'Bar',
+      surname: 'Baz',
+    });
+    expect(reMapped2.name(altState)).toEqual('Foo');
+    expect(reMapped2.middlename(altState)).toEqual('Bar');
+    expect(reMapped2.surname(altState)).toEqual('Baz');
   });
 });
 

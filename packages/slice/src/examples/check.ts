@@ -3,9 +3,10 @@ import { Draft } from 'immer';
 import { PayloadAction } from '../types';
 import { createTypeSafeAction } from '../action';
 
-interface CRO<S, Ax, Ac> {
+interface CRO<S, Ax, Ac, Cx> {
   state: S;
   cases: Cases<S, Ax>;
+  computed: Cx;
   actionCreators?: Ac;
 }
 
@@ -13,12 +14,22 @@ const createType = <T extends string>(type: T) => type;
 
 type InferType<A, F extends string> = A extends { [K in F]: string } ? A[F] : F;
 
-function crSl<S, Ax extends {}, Ac extends { [K in keyof Ax]?: string }>(
-  o: CRO<S, Ax, Ac>,
+function crSl<
+  S,
+  Ax extends {},
+  Ac extends { [K in keyof Ax]?: string },
+  Cx extends { [s: string]: (state: S) => any }
+>(
+  o: CRO<S, Ax, Ac, Cx>,
 ): { [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType<Ac, C>> };
 
-function crSl<S, Ax extends {}, Ac extends { [K in keyof Ax]?: string }>(
-  o: CRO<S, Ax, Ac>,
+function crSl<
+  S,
+  Ax extends {},
+  Ac extends { [K in keyof Ax]?: string },
+  Cx extends { [s: string]: (state: S) => any }
+>(
+  o: CRO<S, Ax, Ac, Cx>,
 ): {
   [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType<Ac[C], C>>
 };
@@ -27,9 +38,31 @@ function crSl(o: any): any {
   return null as any;
 }
 
+function makeC<C extends { [s: string]: (state: any) => any }>(c: C): C {
+  return null as any;
+}
+
+const dfsdf = makeC({
+  me(state) {
+    return state + 5;
+  },
+  two(state) {
+    console.log(this);
+    return state + 6;
+  },
+});
 const tsf = crSl({
   actionCreators: {
     fth: createType('TypeSafe'),
+  },
+  computed: {
+    me(state) {
+      return state + 5;
+    },
+    two(state) {
+      console.log(this);
+      return state + 6;
+    },
   },
   cases: {
     fth: (state, payload: number) => payload,
@@ -210,3 +243,76 @@ export function createStructuredSelector<S, T>(
 const chk2 = createStructuredSelector({
   sel: (state: { key: number }) => state.key,
 });
+{
+  type GetS<S> = S extends number ? number : S extends string ? string : S;
+
+  type ExcludeNonMethodKeys<
+    T extends {},
+    K extends keyof T = keyof T
+  > = K extends keyof T
+    ? T[K] extends (...args: any[]) => any
+      ? K
+      : never
+    : K;
+  type OmitNonMethods<T extends {}> = { [K in ExcludeNonMethodKeys<T>]: T[K] };
+  interface CRO<S, Ax, Ac, Cx> {
+    state: S;
+    cases: Cases<S, Ax>;
+    computed: Cx;
+    actionCreators?: Ac;
+  }
+  type InferType<A, F extends string> = A extends { [K in F]: string }
+    ? A[F]
+    : F;
+  interface CSX<S> {
+    [s: string]: (s: S) => any;
+  }
+  function crSl<
+    S,
+    Ax extends {},
+    Ac extends { [K in keyof Ax]?: string },
+    // Cx extends ActionsMap,
+    Cx extends CSX<S>
+  >(
+    o: CRO<S, Ax, Ac, Cx>,
+  ): {
+    actions: {
+      [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType<Ac, C>>
+    };
+    computed: Cx;
+  };
+
+  function crSl<
+    S,
+    Ax extends {},
+    Ac extends { [K in keyof Ax]?: string },
+    Cx extends { [s: string]: (state: S) => any }
+  >(
+    o: CRO<S, Ax, Ac, Cx>,
+  ): {
+    [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType<Ac[C], C>>
+  };
+
+  function crSl(o: any): any {
+    return null as any;
+  }
+
+  const tsf = crSl({
+    actionCreators: {
+      fth: createType('TypeSafe'),
+    },
+    computed: {
+      me(state) {
+        return state + 5;
+      },
+      two(state): number {
+        return this.me(state) + 10;
+      },
+    },
+    cases: {
+      fth: (state, payload: number) => payload,
+      qew: (state, payload: number) => payload,
+    },
+    state: 5,
+  });
+}

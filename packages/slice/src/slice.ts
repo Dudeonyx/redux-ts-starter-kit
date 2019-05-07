@@ -3,9 +3,10 @@ import {
   makeActionCreators,
   makeSelectors,
   makeReMapableSelectors,
-  ReMappedSelectors,
   makeReducer,
   makeNameSpacedReducer,
+  Paths,
+  CreateNameSpace,
 } from './slice-utils';
 import { Draft } from 'immer';
 
@@ -29,8 +30,8 @@ export type Reducer<S = any, A extends AnyAction = AnyAction> = (
 /**
  * A map of case reducers for creating a standard reducer
  * @export
- * @template SS is the [SliceState] or [State]
- * @template A  is the [Action]
+ * @template SS is the `SliceState`
+ * @template Ax  is the `ActionsMap`
  */
 export type Cases<
   SS,
@@ -40,17 +41,10 @@ export type Cases<
   [K in keyof Ax]: CaseReducer<SS, Ax[K], InferType<TyO, Extract<K, string>>>
 };
 
-// type PayloadActionMap<A extends ActionCreators<any>> = {
-//   [T in keyof A]: ReturnType<A[T]>
-// };
-
 /** Generic Actions Map interface */
 export interface ActionsMap<P = any> {
   [Action: string]: P;
 }
-/** Generic State interface
- * @export
- */
 export interface AnyState {
   [slice: string]: any;
 }
@@ -72,11 +66,11 @@ type InferType<
 export type ActionCreators<A, TyO extends { [K in keyof A]?: string } = {}> = {
   [key in Extract<keyof A, string>]: (unknown extends A[key] // hacky ternary for `A[key]` = `any`
     ? (payload?: any) => PayloadAction<any, InferType<TyO, key>>
-    : A[key] extends never | undefined | void // No payload when type is `never`
+    : A[key] extends never | undefined | void // No payload when type is `never` | `undefined` | `void`
     ? () => PayloadAction<undefined, InferType<TyO, key>>
-    : A[key] extends NotEmptyObject
+    : A[key] extends NotEmptyObject // needed to prevent very rare edge cases where the next ternary is wrongly triggered
     ? (payload: A[key]) => PayloadAction<A[key], InferType<TyO, key>>
-    : {} extends A[key] // ensures payload isn't inferred as {}
+    : {} extends A[key] // ensures payload isn't inferred as {}, this is due to way ts narrows unknown types, revisit when ts@>3.5
     ? () => PayloadAction<undefined, InferType<TyO, key>>
     : (payload: A[key]) => PayloadAction<A[key], InferType<TyO, key>>) & {
     type: InferType<TyO, key>;
@@ -84,7 +78,6 @@ export type ActionCreators<A, TyO extends { [K in keyof A]?: string } = {}> = {
   }
 };
 
-/** */
 /**
  * @interface Slice
  * @description The interface of the object returned by createSlice
@@ -101,56 +94,119 @@ export interface Slice<
   /**
    * @description The generated reducer
    *
-   * @type {Reducer<SS, Action>}
+   * @type {Reducer<SS, AnyAction>}
    * @memberof Slice
    */
   reducer: Reducer<SS, AnyAction>;
   /**
-   * The automatically generated action creators
-   *
+   * An object containing the automatically generated action creators
+   * @type { [s:string]: (payload:any)=> PayloadAction }
    * @memberof Slice
    */
   actions: Ax;
+  /**
+   * Helper utility for mapping selectors to paths
+   *
+   * @example
+   * // if your reducer is for a todos slice i.e
+   *
+   * const todosSlice = createSlice({
+   *   //...
+   * })
+   *
+   * const rootReducer = combineReducers({
+   *    todos: todosSlice.reducer
+   * });
+   * const store = createStore(rootReducer);
+   *
+   * const selectors = todosSlice.mapSelectorsTo('todos');
+   *
+   * const mapStateToProps = (state: typeof store.getState) => selectors.selectSlice(state)
+   *
+   * @memberof Slice
+   */
+  mapSelectorsTo: Paths<SelectorMap>;
 
-  mapSelectorsTo: <
-    P extends string[] & {
-      length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-    }
-  >(
-    ...paths: P
-  ) => ReMappedSelectors<P, SelectorMap>;
-
-  createNameSpacedReducer: <Sl extends string>(
-    slice: Sl,
-  ) => {
-    sliceReducer: Reducer<SS> & { toString: () => Sl };
-    sliceActions: {
-      [K in keyof Ax]: Ax[K] & {
-        slice: Sl;
-      }
-    };
-  };
+  /**
+   * Helper utility for nameSpacing the reducer and action creators
+   *
+   * @example
+   * const { sliceReducer, sliceActions } = createNameSpace('todos')
+   *
+   * console.log(sliceActions.addTodo('Do something'))
+   * // -> { type: 'addTodo', payload: 'Do something', slice: 'todos' }
+   *
+   * @memberof Slice
+   */
+  createNameSpace: CreateNameSpace<SS, Ax>;
 }
 
+/**
+ * Options for `createSlice` utility
+ *
+ * @interface CreateSliceOptions
+ * @template SS The `SliceState` type
+ * @template Ax The Actions map, format - `{ [caseName]: typeof payload }`
+ * @template Cx The computed selectors map, format - `{ [selectorName]: returnType }`
+ * @template TyO The type overrides map, format - `{[caseName]: <string>typeOverride}`
+ */
 interface CreateSliceOptions<SS, Ax, Cx, TyO> {
   /**
    * The initial State, same as standard reducer
    *
    * @type {SS}
-   * @memberof InputWithoutSlice
+   * @memberof CreateSliceOptions
    */
   initialState: SS;
   /**
    * @description - An object whose methods represent the cases the generated reducer handles,
    * can be thought of as the equivalent of [switch-case] statements in a standard reducer.
    *
-   * @type {Cases<SS, Ax>}
-   * @memberof InputWithoutSlice
+   * @type {Cases<SS, Ax, TyO>}
+   * @example
+   * type Todo = {title: string, completed: boolean}
+   * createSlice({
+   *   initialState: [] as Todo[],
+   *   cases: {
+   *     addTodo: (state, payload: string) => {
+   *       state.push({title: payload, completed: false})
+   *     }
+   *   }
+   * })
+   * @memberof CreateSliceOptions
    */
   cases: Cases<SS, Ax, TyO>;
 
+  /**
+   * @description computed selectors for this slice, will be memoized using `memomoize-state` lib
+   * https://github.com/theKashey/memoize-state
+   *
+   * @see note: (js-users ignore) if using `this` to access other selectors, ReturnType should be explicit to prevent `typescript` errors, see https://github.com/dudeonyx/redux-ts-starter-kit/issues
+   * @example
+   * type Todo = {title: string, completed: boolean}
+   * const todosSlice = createSlice({
+   *   initialState: [] as Todo[],
+   *   computed: {
+   *     getCompletedTodos: state => state.filter(todo => todo.completed),
+   *     getCompletedTodosLength(state): number {
+   *       return this.getCompletedTodos(state).length;
+   *     },
+   *   }
+   *   cases: {
+   *     //...
+   *   }
+   * })
+   * @type {ComputedMap<SS, Cx>}
+   * @memberof CreateSliceOptions
+   */
   computed?: ComputedMap<SS, Cx>;
 
+  /**
+   *
+   *
+   * @type {TyO}
+   * @memberof CreateSliceOptions
+   */
   typeOverrides?: TyO;
 }
 
@@ -158,41 +214,28 @@ type ComputedMap<S, C extends {}> = { [K in keyof C]: (state: S) => C[K] };
 
 /**
  * @description Generates a redux state tree slice, complete with a `reducer`,
- *  `action creators` and `selectors`
+ *  `action creators`, `mapSelectorsTo` and `createNameSpace`
  *
  * @export
- *
- * @template Actions - A map of action creator names and payloads, in the form `{[actionName]: typeof payload}`,
- *  a payload type of `never` can be used to indicate that no payload is expected
- *
+ * @template Actions - A map of action creator names and payloads, in the form `{[caseName]: typeof payload}`,
+ *  a payload type of `never` | `undefined` | `void` can be used to indicate that no payload is expected
  * @template SliceState - The interface of the initial state,
- *  it is also the interface of the slice of state.
- *
- * @template State - The interface of the entire redux state tree
- *
- * @param {{cases: Cases<SS, Ax>, initialState: SS, slice: string}} {
+ * @template Computed
+ * @template TypeOverrides
+ * @param {CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>} {
  *   cases,
  *   initialState,
- *   slice
  * }
- *
- * @returns {Slice<
- *   Actions,
- *   NoEmptyArray<SliceState>,
- *   State,
- *   typeof slice
- * >} {
- *   reducer,
- *   actions,
- *   selectors,
- *   slice
- * }
+ * @returns {(Slice<
+ *   ActionCreators<Actions, TypeOverrides>,
+ *   SliceState,
+ *   Selectors<SliceState> & ComputedMap<SliceState, Computed>
+ * >)}
  */
-
 export function createSlice<
   Actions extends ActionsMap,
   SliceState,
-  Computed extends ActionsMap = {},
+  Computed extends ActionsMap,
   TypeOverrides extends { [K in keyof Actions]?: string } = {}
 >({
   cases,
@@ -205,7 +248,7 @@ export function createSlice<
 export function createSlice<
   Actions extends ActionsMap,
   SliceState,
-  Computed extends ActionsMap = {},
+  Computed extends ActionsMap,
   TypeOverrides extends { [K in keyof Actions]?: string } = {}
 >({
   cases,
@@ -219,7 +262,7 @@ export function createSlice<
 export function createSlice<
   Actions extends ActionsMap,
   SliceState,
-  Computed extends ActionsMap = {},
+  Computed extends ActionsMap,
   TypeOverrides extends { [K in keyof Actions]?: string } = {}
 >({
   cases,
@@ -243,7 +286,7 @@ export function createSlice<
   );
   const baseSelectors = makeSelectors(initialState);
 
-  const createNameSpacedReducer = makeNameSpacedReducer(reducer, actions);
+  const createNameSpace = makeNameSpacedReducer(reducer, actions);
 
   const mapSelectorsTo = makeReMapableSelectors(baseSelectors, computed);
 
@@ -251,6 +294,6 @@ export function createSlice<
     actions,
     reducer,
     mapSelectorsTo,
-    createNameSpacedReducer,
+    createNameSpace,
   };
 }
