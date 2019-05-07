@@ -63,7 +63,7 @@ export type ReMappedSelectors<
   Selects extends { [s: string]: (state: any) => any }
 > = { [K in keyof Selects]: ReMappedSelector<P, Selects[K]> };
 
-type ReMappedSelector<
+export type ReMappedSelector<
   P extends string[],
   Select extends (state: any) => any
 > = (state: NestedObject<P, 0, ArgOf<Select>>) => ReturnType<Select>;

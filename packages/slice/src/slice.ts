@@ -56,17 +56,13 @@ export interface AnyState {
 }
 
 /** Type alias for generated selectors */
-export type Selectors<SS> = SS extends any[] | ReadonlyArray<any>
-  ? {
-      selectSlice: (state: SS) => SS;
-    }
+export type Selectors<SS> = {
+  selectSlice: (state: SS) => SS;
+} & (SS extends any[] | ReadonlyArray<any>
+  ? {}
   : SS extends AnyState
-  ? ({ [key in keyof SS]: (state: SS) => SS[key] } & {
-      selectSlice: (state: SS) => SS;
-    })
-  : {
-      selectSlice: (state: SS) => SS;
-    };
+  ? { [key in keyof SS]: (state: SS) => SS[key] }
+  : {});
 
 type InferType<
   TyO extends { [s: string]: string | undefined },
@@ -74,35 +70,18 @@ type InferType<
 > = TyO extends { [K in Fallback]: string } ? TyO[Fallback] : Fallback;
 /** Type alias for generated action creators */
 export type ActionCreators<A, TyO extends { [K in keyof A]?: string } = {}> = {
-  [key in Extract<keyof A, string>]: unknown extends A[key] // hacky ternary for `A[key]` = `any`
-    ? {
-        (payload?: any): PayloadAction<any, InferType<TyO, key>>;
-        type: InferType<TyO, key>;
-        toString: () => InferType<TyO, key>;
-      }
+  [key in Extract<keyof A, string>]: (unknown extends A[key] // hacky ternary for `A[key]` = `any`
+    ? (payload?: any) => PayloadAction<any, InferType<TyO, key>>
     : A[key] extends never | undefined | void // No payload when type is `never`
-    ? {
-        (): PayloadAction<undefined, InferType<TyO, key>>;
-        type: InferType<TyO, key>;
-        toString: () => InferType<TyO, key>;
-      }
+    ? () => PayloadAction<undefined, InferType<TyO, key>>
     : A[key] extends NotEmptyObject
-    ? {
-        (payload: A[key]): PayloadAction<A[key], InferType<TyO, key>>;
-        type: InferType<TyO, key>;
-        toString: () => InferType<TyO, key>;
-      }
+    ? (payload: A[key]) => PayloadAction<A[key], InferType<TyO, key>>
     : {} extends A[key] // ensures payload isn't inferred as {}
-    ? {
-        (): PayloadAction<undefined, InferType<TyO, key>>;
-        type: InferType<TyO, key>;
-        toString: () => InferType<TyO, key>;
-      }
-    : {
-        (payload: A[key]): PayloadAction<A[key], InferType<TyO, key>>;
-        type: InferType<TyO, key>;
-        toString: () => InferType<TyO, key>;
-      }
+    ? () => PayloadAction<undefined, InferType<TyO, key>>
+    : (payload: A[key]) => PayloadAction<A[key], InferType<TyO, key>>) & {
+    type: InferType<TyO, key>;
+    toString: () => InferType<TyO, key>;
+  }
 };
 
 /** */
@@ -221,7 +200,7 @@ export function createSlice<
 }: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
   ActionCreators<Actions, TypeOverrides>,
   SliceState,
-  (Selectors<SliceState>) & ComputedMap<SliceState, Computed>
+  Selectors<SliceState> & ComputedMap<SliceState, Computed>
 >;
 export function createSlice<
   Actions extends ActionsMap,
@@ -234,7 +213,7 @@ export function createSlice<
 }: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
   ActionCreators<Actions, TypeOverrides>,
   SliceState,
-  (Selectors<SliceState>) & ComputedMap<SliceState, Computed>
+  Selectors<SliceState> & ComputedMap<SliceState, Computed>
 >;
 
 export function createSlice<
@@ -250,7 +229,7 @@ export function createSlice<
 }: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
   ActionCreators<Actions, TypeOverrides>,
   SliceState,
-  (Selectors<SliceState>) & ComputedMap<SliceState, Computed>
+  Selectors<SliceState> & ComputedMap<SliceState, Computed>
 > {
   const actionKeys = Object.keys(cases) as Array<
     Extract<keyof Actions, string>
