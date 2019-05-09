@@ -253,6 +253,3 @@ export function constObj<
 >(o: O) {
   return o;
 }
-const Tk = constObj({
-  hello: 5,
-});

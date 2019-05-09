@@ -37,9 +37,7 @@ export type Cases<
   SS,
   Ax extends {},
   TyO extends { [C in keyof Ax]?: string } = {}
-> = {
-  [K in keyof Ax]: CaseReducer<SS, Ax[K], InferType<TyO[K], K>>
-};
+> = { [K in keyof Ax]: CaseReducer<SS, Ax[K], InferType<TyO[K], K>> };
 
 /** Generic Actions Map interface */
 export interface ActionsMap<P = any> {
@@ -57,10 +55,11 @@ export type Selectors<SS> = {
   : SS extends AnyState
   ? { [key in keyof SS]: (state: SS) => SS[key] }
   : {});
-type InferType<
-  TyO extends string | undefined,
-  Fallback
-> = TyO extends string ? TyO : Fallback extends string ? Fallback : never;
+type InferType<TyO extends string | undefined, Fallback> = TyO extends string
+  ? TyO
+  : Fallback extends string
+  ? Fallback
+  : never;
 /** Type alias for generated action creators */
 export type ActionCreators<A, TyO extends { [K in keyof A]?: string } = {}> = {
   [key in Extract<keyof A, string>]: ActionCreator<
@@ -220,6 +219,7 @@ interface CreateSliceOptions<SS, Ax, Cx, TyO> {
 }
 
 type ComputedMap<S, C extends {}> = { [K in keyof C]: (state: S) => C[K] };
+type Const<TyO> = { [K in keyof TyO]: TyO[K] };
 
 /**
  * @description Generates a redux state tree slice, complete with a `reducer`,
@@ -245,12 +245,11 @@ export function createSlice<
   Actions extends ActionsMap,
   SliceState,
   Computed extends ActionsMap,
-  TyO extends { [K in keyof Actions]?: string },
-  TypeOverrides extends { [T in keyof TyO]: TyO[T] } = {
-    [T in keyof TyO]: TyO[T]
-  }
->(options: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
-  ActionCreators<Actions, TypeOverrides>,
+  TyO extends { [K in keyof Actions]?: string }
+>(
+  options: CreateSliceOptions<SliceState, Actions, Computed, Const<TyO>>,
+): Slice<
+  ActionCreators<Actions, TyO>,
   SliceState,
   Selectors<SliceState> & ComputedMap<SliceState, Computed>
 >;
@@ -258,12 +257,11 @@ export function createSlice<
   Actions extends ActionsMap,
   SliceState,
   Computed extends ActionsMap,
-  TyO extends { [K in keyof Actions]?: string },
-  TypeOverrides extends { [T in keyof TyO]: TyO[T] } = {
-    [T in keyof TyO]: TyO[T]
-  }
->(options: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
-  ActionCreators<Actions, TypeOverrides>,
+  TyO extends { [K in keyof Actions]?: string }
+>(
+  options: CreateSliceOptions<SliceState, Actions, Computed, Const<TyO>>,
+): Slice<
+  ActionCreators<Actions, TyO>,
   SliceState,
   Selectors<SliceState> & ComputedMap<SliceState, Computed>
 >;
@@ -272,17 +270,14 @@ export function createSlice<
   Actions extends ActionsMap,
   SliceState,
   Computed extends ActionsMap,
-  TyO extends { [K in keyof Actions]?: string },
-  TypeOverrides extends { [T in keyof TyO]: TyO[T] } = {
-    [T in keyof TyO]: TyO[T]
-  }
+  TyO extends { [K in keyof Actions]?: string }
 >({
   cases,
   initialState,
   computed = {} as any,
-  typeOverrides = {} as TypeOverrides,
-}: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
-  ActionCreators<Actions, TypeOverrides>,
+  typeOverrides = {} as any,
+}: CreateSliceOptions<SliceState, Actions, Computed, Const<TyO>>): Slice<
+  ActionCreators<Actions, TyO>,
   SliceState,
   Selectors<SliceState> & ComputedMap<SliceState, Computed>
 > {
@@ -292,7 +287,7 @@ export function createSlice<
 
   const reducer = makeReducer(initialState, cases, typeOverrides);
 
-  const actions = makeActionCreators<Actions, TypeOverrides>(
+  const actions = makeActionCreators<Actions, Const<TyO>>(
     actionKeys,
     typeOverrides,
   );

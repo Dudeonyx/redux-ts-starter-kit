@@ -118,6 +118,10 @@ const initialState: AuthSliceState = {
 
 const auth = createSlice({
   initialState,
+  typeOverrides: {
+    authFail: 'AUTH_FAIL',
+    // authLogout: 5,
+  },
   cases: {
     authFail: (state, payload: Error) => {
       state.error = payload;
@@ -206,10 +210,6 @@ const auth$NoInterface = createSlice({
       return this.authenticated(state);
     },
   },
-  typeOverrides: {
-    auth_Fail$2: 'AUTH/FAIL',
-    auth_Logout$2: 5,
-  },
   cases: {
     auth_Fail$2: (state, payload: Error, type) => {
       state.error = payload;
@@ -227,6 +227,11 @@ const auth$NoInterface = createSlice({
       state.idToken = payload.idToken;
       state.userId = payload.userId;
     },
+  },
+  typeOverrides: {
+    auth_Fail$2: 'AUTH/FAIL',
+    auth_Start$2: 'AUTH/START',
+    // auth_Logout$2: 5,
   },
 });
 // You can destructure and export the reducer, action creators and selectors
