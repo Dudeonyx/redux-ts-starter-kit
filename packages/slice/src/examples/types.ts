@@ -3,7 +3,6 @@ import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { createReducer } from '../reducer';
-import { createType } from '../action';
 import { ReMappedSelectors } from '../slice-utils';
 
 export type Filters = 'ALL' | 'COMPLETE' | 'PENDING';
@@ -70,10 +69,13 @@ export const {
   actions: hiActions,
   reducer: hiReducer,
   mapSelectorsTo: reMapSelectorsTo,
-} = createSlice<Actions, HiSliceState, {}>({
+} = createSlice<Actions, HiSliceState, {}, { reset: 'RESET' }>({
   cases: {
     set: (state, payload) => payload,
     reset: () => defaultState,
+  },
+  typeOverrides: {
+    reset: 'RESET',
   },
   initialState: defaultState,
 });
@@ -157,7 +159,7 @@ export interface AuthActions$ {
   auth_Logout$: never;
 }
 
-const auth$ = createSlice<AuthActions$, AuthSliceState, {}>({
+const auth$ = createSlice<AuthActions$, AuthSliceState, {}, {}>({
   initialState,
   cases: {
     auth_Fail$: (state, payload) => {
@@ -205,7 +207,7 @@ const auth$NoInterface = createSlice({
     },
   },
   typeOverrides: {
-    auth_Fail$2: createType('AUTH/FAIL'),
+    auth_Fail$2: 'AUTH/FAIL',
   },
   cases: {
     auth_Fail$2: (state, payload: Error, type) => {

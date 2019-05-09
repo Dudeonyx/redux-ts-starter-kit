@@ -162,19 +162,19 @@ import { createType } from '../../action';
       reset: () => 0,
     },
     typeOverrides: {
-      increase: createType('counter/increase'),
-      decrease: createType('counter/decrease'),
-      reset: createType('reset'),
-    },
+      increase: 'counter/increase',
+      decrease: 'counter/decrease',
+      reset: 'reset',
+    } as const,
   });
 
-  let increase = actions.increase.type;
-  let decrease = actions.decrease.type;
+  let { type: increase } = actions.increase;
+  let { type: decrease } = actions.decrease;
   let increaseBy = actions.increaseBy.type;
   let decreaseBy = actions.decreaseBy.type;
   let reset = actions.reset.type;
 
-  increase = 'counter/increase';
+  // increase = 'counter/increase';
   decrease = 'counter/decrease';
   increaseBy = 'increaseBy';
   decreaseBy = 'decreaseBy';

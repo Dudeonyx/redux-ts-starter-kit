@@ -236,7 +236,10 @@ export function createSlice<
   Actions extends ActionsMap,
   SliceState,
   Computed extends ActionsMap,
-  TypeOverrides extends { [K in keyof Actions]?: string } = {}
+  TyO extends { [K in keyof Actions]?: string },
+  TypeOverrides extends { [T in keyof TyO]: TyO[T] } = {
+    [T in keyof TyO]: TyO[T]
+  }
 >({
   cases,
   initialState,
@@ -249,7 +252,10 @@ export function createSlice<
   Actions extends ActionsMap,
   SliceState,
   Computed extends ActionsMap,
-  TypeOverrides extends { [K in keyof Actions]?: string } = {}
+  TyO extends { [K in keyof Actions]?: string },
+  TypeOverrides extends { [T in keyof TyO]: TyO[T] } = {
+    [T in keyof TyO]: TyO[T]
+  }
 >({
   cases,
   initialState,
@@ -263,7 +269,10 @@ export function createSlice<
   Actions extends ActionsMap,
   SliceState,
   Computed extends ActionsMap,
-  TypeOverrides extends { [K in keyof Actions]?: string } = {}
+  TyO extends { [K in keyof Actions]?: string },
+  TypeOverrides extends { [T in keyof TyO]: TyO[T] } = {
+    [T in keyof TyO]: TyO[T]
+  }
 >({
   cases,
   initialState,

@@ -140,7 +140,7 @@ function makeGetter<
   ): Getter<P, O> => getter(paths, object);
 }
 function getter<
-  P extends string[] & { length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 },
+  P extends string[],
   O extends Scale<P, I, GetArrayLength<P>, any>,
   I extends number = 0
 >(paths: P, object: O, index: I = 0 as I): Getter<P, O> {
@@ -213,6 +213,7 @@ function intGet<
   p4: P4,
   p5: P5,
 ): O[P0][P1][P2][P3][P4][P5];
+
 function intGet(object: any, ...paths: any[]) {
   return getter(paths, object);
 }
@@ -243,6 +244,26 @@ export function createStructuredSelector<S, T>(
 const chk2 = createStructuredSelector({
   sel: (state: { key: number }) => state.key,
 });
+
+type ConstObj<
+  P extends string[],
+  K extends Array<string | boolean | number | symbol | object>,
+  Start extends number
+> = { [T in P[1]]: K[1] };
+
+function constObj<
+  K extends { [s: string]: string | boolean | number | symbol | object },
+  O extends { [T in keyof K]: K[T] }
+>(o: O) {
+  return o;
+}
+
+const fdffdf = constObj({
+  hello: 'world',
+  my: 'name is',
+  age: 5,
+});
+
 {
   type GetS<S> = S extends number ? number : S extends string ? string : S;
 
