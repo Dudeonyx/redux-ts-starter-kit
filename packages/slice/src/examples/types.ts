@@ -69,7 +69,7 @@ export const {
   actions: hiActions,
   reducer: hiReducer,
   mapSelectorsTo: reMapSelectorsTo,
-} = createSlice<Actions, HiSliceState, {}, { reset: 'RESET' }>({
+} = createSlice<Actions, HiSliceState, {}, {reset: 'RESET'}>({
   cases: {
     set: (state, payload) => payload,
     reset: () => defaultState,
@@ -202,12 +202,13 @@ const auth$NoInterface = createSlice({
     authenticated(state) {
       return !!state.idToken;
     },
-    getAuthlist(state) {
-      return this.authenticated(state as any);
+    getAuthlist(state): boolean {
+      return this.authenticated(state);
     },
   },
   typeOverrides: {
     auth_Fail$2: 'AUTH/FAIL',
+    // auth_Logout$2: 5,
   },
   cases: {
     auth_Fail$2: (state, payload: Error, type) => {

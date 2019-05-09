@@ -4,16 +4,15 @@ import {
   createSlice,
   ActionCreators,
   Reducer,
-} from '@redux-ts-starter-kit/slice';
-import { createType } from '../../action';
+} from '../../index';
 
 /** Test: createSlice types */
 {
   const hiSlice = createSlice({
     cases: {
-      set: (_state, payload: string[]) => payload,
-      add: (state, payload: string) => [...state, payload,],
-      removeLast: (state, payload) => void state.pop(),
+      add: (state, payload: string, type) => void state.push(payload),
+      set: (_state, payload: string[], type) => payload,
+      removeLast: (state, payload, type) => void state.pop(),
       reset: () => ['defaultState', 'jhj',],
     },
     initialState: ['defaultState', 'jhj',],
@@ -157,28 +156,29 @@ import { createType } from '../../action';
     cases: {
       increaseBy: (state, payload: number) => state + payload,
       increase: (state) => state + 1,
-      decreaseBy: (state, payload: number) => state - payload,
+      decreaseBy: (state, payload: number, type) => state - payload,
       decrease: (state) => state - 1,
       reset: () => 0,
     },
     typeOverrides: {
       increase: 'counter/increase',
       decrease: 'counter/decrease',
-      reset: 'reset',
-    } as const,
+      reset: 'RESET',
+      decreaseBy: 5,
+    },
   });
 
   let { type: increase } = actions.increase;
   let { type: decrease } = actions.decrease;
   let increaseBy = actions.increaseBy.type;
   let decreaseBy = actions.decreaseBy.type;
-  let reset = actions.reset.type;
+  let { type: reset } = actions.reset;
 
-  // increase = 'counter/increase';
+  increase = 'counter/increase';
   decrease = 'counter/decrease';
   increaseBy = 'increaseBy';
   decreaseBy = 'decreaseBy';
-  reset = 'reset';
+  reset = 'RESET';
 
   // typings:expect-error
   increase = 'increase';
@@ -189,5 +189,5 @@ import { createType } from '../../action';
   // typings:expect-error
   decreaseBy = 'counter/decreaseBy';
   // typings:expect-error
-  reset = 'counter/reset';
+  reset = 'reset';
 }

@@ -38,7 +38,7 @@ export type Cases<
   Ax extends {},
   TyO extends { [C in keyof Ax]?: string } = {}
 > = {
-  [K in keyof Ax]: CaseReducer<SS, Ax[K], InferType<TyO, Extract<K, string>>>
+  [K in keyof Ax]: CaseReducer<SS, Ax[K], InferType<TyO[K], K>>
 };
 
 /** Generic Actions Map interface */
@@ -57,26 +57,35 @@ export type Selectors<SS> = {
   : SS extends AnyState
   ? { [key in keyof SS]: (state: SS) => SS[key] }
   : {});
-
 type InferType<
-  TyO extends { [s: string]: string | undefined },
-  Fallback extends string
-> = TyO extends { [K in Fallback]: string } ? TyO[Fallback] : Fallback;
+  TyO extends string | undefined,
+  Fallback
+> = TyO extends string ? TyO : Fallback extends string ? Fallback : never;
 /** Type alias for generated action creators */
 export type ActionCreators<A, TyO extends { [K in keyof A]?: string } = {}> = {
-  [key in Extract<keyof A, string>]: (unknown extends A[key] // hacky ternary for `A[key]` = `any`
-    ? (payload?: any) => PayloadAction<any, InferType<TyO, key>>
-    : A[key] extends never | undefined | void // No payload when type is `never` | `undefined` | `void`
-    ? () => PayloadAction<undefined, InferType<TyO, key>>
-    : A[key] extends NotEmptyObject // needed to prevent very rare edge cases where the next ternary is wrongly triggered
-    ? (payload: A[key]) => PayloadAction<A[key], InferType<TyO, key>>
-    : {} extends A[key] // ensures payload isn't inferred as {}, this is due to way ts narrows unknown types, revisit when ts@>3.5
-    ? () => PayloadAction<undefined, InferType<TyO, key>>
-    : (payload: A[key]) => PayloadAction<A[key], InferType<TyO, key>>) & {
-    type: InferType<TyO, key>;
-    toString: () => InferType<TyO, key>;
+  [key in Extract<keyof A, string>]: ActionCreator<
+    A,
+    key,
+    InferType<TyO[key], key>
+  > & {
+    type: InferType<TyO[key], key>;
+    toString: () => InferType<TyO[key], key>;
   }
 };
+
+type ActionCreator<
+  A,
+  K extends keyof A,
+  T extends string
+> = unknown extends A[K] // hacky ternary for `A[K] is any`
+  ? (payload?: any) => PayloadAction<any, T>
+  : A[K] extends never | undefined | void // No payload when type is `never` | `undefined` | `void`
+  ? () => PayloadAction<undefined, T>
+  : A[K] extends NotEmptyObject // needed to prevent very rare edge cases where the next ternary is wrongly triggered
+  ? (payload: A[K]) => PayloadAction<A[K], T>
+  : {} extends A[K] // ensures payload isn't inferred as {}, this is due to way ts narrows uninferred types to {}, ts@>3.5 will potentially fix this
+  ? () => PayloadAction<undefined, T>
+  : (payload: A[K]) => PayloadAction<A[K], T>;
 
 /**
  * @interface Slice
@@ -240,10 +249,7 @@ export function createSlice<
   TypeOverrides extends { [T in keyof TyO]: TyO[T] } = {
     [T in keyof TyO]: TyO[T]
   }
->({
-  cases,
-  initialState,
-}: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
+>(options: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
   ActionCreators<Actions, TypeOverrides>,
   SliceState,
   Selectors<SliceState> & ComputedMap<SliceState, Computed>
@@ -256,10 +262,7 @@ export function createSlice<
   TypeOverrides extends { [T in keyof TyO]: TyO[T] } = {
     [T in keyof TyO]: TyO[T]
   }
->({
-  cases,
-  initialState,
-}: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
+>(options: CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>): Slice<
   ActionCreators<Actions, TypeOverrides>,
   SliceState,
   Selectors<SliceState> & ComputedMap<SliceState, Computed>

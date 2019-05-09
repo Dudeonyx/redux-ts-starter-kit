@@ -247,3 +247,10 @@ function pickType<
     ? typeOverrides[key]!
     : key;
 }
+
+export function constObj<
+  K extends { [s: string]: string | boolean | number | symbol | object },
+  O extends { [T in keyof K]: K[T] }
+>(o: O) {
+  return o;
+}
