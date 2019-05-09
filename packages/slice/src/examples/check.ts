@@ -245,12 +245,6 @@ const chk2 = createStructuredSelector({
   sel: (state: { key: number }) => state.key,
 });
 
-type ConstObj<
-  P extends string[],
-  K extends Array<string | boolean | number | symbol | object>,
-  Start extends number
-> = { [T in P[1]]: K[1] };
-
 function constObj<
   K extends { [s: string]: string | boolean | number | symbol | object },
   O extends { [T in keyof K]: K[T] }
@@ -276,13 +270,13 @@ const fdffdf = constObj({
       : never
     : K;
   type OmitNonMethods<T extends {}> = { [K in ExcludeNonMethodKeys<T>]: T[K] };
-  interface CRO<S, Ax, Ac, Cx> {
+  interface CRO2<S, Ax, Ac, Cx> {
     state: S;
     cases: Cases<S, Ax>;
     computed: Cx;
     actionCreators?: Ac;
   }
-  type InferType<A, F extends string> = A extends { [K in F]: string }
+  type InferType2<A, F extends string> = A extends { [K in F]: string }
     ? A[F]
     : F;
   interface CSX<S> {
@@ -295,10 +289,10 @@ const fdffdf = constObj({
     // Cx extends ActionsMap,
     Cx extends CSX<S>
   >(
-    o: CRO<S, Ax, Ac, Cx>,
+    o: CRO2<S, Ax, Ac, Cx>,
   ): {
     actions: {
-      [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType<Ac, C>>
+      [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType2<Ac, C>>
     };
     computed: Cx;
   };
@@ -309,16 +303,16 @@ const fdffdf = constObj({
     Ac extends { [K in keyof Ax]?: string },
     Cx extends { [s: string]: (state: S) => any }
   >(
-    o: CRO<S, Ax, Ac, Cx>,
+    o: CRO2<S, Ax, Ac, Cx>,
   ): {
-    [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType<Ac[C], C>>
+    [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType2<Ac[C], C>>
   };
 
   function crSl(o: any): any {
     return null as any;
   }
 
-  const tsf = crSl({
+  const tsff = crSl({
     actionCreators: {
       fth: createType('TypeSafe'),
     },

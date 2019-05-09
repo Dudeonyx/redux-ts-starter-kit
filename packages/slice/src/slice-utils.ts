@@ -246,10 +246,3 @@ function pickType<
   const newType = typeOverrides[key];
   return typeof newType === 'string' && newType !== '' ? newType : key;
 }
-
-export function constObj<
-  K extends { [s: string]: string },
-  O extends { [T in keyof K]: K[T] }
->(o: O) {
-  return o;
-}

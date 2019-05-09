@@ -12,6 +12,7 @@ describe('createSlice', () => {
     const { actions, reducer, mapSelectorsTo } = createSlice<
       Actions,
       State,
+      {},
       {}
     >({
       cases: {
@@ -508,7 +509,7 @@ describe('multiple createSlice slices combined with `combineReducers`', () => {
     waves: 0,
   };
 
-  const hiSlice = createSlice<HiActions, HiSliceState, {}>({
+  const hiSlice = createSlice<HiActions, HiSliceState, {}, {}>({
     cases: {
       setWaves: (state, payload) => {
         state.waves = payload;
@@ -569,7 +570,7 @@ describe('multiple createSlice slices combined with `combineReducers`', () => {
     userId: null,
   };
 
-  const authSlice = createSlice<AuthActions, AuthSliceState, {}>({
+  const authSlice = createSlice<AuthActions, AuthSliceState, {}, {}>({
     initialState: authInitialState,
     cases: {
       authLogout: (state) => {
