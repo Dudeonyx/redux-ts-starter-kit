@@ -69,7 +69,7 @@ export const {
   actions: hiActions,
   reducer: hiReducer,
   mapSelectorsTo: reMapSelectorsTo,
-} = createSlice<Actions, HiSliceState, {}, {reset: 'RESET'}>({
+} = createSlice<Actions, HiSliceState, {}, { reset: 'RESET' }>({
   cases: {
     set: (state, payload) => payload,
     reset: () => defaultState,
@@ -208,7 +208,7 @@ const auth$NoInterface = createSlice({
   },
   typeOverrides: {
     auth_Fail$2: 'AUTH/FAIL',
-    // auth_Logout$2: 5,
+    auth_Logout$2: 5,
   },
   cases: {
     auth_Fail$2: (state, payload: Error, type) => {

@@ -10,9 +10,9 @@ import {
 {
   const hiSlice = createSlice({
     cases: {
-      add: (state, payload: string, type) => void state.push(payload),
-      set: (_state, payload: string[], type) => payload,
-      removeLast: (state, payload, type) => void state.pop(),
+      add: (state, payload: string) => void state.push(payload),
+      set: (_state, payload: string[]) => payload,
+      removeLast: (state, payload) => void state.pop(),
       reset: () => ['defaultState', 'jhj',],
     },
     initialState: ['defaultState', 'jhj',],

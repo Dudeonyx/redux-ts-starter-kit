@@ -125,7 +125,7 @@ export const makeActionCreators = <
   return actionKeys.reduce(
     (map, action) => {
       const type = pickType<Actions, TypeOverrides>(typeOverrides, action);
-      map[action] = createTypeSafeAction(type)();
+      map[action] = createTypeSafeAction(type)<Actions[typeof action]>();
       return map;
     },
     {} as any,
@@ -243,14 +243,16 @@ function pickType<
   Ax extends ActionsMap,
   TyO extends { [K in keyof Ax]?: string }
 >(typeOverrides: TyO, key: Extract<keyof Ax, string>) {
-  return typeof typeOverrides[key] === 'string' && typeOverrides[key] !== ''
-    ? typeOverrides[key]!
-    : key;
+  const newType = typeOverrides[key];
+  return typeof newType === 'string' && newType !== '' ? newType : key;
 }
 
 export function constObj<
-  K extends { [s: string]: string | boolean | number | symbol | object },
+  K extends { [s: string]: string },
   O extends { [T in keyof K]: K[T] }
 >(o: O) {
   return o;
 }
+const Tk = constObj({
+  hello: 5,
+});
