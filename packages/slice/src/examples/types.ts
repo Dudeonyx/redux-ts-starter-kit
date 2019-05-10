@@ -42,13 +42,13 @@ const defaultState = {
 export const {
   actions: hiActions$,
   reducer: hiReducer$,
-  mapSelectorsTo: reMapSelectors,
+  mapSelectorsTo,
   // ...hiSlice
   // slice: hiSlice$,
 } = createSlice({
   cases: {
     set: (state, payload: string[]) => payload,
-    reset: () => ['defaultState', 'jhj',],
+    reset: () => [],
   },
   computed: {
     getLength: (state) => state.length,
@@ -56,7 +56,7 @@ export const {
   initialState: [] as string[],
 });
 // hiSelector$
-const hiSelector$ = reMapSelectors('hi');
+const hiSelector$ = mapSelectorsTo('hi');
 
 const hiArray = {
   hi: ['',],
