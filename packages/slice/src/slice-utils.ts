@@ -63,7 +63,7 @@ export type ReMappedSelector<
   Select extends (state: any) => any
 > = (state: NestedObject<P, 0, ArgOf<Select>>) => ReturnType<Select>;
 
-export interface Paths<
+export interface MapSelectorsTo<
   SelectorMap extends { [s: string]: (state: any) => any }
 > {
   <
@@ -84,7 +84,7 @@ export interface Paths<
 }
 export function makeReMapableSelectors<
   SelectorMap extends { [s: string]: (s: any) => any }
->(selectors: SelectorMap): Paths<SelectorMap>;
+>(selectors: SelectorMap): MapSelectorsTo<SelectorMap>;
 
 export function makeReMapableSelectors<
   SelectorMap extends { [s: string]: (s: any) => any },
@@ -93,7 +93,7 @@ export function makeReMapableSelectors<
 >(
   selectors: SelectorMap,
   computed: ComputedMap,
-): Paths<SelectorMap & ComputedMap>;
+): MapSelectorsTo<SelectorMap & ComputedMap>;
 
 export function makeReMapableSelectors<
   SelectorMap extends { [s: string]: (s: any) => any },
@@ -101,7 +101,7 @@ export function makeReMapableSelectors<
 >(
   selectors: SelectorMap,
   computed: ComputedMap = {} as any,
-): Paths<SelectorMap & ComputedMap> {
+): MapSelectorsTo<SelectorMap & ComputedMap> {
   return <
     P extends string[] & {
       length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;

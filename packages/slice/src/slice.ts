@@ -5,7 +5,7 @@ import {
   makeReMapableSelectors,
   makeReducer,
   makeNameSpacedReducer,
-  Paths,
+  MapSelectorsTo,
   CreateNameSpace,
 } from './slice-utils';
 import { Draft } from 'immer';
@@ -17,7 +17,7 @@ interface NotEmptyObject {
 /** Type alias for case reducers when `slice` is blank or undefined */
 type CaseReducer<S = any, P = any, T extends string = string> = (
   state: Draft<S>,
-  payload: P,
+  action: P,
   type: T,
 ) => S | void | undefined;
 
@@ -133,7 +133,7 @@ export interface Slice<
    *
    * @memberof Slice
    */
-  mapSelectorsTo: Paths<SelectorMap>;
+  mapSelectorsTo: MapSelectorsTo<SelectorMap>;
 
   /**
    * Helper utility for nameSpacing the reducer and action creators
@@ -210,7 +210,28 @@ interface CreateSliceOptions<SS, Ax, Cx, TyO> {
   computed?: ComputedMap<SS, Cx>;
 
   /**
-   *
+   * @description Type overrides to override the `type` which case reducers respond to
+   * which by default is simply the name of the case reducer. 
+   * i.e the `addTodo` case reducer in `cases: { addTodo: (state, payload) => {//...}, }`
+   * would by default respond to actions of type `addTodo` e.g. `{ type: 'addTodo', payload: 'Jog' }`.
+   * This can be changed thanks to the `typeOverrides` option.
+   * For example the changed the type to `ADD_TODO` instead see the example below.
+   * 
+   * It should be noted that the action creators `createSlice` generates automatically account for typeOverrides
+   * 
+   * @example
+   * const todoSlice = createSlice({
+   *     cases: {
+   *         addTodo: (state, payload: string) => {
+   *             state.push({title: payload, completed: false})
+   *         },
+   *         deleteTodo: //...,
+   *         setCompleted: //...,
+   *     },
+   *     typeOverrides: {
+   *         addTodo: 'ADD_TODO'
+   *     }
+   * })
    *
    * @type {TyO}
    * @memberof CreateSliceOptions
