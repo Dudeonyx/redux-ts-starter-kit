@@ -2,7 +2,9 @@
  * @param {any} obj The object to inspect.
  * @returns {boolean} True if the argument appears to be a plain object.
  */
-export default function isPlainObject(obj?: unknown): obj is object {
+export default function isPlainObject(
+  obj?: unknown,
+): obj is { [s: string]: any } {
   if (typeof obj !== 'object' || obj === null) {
     return false;
   }

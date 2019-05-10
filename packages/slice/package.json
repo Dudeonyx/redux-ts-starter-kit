@@ -25,6 +25,7 @@
     "build": "rollup -c",
     "build:declaration": "tsc -p tsconfig.build.json",
     "clean": "rimraf lib .rpt2_cache",
+    "tsc:tests": "yarn run tsc -p ./src/tests --noEmit",
     "test:types": "typings-checker -p ./src/examples/tsconfig.json ./src/examples/types.ts",
     "lint": "prettier-tslint fix src/**/*.ts",
     "example": "ts-node ./src/examples/types.ts"
@@ -59,18 +60,19 @@
     "rollup-plugin-node-resolve": "^3.0.3",
     "rollup-plugin-replace": "^2.1.0",
     "rollup-plugin-terser": "^4.0.1",
-    "rollup-plugin-typescript2": "^0.18.1",
+    "rollup-plugin-typescript2": "^0.21.0",
     "ts-jest": "^23.10.5",
     "ts-node": "^7.0.1",
     "tslib": "^1.9.3",
     "tslint": "^5.12.0",
     "tslint-config-prettier": "^1.17.0",
     "tslint-react": "^3.6.0",
-    "typescript": "3.3.4000",
-    "typings-checker": "^2.0.0"
+    "typescript": "^3.4.5",
+    "typings-tester": "^0.3.2"
   },
   "dependencies": {
-    "immer": "2.0.0"
+    "memoize-state": "^2.0.7",
+    "immer": "3.1.1"
   },
   "husky": {
     "hooks": {
@@ -88,6 +90,5 @@
       "prettier-tslint fix",
       "git add"
     ]
-  },
-  "gitHead": "efec371705d08068056832fd383fda88439b334e"
+  }
 }

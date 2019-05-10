@@ -1,240 +1,201 @@
-import { AnyState } from './slice';
+export const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
-// const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-const hasOwn = Object.prototype.hasOwnProperty;
+type IncreaseNum<N extends number> = N extends 0
+  ? 1
+  : N extends 1
+  ? 2
+  : N extends 2
+  ? 3
+  : N extends 3
+  ? 4
+  : N extends 4
+  ? 5
+  : N extends 5
+  ? 6
+  : N extends 6
+  ? 7
+  : N extends 7
+  ? 8
+  : N extends 8
+  ? 9
+  : N extends 9
+  ? 10
+  : N extends 10
+  ? 11
+  : never;
 
-export function createSelector<State extends AnyState = AnyState>(
+export type NestedObject<
+  S extends string[] | ReadonlyArray<string>,
+  Start extends number,
+  Fin,
+  Max extends number = GetArrayLength<S>
+> = number extends Start
+  ? never
+  : Start extends Max
+  ? Fin
+  : { [K in S[Start]]: NestedObject<S, IncreaseNum<Start>, Fin, Max> };
+
+export type GetArrayLength<S extends any[] | ReadonlyArray<any>> = S extends {
+  length: infer L;
+}
+  ? L
+  : never;
+
+type Getter<
+  P extends string[] | ReadonlyArray<string>,
+  O extends { [s: string]: any }
+> = GetArrayLength<P> extends 0
+  ? O
+  : GetArrayLength<P> extends 1
+  ? O[P[0]]
+  : GetArrayLength<P> extends 2
+  ? O[P[0]][P[1]]
+  : GetArrayLength<P> extends 3
+  ? O[P[0]][P[1]][P[2]]
+  : GetArrayLength<P> extends 4
+  ? O[P[0]][P[1]][P[2]][P[3]]
+  : GetArrayLength<P> extends 5
+  ? O[P[0]][P[1]][P[2]][P[3]][P[4]]
+  : GetArrayLength<P> extends 6
+  ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]]
+  : GetArrayLength<P> extends 7
+  ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]]
+  : GetArrayLength<P> extends 8
+  ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]][P[7]]
+  : GetArrayLength<P> extends 9
+  ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]][P[7]][P[8]]
+  : GetArrayLength<P> extends 10
+  ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]][P[7]][P[8]][P[9]]
+  : never;
+
+export function makeTypeSafeSelector<P extends string[]>(
   slice: '',
-): (state: State) => State;
+  ...paths: P
+): {
+  <V>(): (object: NestedObject<P, 0, V>) => V;
+  bindToInput: <O extends NestedObject<P, 0, any>>() => (
+    object: O,
+  ) => Getter<P, O>;
+};
+export function makeTypeSafeSelector<P extends string[]>(
+  ...paths: P
+): {
+  <V>(): (object: NestedObject<P, 0, V>) => V;
+  bindToInput: <O extends NestedObject<P, 0, any>>() => (
+    object: O,
+  ) => Getter<P, O>;
+};
 
-export function createSelector<
-  State extends { [key in Sn]: SliceState },
-  SliceState,
-  Sn extends string
->(slice: Sn): (state: State) => SliceState;
-
-export function createSelector<
-  State extends AnyState = AnyState,
-  SliceState = any
->(slice: keyof State): (state: State) => SliceState | State {
-  if (
-    !(
-      typeof slice === 'string' ||
-      typeof slice === 'number' ||
-      typeof slice === 'symbol'
-    )
-  ) {
-    throw new Error(
-      'slice argument must be of type: string or number or symbol',
-    );
+export function makeTypeSafeSelector<
+  P extends (string[]) & {
+    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   }
-  if (slice === '') {
-    return (state: State) => state;
-  }
-  return (state: State) => {
-    try {
-      const stateSlice = state[slice];
-      return stateSlice;
-    } catch (error) {
-      console.error(`${String(slice)} was not found in the given State,
-    This selector was either called with a bad state argument or
-    an incorrect slice name was given when instantiating the parent reducer,
-    check for spelling errors`);
-      throw error;
-    }
-  };
+>(...paths: P) {
+  return paths[0] !== ''
+    ? Object.assign(
+        <V>() => {
+          return (object: NestedObject<P, 0, V>): V => {
+            return getter(paths, object) as any;
+          };
+        },
+        {
+          bindToInput: <O extends NestedObject<P, 0, any>>() => {
+            return (object: O): Getter<P, O> => {
+              return getter(paths, object as any) as any;
+            };
+          },
+        },
+      )
+    : Object.assign(
+        <V>() => {
+          return (object: any): V => {
+            return getter(paths.slice(1), object) as any;
+          };
+        },
+        {
+          bindToInput: <O extends NestedObject<P, 0, any>>() => {
+            return (object: O): any => {
+              return getter(paths.slice(1), object);
+            };
+          },
+        },
+      );
 }
-export function createSubSelector<
-  State extends { [key in Sn]: SliceState },
-  SliceState,
-  Sn extends string
->(slice: Sn | '', subSlice: ''): never;
 
-export function createSubSelector<
-  State extends AnyState,
-  SliceState extends { [x in SSn]: SliceState },
-  SSn extends string
->(slice: '', subSlice: SSn): (state: SliceState) => SliceState[SSn];
-
-export function createSubSelector<
-  State extends { [key in Sn]: SliceState },
-  SliceState extends { [key in SSn]: any },
-  Sn extends string,
-  SSn extends string
->(slice: Sn, subSlice: SSn): (state: State) => SliceState[SSn];
-
-export function createSubSelector<
-  State extends AnyState,
-  SliceState extends AnyState
->(
-  slice: keyof State,
-  subSlice: keyof SliceState,
-): (state: State) => SliceState[keyof SliceState] {
-  if (
-    subSlice == null ||
-    subSlice === '' ||
-    !(
-      typeof slice === 'string' ||
-      typeof slice === 'number' ||
-      typeof slice === 'symbol'
-    ) ||
-    !(
-      typeof subSlice === 'string' ||
-      typeof subSlice === 'number' ||
-      typeof subSlice === 'symbol'
-    )
-  ) {
-    throw new Error(
-      'SubSlice must not be blank, and slice & subSlice must be of type: string or number or symbol',
-    );
-  }
-  if (!slice) {
-    return (state: State) => {
-      try {
-        return state[subSlice as keyof State];
-      } catch (error) {
-        if (!hasOwn.call(state, slice)) {
-          console.error(
-            String(slice) +
-              ' was not found in the given State, This selector was either called with a bad state argument or an incorrect subSlice name was given when instantiating the parent reducer, check for spelling errors',
-          );
-        } else if (!hasOwn.call(state[slice], subSlice)) {
-          console.error(
-            String(subSlice) +
-              ' was not found in the given State[' +
-              String(slice) +
-              '] slice, This selector was either called with a bad state argument or an incorrect subSlice name was given when instantiating the parent reducer, check for spelling errors',
-          );
-        }
-        throw error;
-      }
-    };
-  }
-  return (state: State) => {
-    try {
-      return state[slice][subSlice];
-    } catch (error) {
-      console.error(`${String(slice)} was not found in the given State,
-      This selector was either called with a bad state argument or
-      an incorrect slice name was given when instantiating the parent reducer,
-      check for spelling errors`);
-      throw error;
-    }
+export const makeGetter = <P extends string[]>(...paths: P) => {
+  return (object: NestedObject<P, 0, any>) => {
+    return getter(paths, object);
   };
-}
-export function createSubSubSelector<
-  State extends AnyState,
-  SliceState,
-  Sn extends string
->(slice: Sn | '', subSlice: '', subSubSlice: any): never;
+};
 
-export function createSubSubSelector<
-  State extends AnyState,
-  SliceState,
-  Sn extends string,
-  SSn extends string
->(slice: Sn | '', subSlice: SSn | '', subSubSlice: ''): never;
-
-export function createSubSubSelector<
-  State extends { [key in Sn]: SliceState },
-  SliceState extends { [key in SSn]: { [key2 in SSSn]: any } },
-  Sn extends string,
-  SSn extends string,
-  SSSn extends string
+export const get = <
+  O extends NestedObject<P, 0, any>,
+  P extends string[] | ReadonlyArray<string>
 >(
-  slice: '',
-  subSlice: SSn,
-  subSubSlice: SSSn,
-): (state: SliceState) => SliceState[SSn][SSSn];
+  object: O,
+  ...paths: P
+) => getter(paths, object);
 
-export function createSubSubSelector<
-  State extends { [key in Sn]: SliceState },
-  SliceState extends { [key in SSn]: { [key2 in SSSn]: any } },
-  Sn extends string,
-  SSn extends string,
-  SSSn extends string
+function getter<
+  P extends string[] | ReadonlyArray<string>,
+  O extends NestedObject<P, I, any>,
+  I extends number = 0
 >(
-  slice: Sn,
-  subSlice: SSn,
-  subSubSlice: SSSn,
-): (state: State) => SliceState[SSn][SSSn];
-
-export function createSubSubSelector<
-  State extends { [key in Sn]: SliceState },
-  SliceState extends { [key in SSn]: { [key2 in SSSn]: any } },
-  Sn extends string,
-  SSn extends string,
-  SSSn extends string
->(
-  slice: Sn,
-  subSlice: SSn,
-  subSubSlice: SSSn,
-): (state: State) => SliceState[SSn][SSSn] {
-  if (
-    subSlice == null ||
-    subSlice === '' ||
-    subSubSlice == null ||
-    subSubSlice === '' ||
-    !(
-      typeof slice === 'string' ||
-      typeof slice === 'number' ||
-      typeof slice === 'symbol'
-    ) ||
-    !(
-      typeof subSlice === 'string' ||
-      typeof subSlice === 'number' ||
-      typeof subSlice === 'symbol'
-    ) ||
-    !(
-      typeof subSubSlice === 'string' ||
-      typeof subSubSlice === 'number' ||
-      typeof subSubSlice === 'symbol'
-    )
-  ) {
-    throw new Error(
-      'SubSlice or SubSubSlice must not be blank, and slice, subSlice, SubSubSlice must be of type: string or number or symbol',
-    );
+  paths: P,
+  object: O | undefined,
+  index: I = 0 as I,
+): Getter<P, O> | undefined {
+  if (paths.length === 0) {
+    return object as any;
   }
-  if (!slice) {
-    return (state: State) => {
-      try {
-        return ((state as unknown) as SliceState)[subSlice][subSubSlice];
-      } catch (error) {
-        console.error(`${String(slice)} was not found in the given State,
-        This selector was either called with a bad state argument (e.g null or undefined) or
-        an incorrect slice name was given when instantiating the parent reducer,
-        check for spelling errors`);
-        throw error;
-      }
-    };
-  }
-  return (state: State) => {
-    try {
-      return state[slice][subSlice][subSubSlice];
-    } catch (error) {
-      if (!hasOwn.call(state, slice)) {
-        console.error(
-          String(slice) +
-            ' was not found in the given State, This selector was either called with a bad state argument or an incorrect subSlice name was given when instantiating the parent reducer, check for spelling errors',
+  if (object == null) {
+    if (index !== 0) {
+      // tslint:disable-next-line: no-unused-expression
+      IS_PRODUCTION ||
+        console.warn(
+          'There is a possible mis-match between the "paths" and "object" in a getter resulting in an undefined value before the last path, The potentially bad path is "%s". The combined path leading up to here is "%s"',
+          `['${paths[index - 1]}']`,
+          `['${paths.slice(0, index).join('\'][\'')}']`,
         );
-      } else if (!hasOwn.call(state[slice], subSlice)) {
-        console.error(
-          String(subSlice) +
-            ' was not found in the given State[' +
-            String(slice) +
-            '] slice, This selector was either called with a bad state argument or an incorrect subSlice name was given when instantiating the parent reducer, check for spelling errors',
-        );
-      } else if (!hasOwn.call(state[slice][subSlice], subSubSlice)) {
-        console.error(
-          String(subSubSlice) +
-            ' was not found in the given State[' +
-            String(slice) +
-            '][' +
-            String(subSlice) +
-            '] slice, This selector was either called with a bad state argument or an incorrect subSlice name was given when instantiating the parent reducer, check for spelling errors',
-        );
-      }
-      throw error;
+    } else {
+      // tslint:disable-next-line: no-unused-expression
+      IS_PRODUCTION ||
+        console.warn('A getter was called on an undefined or null value');
     }
-  };
+
+    return object as any;
+  }
+  if (typeof object !== 'object') {
+    // tslint:disable-next-line: no-unused-expression
+    IS_PRODUCTION ||
+      console.warn(
+        'Warning: You attempted to call a getter on a Non-Object value, The value is "%s", and the path to the value is "%s"',
+        object,
+        index === 0 ? '' : `['${paths.slice(0, index).join('\'][\'')}']`,
+      );
+    return undefined;
+  }
+  const key = paths[index];
+  const nextIndex = index + 1;
+  if (paths.length === nextIndex) {
+    if (!(key in object)) {
+      // tslint:disable-next-line: no-unused-expression
+      IS_PRODUCTION ||
+        console.warn(
+          'There is a possible mis-match between the final "path" argument and "object" in a getter resulting in an undefined value, The potentially bad final path is "%s". The combined path leading up to here is "%s"',
+          `['${key}']`,
+          `['${paths.join('\'][\'')}']`,
+        );
+    }
+    return object[key];
+  }
+  return getter(paths, object[key], nextIndex);
 }
+
+export const A = <
+  Ar extends Array<
+    string | number | object | boolean | symbol | undefined | null
+  >
+>(
+  ...values: Ar
+): Ar => values;

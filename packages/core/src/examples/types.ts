@@ -28,7 +28,7 @@ const defaultState = {
 
 export const {
   actions: { resetHi, setHi },
-  selectors: { getSlice: getHi, test: getTest, wow: getWow },
+  selectors: { selectSlice: getHi, test: getTest, wow: getWow },
   reducer: hiReducer,
 } = createSlice<Actions, HiSliceState, 'hi'>({
   slice: 'hi',
@@ -102,7 +102,7 @@ export const {
   slice: authSlice,
   actions: { authFail, authStart, authSuccess, authLogout },
   selectors: {
-    getSlice: getAuth,
+    selectSlice: getAuth,
     authenticating: getAuthAuthenticating,
     error: getAuthError,
     idToken: getAuthIdToken,
@@ -140,7 +140,7 @@ export const {
   reducer: ordersReducer,
   actions: { setOrders, setOrdersError, setOrdersLoading },
   selectors: {
-    getSlice: getOrdersSlice,
+    selectSlice: getOrdersSlice,
     error: getOrdersError,
     loading: getOrdersLoading,
     orders: getOrders,

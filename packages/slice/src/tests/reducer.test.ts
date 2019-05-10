@@ -3,15 +3,15 @@ import { Reducer } from '../slice';
 
 describe('createReducer', () => {
   describe('given impure reducers with immer', () => {
-    function addTodo(state: any, action: any) {
-      const { newTodo } = action.payload;
+    function addTodo(state: any, payload: {newTodo: any}) {
+      const { newTodo } = payload;
 
       // Can safely call state.push() here
       state.push({ ...newTodo, completed: false });
     }
 
-    function toggleTodo(state: any, action: any) {
-      const { index } = action.payload;
+    function toggleTodo(state: any, payload: {index: any}) {
+      const { index } = payload;
 
       const todo = state[index];
       // Can directly modify the todo object
@@ -30,15 +30,15 @@ describe('createReducer', () => {
   });
 
   describe('given pure reducers with immutable updates', () => {
-    function addTodo(state: any, action: any) {
-      const { newTodo } = action.payload;
+    function addTodo(state: any, payload: {newTodo: any}) {
+      const { newTodo } = payload;
 
       // Updates the state immutably without relying on immer
       return [...state, { ...newTodo, completed: false },];
     }
 
-    function toggleTodo(state: any, action: any) {
-      const { index } = action.payload;
+    function toggleTodo(state: any, payload: {index: any}) {
+      const { index } = payload;
 
       // Updates the todo object immutably withot relying on immer
       return state.map((todo: any, i: number) => {
@@ -63,7 +63,7 @@ describe('createReducer', () => {
 
 function behavesLikeReducer<R extends Reducer>(todosReducer: R) {
   it('should handle initial state', () => {
-    expect(todosReducer(undefined, { type: '' })).toEqual([]);
+    expect(todosReducer(undefined, { type: '', payload: {newTodo: 'dfdf'} })).toEqual([]);
   });
 
   it('should handle ADD_TODO', () => {
