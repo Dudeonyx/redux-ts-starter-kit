@@ -172,8 +172,8 @@ interface CreateSliceOptions<SS, Ax, Cx, TyO> {
    *
    * @type {Cases<SS, Ax, TyO>}
    * @example
-   * type Todo = {title: string, completed: boolean}
-   * createSlice({
+   * interface Todo {title: string, completed: boolean};
+   * const todoSlice = createSlice({
    *   initialState: [] as Todo[],
    *   cases: {
    *     addTodo: (state, payload: string) => {
@@ -186,12 +186,14 @@ interface CreateSliceOptions<SS, Ax, Cx, TyO> {
   cases: Cases<SS, Ax, TyO>;
 
   /**
-   * @description computed selectors for this slice, will be memoized using `memomoize-state` lib
+   * @description computed selectors for this slice, will be memoized using `memoize-state` lib
    * https://github.com/theKashey/memoize-state
    *
-   * @see note: (js-users ignore) if using `this` to access other selectors, ReturnType should be explicit to prevent `typescript` errors, see https://github.com/dudeonyx/redux-ts-starter-kit/issues
+   * @see note: (js-users ignore) if using `this` to access other selectors,
+   * ReturnType should be explicit to prevent `typescript` errors,
+   * see https://github.com/dudeonyx/redux-ts-starter-kit/issues
    * @example
-   * type Todo = {title: string, completed: boolean}
+   * type Todo = {title: string, completed: boolean};
    * const todosSlice = createSlice({
    *   initialState: [] as Todo[],
    *   computed: {
