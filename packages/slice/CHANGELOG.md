@@ -1,5 +1,15 @@
 # CHANGES
 
+## @v2.0.0
+
+* Finally live after months of changes and delibrations
+
+* Added `typeOverrides` functionality to `createSlice`
+
+* Computed selectors can now be created directly in `createSlice`
+
+* `memoize-state` is used for smart memoization.
+
 ## > @v2.0.0
 
 * changed re-exports to fix commonjs issue

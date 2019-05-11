@@ -17,6 +17,7 @@ import createSerializableStateInvariantMiddleware from './serializableStateInvar
 
 import isPlainObject from './isPlainObject';
 
+
 export function getDefaultMiddleware() {
   return process.env.NODE_ENV === 'production'
     ? [thunk,]
