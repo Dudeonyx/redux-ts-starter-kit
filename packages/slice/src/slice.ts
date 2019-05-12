@@ -1,4 +1,4 @@
-import { PayloadAction, AnyAction } from './types';
+import { AnyAction } from './types';
 import {
   makeActionCreators,
   makeSelectors,
@@ -62,11 +62,7 @@ type InferType<TyO extends string | undefined, Fallback> = TyO extends string
   : never;
 /** Type alias for generated action creators */
 export type ActionCreators<A, TyO extends { [K in keyof A]?: string } = {}> = {
-  [key in Extract<keyof A, string>]: ActionCreator<
-    A,
-    key,
-    InferType<TyO[key], key>
-  > & {
+  [key in keyof A]: ActionCreator<A, key, InferType<TyO[key], key>> & {
     type: InferType<TyO[key], key>;
     toString: () => InferType<TyO[key], key>;
   }
@@ -77,14 +73,20 @@ type ActionCreator<
   K extends keyof A,
   T extends string
 > = unknown extends A[K] // hacky ternary for `A[K] is any`
-  ? (payload?: any) => PayloadAction<any, T>
+  ? (payload?: any) => { type: T; payload: any }
   : A[K] extends never | undefined | void // No payload when type is `never` | `undefined` | `void`
-  ? () => PayloadAction<undefined, T>
+  ? () => { type: T }
   : A[K] extends NotEmptyObject // needed to prevent very rare edge cases where the next ternary is wrongly triggered
-  ? (payload: A[K]) => PayloadAction<A[K], T>
+  ? (payload: A[K]) => { type: T; payload: A[K] }
   : {} extends A[K] // ensures payload isn't inferred as {}, this is due to way ts narrows uninferred types to {}, ts@>3.5 will potentially fix this
-  ? () => PayloadAction<undefined, T>
-  : (payload: A[K]) => PayloadAction<A[K], T>;
+  ? () => { type: T }
+  : (payload: A[K]) => { type: T; payload: A[K] };
+
+/** Map of computed selectors */
+type ComputedMap<S, C extends {}> = { [K in keyof C]: (state: S) => C[K] };
+
+/** Hack used to make `typeOverrides` string literals */
+type Const<TyO> = { [K in keyof TyO]: TyO[K] };
 
 /**
  * @interface Slice
@@ -186,7 +188,7 @@ interface CreateSliceOptions<SS, Ax, Cx, TyO> {
   cases: Cases<SS, Ax, TyO>;
 
   /**
-   * @description computed selectors for this slice, will be memoized using `memoize-state` lib
+   * @description computed selectors for this slice, will be memoized using the `memoize-state` lib
    * https://github.com/theKashey/memoize-state
    *
    * @see note: (js-users ignore) if using `this` to access other selectors,
@@ -241,9 +243,6 @@ interface CreateSliceOptions<SS, Ax, Cx, TyO> {
   typeOverrides?: TyO;
 }
 
-type ComputedMap<S, C extends {}> = { [K in keyof C]: (state: S) => C[K] };
-type Const<TyO> = { [K in keyof TyO]: TyO[K] };
-
 /**
  * @description Generates a redux state tree slice, complete with a `reducer`,
  *  `action creators`, `mapSelectorsTo` and `createNameSpace`
@@ -254,10 +253,7 @@ type Const<TyO> = { [K in keyof TyO]: TyO[K] };
  * @template SliceState - The interface of the initial state,
  * @template Computed
  * @template TypeOverrides
- * @param {CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>} {
- *   cases,
- *   initialState,
- * }
+ * @param {CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>} options
  * @returns {(Slice<
  *   ActionCreators<Actions, TypeOverrides>,
  *   SliceState,
@@ -297,8 +293,8 @@ export function createSlice<
 >({
   cases,
   initialState,
-  computed = {} as any,
-  typeOverrides = {} as any,
+  computed = {} as ComputedMap<SliceState, Computed>,
+  typeOverrides = {} as Const<TyO>,
 }: CreateSliceOptions<SliceState, Actions, Computed, Const<TyO>>): Slice<
   ActionCreators<Actions, TyO>,
   SliceState,

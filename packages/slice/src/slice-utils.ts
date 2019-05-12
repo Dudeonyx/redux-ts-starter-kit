@@ -5,11 +5,6 @@ import memoize from 'memoize-state';
 import { createReducer } from './reducer';
 import { AnyAction, PayloadAction } from './types';
 
-// type InferSelectorMapState<Slctr> = Slctr extends {
-//   [K in keyof Slctr]: (s: infer S) => any
-// }
-//   ? S
-//   : never;
 export type ArgOf<Fn> = Fn extends (o: infer O) => any ? O : never;
 
 export const makeComputedSelectors = <
@@ -25,14 +20,7 @@ export const makeComputedSelectors = <
   });
   return temp;
 };
-const reMapSelector = <S, R, P extends string[]>(
-  selector: (state: S) => R,
-  ...paths: P
-): ReMappedSelector<P, typeof selector> => {
-  const mapFn = makeTypeSafeSelector(...paths)<S>();
-  type Obj = ArgOf<typeof mapFn>;
-  return (state: Obj) => selector(mapFn(state));
-};
+
 export const reMapSelectors = <
   P extends string[] & {
     length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
@@ -42,13 +30,18 @@ export const reMapSelectors = <
   selectors: SelectorMap,
   ...paths: P
 ): ReMappedSelectors<P, SelectorMap> => {
+  const mapFn = makeTypeSafeSelector(...paths)();
+  type Obj = ArgOf<typeof mapFn>;
   return (Object.keys(selectors) as Array<keyof SelectorMap>).reduce<
     ReMappedSelectors<P, SelectorMap>
   >(
-    (map, key) => ({
-      ...map,
-      [key]: reMapSelector(selectors[key], ...paths),
-    }),
+    (map, key) => {
+      const selector = selectors[key];
+      return {
+        ...map,
+        [key]: (state: Obj) => selector(mapFn(state)),
+      };
+    },
     {} as any,
   );
 };

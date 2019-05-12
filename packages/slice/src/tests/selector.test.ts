@@ -24,16 +24,6 @@ describe('makeGetter/makeTypeSafeSelector', () => {
     },
   };
 
-  const deepState2 = {
-    another: {
-      deeply: {
-        nested: {
-          property,
-        },
-      },
-    },
-  };
-
   const getter0 = makeGetter(
     'some',
     'very',
@@ -63,7 +53,7 @@ describe('makeGetter/makeTypeSafeSelector', () => {
     'nested',
     'property',
     '0',
-  ).bindToInput<typeof deepState2>();
+  ).bindToInput<typeof deepState>();
   const getter2 = makeGetter(
     'anotherdf',
     'deeplyf',
