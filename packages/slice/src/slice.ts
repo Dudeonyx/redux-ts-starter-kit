@@ -1,4 +1,4 @@
-import { AnyAction } from './types';
+import { AnyAction, PayloadAction } from './types';
 import {
   makeActionCreators,
   makeSelectors,
@@ -73,14 +73,14 @@ type ActionCreator<
   K extends keyof A,
   T extends string
 > = unknown extends A[K] // hacky ternary for `A[K] is any`
-  ? (payload?: any) => { type: T; payload: any }
+  ? (payload?: any) => PayloadAction<any, T>
   : A[K] extends never | undefined | void // No payload when type is `never` | `undefined` | `void`
-  ? () => { type: T }
+  ? () => PayloadAction<undefined, T>
   : A[K] extends NotEmptyObject // needed to prevent very rare edge cases where the next ternary is wrongly triggered
-  ? (payload: A[K]) => { type: T; payload: A[K] }
+  ? (payload: A[K]) => PayloadAction<A[K], T>
   : {} extends A[K] // ensures payload isn't inferred as {}, this is due to way ts narrows uninferred types to {}, ts@>3.5 will potentially fix this
-  ? () => { type: T }
-  : (payload: A[K]) => { type: T; payload: A[K] };
+  ? () => PayloadAction<undefined, T>
+  : (payload: A[K]) => PayloadAction<A[K], T>;
 
 /** Map of computed selectors */
 type ComputedMap<S, C extends {}> = { [K in keyof C]: (state: S) => C[K] };
