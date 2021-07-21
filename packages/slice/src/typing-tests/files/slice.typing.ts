@@ -13,9 +13,9 @@ import {
       add: (state, payload: string, type) => void state.push(payload),
       set: (_state, payload: string[], type) => payload,
       removeLast: (state, payload, type) => void state.pop(),
-      reset: () => ['defaultState', 'jhj',],
+      reset: () => ['defaultState', 'jhj'],
     },
-    initialState: ['defaultState', 'jhj',],
+    initialState: ['defaultState', 'jhj'],
   });
 
   const { actions: hiActions$, reducer: hiReducer$ } = hiSlice;
@@ -50,9 +50,9 @@ import {
 
   hiActions$.reset();
   // typings:expect-error
-  hiActions$.reset(['sf',]);
+  hiActions$.reset(['sf']);
 
-  hiActions$.set(['hj',]);
+  hiActions$.set(['hj']);
   // typings:expect-error
   hiActions$.set();
 

@@ -1,9 +1,9 @@
+import { Action, AnyAction } from 'redux';
 import { configureStore } from '../configureStore';
 
 import createSerializableStateInvariantMiddleware, {
   findNonSerializableValue,
 } from '../serializableStateInvariantMiddleware';
-import { Action, AnyAction } from 'redux';
 
 describe('findNonSerializableValue', () => {
   it('Should return false if no matching values are found', () => {

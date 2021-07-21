@@ -1,5 +1,5 @@
-import isPlainObject from '../isPlainObject';
 import * as vm from 'vm';
+import isPlainObject from '../isPlainObject';
 
 describe('isPlainObject', () => {
   it('returns true only if plain object', () => {

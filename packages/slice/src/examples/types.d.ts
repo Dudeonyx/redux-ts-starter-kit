@@ -45,5 +45,5 @@ export interface IDbOrders {
 export interface IordersReducerState {
   orders: IDbOrders | null;
   loading: boolean;
-  error: Error & { [x: string]: any } | null;
+  error: (Error & { [x: string]: any }) | null;
 }

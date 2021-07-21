@@ -1,7 +1,7 @@
 import { createSlice } from '@redux-ts-starter-kit/slice';
+import thunk from 'redux-thunk';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { configureStore } from '../configureStore';
-import thunk from 'redux-thunk';
 // import { Action } from 'redux';
 // import {} from '../index';
 

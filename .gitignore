@@ -7,3 +7,17 @@ lerna-debug.log
 .vscode/
 coverage/
 packages/core/src/examples/builtcheck.ts
+packages/*/node_modules
+packages/*/.yarn/*
+
+typesversions
+.cache
+.yarnrc
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+*.tgz

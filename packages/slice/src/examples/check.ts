@@ -1,5 +1,5 @@
-import { ActionsMap, Slice, Cases } from '../slice';
 import { Draft } from 'immer';
+import { ActionsMap, Slice, Cases } from '../slice';
 import { PayloadAction } from '../types';
 import { createTypeSafeAction } from '../action';
 
@@ -18,7 +18,7 @@ function crSl<
   S,
   Ax extends {},
   Ac extends { [K in keyof Ax]?: string },
-  Cx extends { [s: string]: (state: S) => any }
+  Cx extends { [s: string]: (state: S) => any },
 >(
   o: CRO<S, Ax, Ac, Cx>,
 ): { [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType<Ac, C>> };
@@ -27,11 +27,11 @@ function crSl<
   S,
   Ax extends {},
   Ac extends { [K in keyof Ax]?: string },
-  Cx extends { [s: string]: (state: S) => any }
+  Cx extends { [s: string]: (state: S) => any },
 >(
   o: CRO<S, Ax, Ac, Cx>,
 ): {
-  [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType<Ac[C], C>>
+  [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType<Ac[C], C>>;
 };
 
 function crSl(o: any): any {
@@ -93,7 +93,7 @@ type Scale<
   S extends string[] | ReadonlyArray<string>,
   Start extends number,
   Max extends number,
-  Fin
+  Fin,
 > = Start extends Max
   ? Fin
   : { [K in S[Start]]: Scale<S, IncreaseNum<Start>, Max, Fin> };
@@ -111,7 +111,7 @@ const safeGet = <O extends { [x: string]: any }, K extends string>(
 
 type Getter<
   P extends string[],
-  O extends { [s: string]: any }
+  O extends { [s: string]: any },
 > = GetArrayLength<P> extends 0
   ? O
   : GetArrayLength<P> extends 1
@@ -133,7 +133,7 @@ type Getter<
   : never;
 
 function makeGetter<
-  P extends string[] & { length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 }
+  P extends string[] & { length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 },
 >(...paths: P) {
   return <O extends Scale<P, 0, GetArrayLength<P>, any>>(
     object: O,
@@ -142,7 +142,7 @@ function makeGetter<
 function getter<
   P extends string[],
   O extends Scale<P, I, GetArrayLength<P>, any>,
-  I extends number = 0
+  I extends number = 0,
 >(paths: P, object: O, index: I = 0 as I): Getter<P, O> {
   const key = paths[index];
   const nextIndex = index + 1;
@@ -173,20 +173,20 @@ function intGet<O extends { [s: string]: any }, P0 extends keyof O>(
 function intGet<
   O extends { [s: string]: any },
   P0 extends keyof O,
-  P1 extends keyof O[P0]
+  P1 extends keyof O[P0],
 >(object: O, p0: P0, p1: P1): O[P0][P1];
 function intGet<
   O extends { [s: string]: any },
   P0 extends keyof O,
   P1 extends keyof O[P0],
-  P2 extends keyof O[P0][P1]
+  P2 extends keyof O[P0][P1],
 >(object: O, p0: P0, p1: P1, p2: P2): O[P0][P1][P2];
 function intGet<
   O extends { [s: string]: any },
   P0 extends keyof O,
   P1 extends keyof O[P0],
   P2 extends keyof O[P0][P1],
-  P3 extends keyof O[P0][P1][P2]
+  P3 extends keyof O[P0][P1][P2],
 >(object: O, p0: P0, p1: P1, p2: P2, p3: P3): O[P0][P1][P2][P3];
 function intGet<
   O extends { [s: string]: any },
@@ -194,7 +194,7 @@ function intGet<
   P1 extends keyof O[P0],
   P2 extends keyof O[P0][P1],
   P3 extends keyof O[P0][P1][P2],
-  P4 extends keyof O[P0][P1][P2][P3]
+  P4 extends keyof O[P0][P1][P2][P3],
 >(object: O, p0: P0, p1: P1, p2: P2, p3: P3, p4: P4): O[P0][P1][P2][P3][P4];
 function intGet<
   O extends { [s: string]: any },
@@ -203,7 +203,7 @@ function intGet<
   P2 extends keyof O[P0][P1],
   P3 extends keyof O[P0][P1][P2],
   P4 extends keyof O[P0][P1][P2][P3],
-  P5 extends keyof O[P0][P1][P2][P3][P4]
+  P5 extends keyof O[P0][P1][P2][P3][P4],
 >(
   object: O,
   p0: P0,
@@ -224,7 +224,7 @@ function reMapSelectors<
     length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   },
   S extends {},
-  MapS extends { [s: string]: any }
+  MapS extends { [s: string]: any },
 >(selectors: SlMp<S, MapS>, ...paths: P): S {
   return null as any;
 }
@@ -244,11 +244,11 @@ export function createStructuredSelector<S, T>(
 const chk2 = createStructuredSelector({
   sel: (state: { key: number }) => state.key,
 });
-
-function constObj<
-  K extends { [s: string]: string | boolean | number | symbol | object },
-  O extends { [T in keyof K]: K[T] }
->(o: O) {
+type ANY = string | boolean | number | symbol | object | null | undefined;
+type Const<O> = { [K in keyof O]: O[K] };
+function constObj<O extends {}, K extends { [S in keyof O]: ANY }>(
+  o: Const<K>,
+): K {
   return o;
 }
 
@@ -256,14 +256,132 @@ const fdffdf = constObj({
   hello: 'world',
   my: 'name is',
   age: 5,
+  other: constObj({
+    things: ['matter'],
+    to: 'me',
+  }),
 });
 
+function constArr<P0 extends ANY>(a: [P0]): typeof a;
+function constArr<P0 extends ANY, P1 extends ANY>(a: [P0, P1]): typeof a;
+function constArr<P0 extends ANY, P1 extends ANY, P2 extends ANY>(
+  a: [P0, P1, P2],
+): typeof a;
+function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+>(a: [P0, P1, P2, P3]): typeof a;
+function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+>(a: [P0, P1, P2, P3, P4]): typeof a;
+function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5]): typeof a;
+function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6]): typeof a;
+function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+  P7 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6, P7]): typeof a;
+function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+  P7 extends ANY,
+  P8 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8]): typeof a;
+function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+  P7 extends ANY,
+  P8 extends ANY,
+  P9 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8, P9]): typeof a;
+function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+  P7 extends ANY,
+  P8 extends ANY,
+  P9 extends ANY,
+  P10 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10]): typeof a;
+function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+  P7 extends ANY,
+  P8 extends ANY,
+  P9 extends ANY,
+  P10 extends ANY,
+  P11 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11]): typeof a;
+function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+  P7 extends ANY,
+  P8 extends ANY,
+  P9 extends ANY,
+  P10 extends ANY,
+  P11 extends ANY,
+  P12 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12]): typeof a;
+function constArr<P0 extends ANY[]>(a: P0) {
+  return a;
+}
+const dfdfaf = constArr(['hello']);
 {
   type GetS<S> = S extends number ? number : S extends string ? string : S;
 
   type ExcludeNonMethodKeys<
     T extends {},
-    K extends keyof T = keyof T
+    K extends keyof T = keyof T,
   > = K extends keyof T
     ? T[K] extends (...args: any[]) => any
       ? K
@@ -287,12 +405,12 @@ const fdffdf = constObj({
     Ax extends {},
     Ac extends { [K in keyof Ax]?: string },
     // Cx extends ActionsMap,
-    Cx extends CSX<S>
+    Cx extends CSX<S>,
   >(
     o: CRO2<S, Ax, Ac, Cx>,
   ): {
     actions: {
-      [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType2<Ac, C>>
+      [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType2<Ac, C>>;
     };
     computed: Cx;
   };
@@ -301,11 +419,14 @@ const fdffdf = constObj({
     S,
     Ax extends {},
     Ac extends { [K in keyof Ax]?: string },
-    Cx extends { [s: string]: (state: S) => any }
+    Cx extends { [s: string]: (state: S) => any },
   >(
     o: CRO2<S, Ax, Ac, Cx>,
   ): {
-    [C in Extract<keyof Ax, string>]: PayloadAction<Ax[C], InferType2<Ac[C], C>>
+    [C in Extract<keyof Ax, string>]: PayloadAction<
+      Ax[C],
+      InferType2<Ac[C], C>
+    >;
   };
 
   function crSl(o: any): any {

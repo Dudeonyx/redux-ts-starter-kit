@@ -1,14 +1,15 @@
-import { AnyAction, PayloadAction } from './types';
+import type { Draft } from 'immer';
+import type { AnyAction, PayloadAction } from './types';
+import type {
+  MapSelectorsTo,
+  CreateNameSpace} from './slice-utils';
 import {
   makeActionCreators,
   makeSelectors,
   makeReMapableSelectors,
   makeReducer,
-  makeNameSpacedReducer,
-  MapSelectorsTo,
-  CreateNameSpace,
+  makeNameSpacedReducer
 } from './slice-utils';
-import { Draft } from 'immer';
 
 interface NotEmptyObject {
   [s: string]: string | number | symbol | boolean | object | undefined | null;
@@ -36,7 +37,7 @@ export type Reducer<S = any, A extends AnyAction = AnyAction> = (
 export type Cases<
   SS,
   Ax extends {},
-  TyO extends { [C in keyof Ax]?: string } = {}
+  TyO extends { [C in keyof Ax]?: string } = {},
 > = { [K in keyof Ax]: CaseReducer<SS, Ax[K], InferType<TyO[K], K>> };
 
 /** Generic Actions Map interface */
@@ -65,13 +66,13 @@ export type ActionCreators<A, TyO extends { [K in keyof A]?: string } = {}> = {
   [key in keyof A]: ActionCreator<A, key, InferType<TyO[key], key>> & {
     type: InferType<TyO[key], key>;
     toString: () => InferType<TyO[key], key>;
-  }
+  };
 };
 
 type ActionCreator<
   A,
   K extends keyof A,
-  T extends string
+  T extends string,
 > = unknown extends A[K] // hacky ternary for `A[K] is any`
   ? (payload?: any) => PayloadAction<any, T>
   : A[K] extends never | undefined | void // No payload when type is `never` | `undefined` | `void`
@@ -99,7 +100,7 @@ type Const<TyO> = { [K in keyof TyO]: TyO[K] };
 export interface Slice<
   Ax extends ActionCreators<any, any>,
   SS,
-  SelectorMap extends { [s: string]: (s: SS) => any }
+  SelectorMap extends { [s: string]: (s: SS) => any },
 > {
   /**
    * @description The generated reducer
@@ -129,9 +130,9 @@ export interface Slice<
    * });
    * const store = createStore(rootReducer);
    *
-   * const selectors = todosSlice.mapSelectorsTo('todos');
+   * const todosSelector = todosSlice.mapSelectorsTo('todos');
    *
-   * const mapStateToProps = (state: typeof store.getState) => selectors.selectSlice(state)
+   * const mapStateToProps = (state: typeof store.getState) => todosSelector.selectSlice(state)
    *
    * @memberof Slice
    */
@@ -264,7 +265,7 @@ export function createSlice<
   Actions extends ActionsMap,
   SliceState,
   Computed extends ActionsMap,
-  TyO extends { [K in keyof Actions]?: string }
+  TyO extends { [K in keyof Actions]?: string },
 >(
   options: CreateSliceOptions<SliceState, Actions, Computed, Const<TyO>>,
 ): Slice<
@@ -276,7 +277,7 @@ export function createSlice<
   Actions extends ActionsMap,
   SliceState,
   Computed extends ActionsMap,
-  TyO extends { [K in keyof Actions]?: string }
+  TyO extends { [K in keyof Actions]?: string },
 >(
   options: CreateSliceOptions<SliceState, Actions, Computed, Const<TyO>>,
 ): Slice<
@@ -289,7 +290,7 @@ export function createSlice<
   Actions extends ActionsMap,
   SliceState,
   Computed extends ActionsMap,
-  TyO extends { [K in keyof Actions]?: string }
+  TyO extends { [K in keyof Actions]?: string },
 >({
   cases,
   initialState,

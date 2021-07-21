@@ -1,9 +1,9 @@
-import { configureStore, getDefaultMiddleware } from '../configureStore';
 import * as redux from 'redux';
 import * as devtools from 'redux-devtools-extension';
 
 import thunk from 'redux-thunk';
 import { createSlice } from '@redux-ts-starter-kit/slice';
+import { configureStore, getDefaultMiddleware } from '../configureStore';
 
 describe('getDefaultMiddleware', () => {
   const ORIGINAL_NODE_ENV = process.env.NODE_ENV;

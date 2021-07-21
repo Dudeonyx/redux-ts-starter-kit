@@ -1,5 +1,5 @@
-import { createSlice } from '../slice';
 import { combineReducers } from 'redux';
+import { createSlice } from '../slice';
 import { createType } from '../action';
 
 describe('createSlice', () => {
@@ -79,11 +79,11 @@ describe('createSlice', () => {
       computed: {
         nameAndSurname: (state) => {
           nameAndSurnameCalled++;
-          return state.name + ' ' + state.surname;
+          return `${state.name  } ${  state.surname}`;
         },
         fullName: (state) => {
           fullNameCalled++;
-          return state.name + ' ' + state.middlename + ' ' + state.surname;
+          return `${state.name  } ${  state.middlename  } ${  state.surname}`;
         },
       },
     });
@@ -517,9 +517,7 @@ describe('multiple createSlice slices combined with `combineReducers`', () => {
       setGreeting: (state, payload) => {
         state.greeting = payload;
       },
-      resetHi: (state) => {
-        return hiInitialState;
-      },
+      resetHi: (state) => hiInitialState,
     },
     initialState: hiInitialState,
   });

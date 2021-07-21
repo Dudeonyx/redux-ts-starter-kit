@@ -1,6 +1,6 @@
-import { createSlice, Selectors } from '../slice';
 import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
 import thunk from 'redux-thunk';
+import { createSlice, Selectors } from '../slice';
 import { IordersReducerState, IDbOrders } from './types.d';
 import { createReducer } from '../reducer';
 import { ReMappedSelectors } from '../slice-utils';
@@ -59,7 +59,7 @@ export const {
 const hiSelector$ = mapSelectorsTo('hi');
 
 const hiArray = {
-  hi: ['',],
+  hi: [''],
   auth: { error: null, authenticating: false } as AuthSliceState,
   ords: {} as IordersReducerState,
 };
@@ -309,15 +309,13 @@ const rootReducer = combineReducers<IState>({
 
 export const store = createStore(rootReducer, applyMiddleware(thunk));
 
-const thunkAuthLogout = async () => async (
-  dispatch: Dispatch,
-  getState: () => IState,
-) => {
-  setTimeout(() => {
-    dispatch(authLogout());
-    console.log('\n\nThunk!!!\n\n You\'ve been logged out!');
-  }, 15000);
-};
+const thunkAuthLogout =
+  async () => async (dispatch: Dispatch, getState: () => IState) => {
+    setTimeout(() => {
+      dispatch(authLogout());
+      console.log("\n\nThunk!!!\n\n You've been logged out!");
+    }, 15000);
+  };
 
 console.log('\n\n[auth object]\n', auth, '\n\n');
 
@@ -325,7 +323,7 @@ console.log('[authLogout action creator]\n', authLogout(), '\n');
 
 console.log(
   '[authSuccess actionCreator]\n',
-  authSuccess({ idToken: 'really Long Token', userId: 'It\'s Me' }),
+  authSuccess({ idToken: 'really Long Token', userId: "It's Me" }),
   '\n',
 );
 
@@ -345,7 +343,7 @@ console.log(
   '\n[start: authSuccess action dispatched]\n',
   'Action: ',
   store.dispatch(
-    authSuccess({ idToken: 'really Long Token', userId: 'It\'s Me' }),
+    authSuccess({ idToken: 'really Long Token', userId: "It's Me" }),
   ),
   '\nNew Auth State: ',
   getAuth(store.getState()),
@@ -353,7 +351,7 @@ console.log(
   getAuthIdToken(store.getState()),
   '\nAuth userId selector: ',
   getAuthUserId(store.getState()),
-  '\n*** You\'ve logged in successfully!***\n',
+  "\n*** You've logged in successfully!***\n",
 );
 
 console.log(

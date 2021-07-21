@@ -1,6 +1,6 @@
-import isPlainObject from './isPlainObject';
 import { Action } from '@redux-ts-starter-kit/slice';
 import { AnyAction, Middleware } from 'redux';
+import isPlainObject from './isPlainObject';
 
 export function isPlain(
   val: any,

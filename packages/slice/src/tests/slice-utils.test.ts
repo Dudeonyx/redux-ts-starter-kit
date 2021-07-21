@@ -9,7 +9,7 @@ import {
 import { createType } from '../action';
 
 describe('makeActionCreators', () => {
-  const actions = makeActionCreators(['setName', 'resetName',]);
+  const actions = makeActionCreators(['setName', 'resetName']);
   it('creates an object of action creators', () => {
     expect(Object.hasOwnProperty.call(actions, 'setName')).toBe(true);
     expect(Object.hasOwnProperty.call(actions, 'resetName')).toBe(true);
@@ -36,7 +36,7 @@ describe('makeActionCreators', () => {
   });
   describe('Action Creator types can be overridden', () => {
     const actionsWithTypeOverride = makeActionCreators(
-      ['setName', 'resetName', 'doNeither',],
+      ['setName', 'resetName', 'doNeither'],
       { setName: 'set/Name', resetName: 'reset/Name' } as const,
     );
     it('creates an object of action creators', () => {
@@ -90,8 +90,8 @@ describe('makeActionCreators', () => {
 describe('makeSelectors', () => {
   describe('with slice', () => {
     describe('initialState is not an object', () => {
-      const initialState = ['Foo',];
-      const state = { list: ['Foo', 'Bar', 'Baz',] };
+      const initialState = ['Foo'];
+      const state = { list: ['Foo', 'Bar', 'Baz'] };
       const selectors = makeSelectors(initialState, 'list');
       it('only creates a `selectSlice` selector', () => {
         expect(Object.hasOwnProperty.call(selectors, 'selectSlice')).toBe(true);
@@ -100,7 +100,7 @@ describe('makeSelectors', () => {
       });
 
       it('creates a working `selectSlice` selector', () => {
-        expect(selectors.selectSlice(state)).toEqual(['Foo', 'Bar', 'Baz',]);
+        expect(selectors.selectSlice(state)).toEqual(['Foo', 'Bar', 'Baz']);
       });
     });
     describe('initialState is an object', () => {
@@ -142,7 +142,7 @@ describe('makeSelectors', () => {
   });
   describe('without slice', () => {
     describe('state is not an object', () => {
-      const state = ['Foo', 'Bar', 'Baz',];
+      const state = ['Foo', 'Bar', 'Baz'];
       const selectors = makeSelectors(state, '');
       it('only creates a `selectSlice` selector', () => {
         expect(Object.hasOwnProperty.call(selectors, 'selectSlice')).toBe(true);
@@ -151,7 +151,7 @@ describe('makeSelectors', () => {
       });
 
       it('creates a working `selectSlice` selector', () => {
-        expect(selectors.selectSlice(state)).toEqual(['Foo', 'Bar', 'Baz',]);
+        expect(selectors.selectSlice(state)).toEqual(['Foo', 'Bar', 'Baz']);
       });
     });
     describe('state is an object', () => {
@@ -199,7 +199,7 @@ describe('makeComputedSelectors *could be more OCD*', () => {
     },
     anotherValue: 9,
 
-    onlyTheThirdIsUsed: ['', '', 3,],
+    onlyTheThirdIsUsed: ['', '', 3],
   };
 
   let calc0Called = 0;
@@ -269,7 +269,7 @@ describe('makeComputedSelectors *could be more OCD*', () => {
         },
         anotherValue: 9,
 
-        onlyTheThirdIsUsed: ['', '', 3,],
+        onlyTheThirdIsUsed: ['', '', 3],
       }),
     ).toEqual(27);
     expect(calc1Called).toBe(1);
@@ -286,7 +286,7 @@ describe('makeComputedSelectors *could be more OCD*', () => {
         },
         anotherValue: 9,
 
-        onlyTheThirdIsUsed: ['', '', 3,],
+        onlyTheThirdIsUsed: ['', '', 3],
       }),
     ).toEqual(27);
     expect(calc1Called).toBe(1);
@@ -303,7 +303,7 @@ describe('makeComputedSelectors *could be more OCD*', () => {
         },
         anotherValue: 10, // changed
 
-        onlyTheThirdIsUsed: ['', '', 3,],
+        onlyTheThirdIsUsed: ['', '', 3],
       }),
     ).toEqual(30);
     expect(calc1Called).toBe(2);
@@ -320,7 +320,7 @@ describe('makeComputedSelectors *could be more OCD*', () => {
         },
         anotherValue: 10, // changed
 
-        onlyTheThirdIsUsed: [5, '0', 3,], // no relevant change
+        onlyTheThirdIsUsed: [5, '0', 3], // no relevant change
       }),
     ).toEqual(30);
     expect(calc1Called).toBe(2);
@@ -337,7 +337,7 @@ describe('makeComputedSelectors *could be more OCD*', () => {
         },
         anotherValue: 10, // changed
 
-        onlyTheThirdIsUsed: [5, '0', 4,], // relevant change
+        onlyTheThirdIsUsed: [5, '0', 4], // relevant change
       }),
     ).toEqual(40);
     expect(calc1Called).toBe(3);
@@ -465,20 +465,20 @@ describe('makeReMappableSelectors', () => {
   const computedSelectors = {
     nameAndMiddleName: (state: { form: typeof initialState }) => {
       computedNameAndMiddleNameCalled++;
-      return state.form.name + ' ' + state.form.middlename;
+      return `${state.form.name  } ${  state.form.middlename}`;
     },
     fullName(state: { form: typeof initialState }) {
-      return this.nameAndMiddleName(state) + ' ' + state.form.surname;
+      return `${this.nameAndMiddleName(state)  } ${  state.form.surname}`;
     },
   };
   const selectors1 = makeSelectors(initialState);
   const computedSelectors1 = {
     nameAndMiddleName: (state: typeof initialState) => {
       computedNameAndMiddleNameCalled1++;
-      return state.name + ' ' + state.middlename;
+      return `${state.name  } ${  state.middlename}`;
     },
     fullName(state: typeof initialState) {
-      return this.nameAndMiddleName(state) + ' ' + state.surname;
+      return `${this.nameAndMiddleName(state)  } ${  state.surname}`;
     },
   };
   const mapTo = makeReMapableSelectors(selectors, computedSelectors);

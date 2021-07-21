@@ -1,8 +1,8 @@
-import typescript from 'rollup-plugin-typescript2';
-import resolve from 'rollup-plugin-node-resolve';
-import babel from 'rollup-plugin-babel';
-import commonjs from 'rollup-plugin-commonjs';
-import replace from 'rollup-plugin-replace';
+import typescript from '@rollup/plugin-typescript';
+import resolve from '@rollup/plugin-node-resolve';
+import babel from '@rollup/plugin-babel';
+import commonjs from '@rollup/plugin-commonjs';
+import replace from '@rollup/plugin-replace';
 import { terser } from 'rollup-plugin-terser';
 export default function generateConfig({
   input = './src/index.ts',
@@ -29,14 +29,7 @@ export default function generateConfig({
     ],
     plugins: [
       typescript({
-        typescript: require('typescript'),
-        rollupCommonJSResolveHack: true,
-        tsconfigOverride: {
-          compilerOptions: {
-            target: 'es5',
-            // module: 'commonJS',
-          },
-        },
+        tsconfig: '../../tsconfig.json',
       }),
       // terser(),
     ],
@@ -59,15 +52,8 @@ export default function generateConfig({
         exclude: 'node_modules/**',
       }),
       resolve(),
-      commonjs({
-        namedExports: {
-          'node_modules/curriable/dist/curriable.js': ['curry', '__'],
-        },
-      }),
-      typescript({
-        typescript: require('typescript'),
-        rollupCommonJSResolveHack: true,
-      }),
+      commonjs(),
+      typescript(),
       replace({
         'process.env.NODE_ENV': JSON.stringify('development'),
       }),

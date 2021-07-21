@@ -44,15 +44,14 @@ export function createReducer<S, A extends ActionsMap = ActionsMap>({
   initialState,
   cases,
 }: CreateReducer<S, A>): Reducer<S, AnyAction> {
-  const reducer = (state = initialState, action: AnyAction) => {
-    return createNextState(state, (draft) => {
+  const reducer = (state = initialState, action: AnyAction) =>
+    createNextState(state, (draft: any) => {
       const caseReducer = cases[action.type];
       if (caseReducer) {
         return caseReducer(draft, action.payload, action.type);
       }
       return draft;
     }) as S;
-  };
 
   return reducer;
 }
