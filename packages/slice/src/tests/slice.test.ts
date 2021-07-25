@@ -13,19 +13,21 @@ describe('createSlice', () => {
       increment: undefined;
       multiply: number;
     }
-    const { actions, reducer, mapSelectorsTo } = createSlice<
+    const { actions, reducer, reMapSelectorsTo } = createSlice<
+      '',
       CasesBuilder<State, Actions>,
       State,
       {},
       {}
     >({
+      name: '',
       cases: {
         increment: (state) => state + 1,
         multiply: (state, payload) => state * payload,
       },
       initialState: 0,
     });
-    const selectors = mapSelectorsTo();
+    const selectors = reMapSelectorsTo();
     it('should create increment action', () => {
       expect(Object.hasOwnProperty.call(actions, 'increment')).toBe(true);
     });
@@ -74,7 +76,8 @@ describe('createSlice', () => {
     let nameAndSurnameCalled = 0;
     let fullNameCalled = 0;
     let introduceSelfCalled = 0;
-    const { mapSelectorsTo } = createSlice({
+    const { reMapSelectorsTo } = createSlice({
+      name: '',
       cases: {},
       initialState: {
         name: '',
@@ -115,8 +118,8 @@ describe('createSlice', () => {
         },
       },
     };
-    const selectors = mapSelectorsTo('form');
-    const reMappedSelectors = mapSelectorsTo('users', 'userA', 'details');
+    const selectors = reMapSelectorsTo('form');
+    const reMappedSelectors = reMapSelectorsTo('users', 'userA', 'details');
 
     it('should create selector with correct name', () => {
       expect(Object.hasOwnProperty.call(selectors, 'selectSlice')).toBe(true);
@@ -269,6 +272,7 @@ describe('createSlice', () => {
 
   describe('when mutating state object', () => {
     const { actions, reducer } = createSlice({
+      name: '',
       cases: {
         setUserName: (state, payload: string) => {
           state.user = payload;
@@ -286,6 +290,7 @@ describe('createSlice', () => {
 
   describe('When overridding types', () => {
     const { actions, reducer } = createSlice({
+      name: '',
       initialState: 0,
       cases: {
         increaseBy: (state, payload: number) => state + payload,
@@ -337,7 +342,8 @@ describe('createSlice', () => {
   });
 
   describe('createNameSpacedReducer', () => {
-    const { createNameSpace: createNameSpacedReducer, actions } = createSlice({
+    const counterA = createSlice({
+      name: 'counterA',
       initialState: 0,
       cases: {
         increaseBy: (state, payload: number) => state + payload,
@@ -352,171 +358,145 @@ describe('createSlice', () => {
         reset: 'RESET',
       },
     });
-    // eslint-disable-next-line camelcase
-    const counter_A = createNameSpacedReducer('counter_A');
-    // eslint-disable-next-line camelcase
-    const counter_B = createNameSpacedReducer('counter_B');
+    const counterB = createSlice({
+      name: 'counterB',
+      initialState: 0,
+      cases: {
+        increaseBy: (state, payload: number) => state + payload,
+        increase: (state) => state + 1,
+        decreaseBy: (state, payload: number) => state - payload,
+        decrease: (state) => state - 1,
+        reset: () => 0,
+      },
+      typeOverrides: {
+        increase: 'counter/increase',
+        decreaseBy: 'counter/decreaseBy',
+        reset: 'RESET',
+      },
+    });
 
-    describe('sliceActions', () => {
+    describe('sliceActions ', () => {
       it('should create slice actions', () => {
-        expect(counter_A.sliceActions.decrease()).toEqual({
-          type: 'decrease',
+        expect(counterA.actions.decrease()).toEqual({
+          type: 'counterA/decrease',
           payload: undefined,
-          slice: 'counter_A',
         });
-        expect(counter_B.sliceActions.decrease()).toEqual({
-          type: 'decrease',
+        expect(counterB.actions.decrease()).toEqual({
+          type: 'counterB/decrease',
           payload: undefined,
-          slice: 'counter_B',
         });
-        expect(counter_A.sliceActions.decreaseBy(3)).toEqual({
-          type: 'counter/decreaseBy',
+        expect(counterA.actions.decreaseBy(3)).toEqual({
+          type: 'counterA/counter/decreaseBy',
           payload: 3,
-          slice: 'counter_A',
         });
-        expect(counter_B.sliceActions.decreaseBy(3)).toEqual({
-          type: 'counter/decreaseBy',
+        expect(counterB.actions.decreaseBy(3)).toEqual({
+          type: 'counterB/counter/decreaseBy',
           payload: 3,
-          slice: 'counter_B',
         });
       });
     });
 
-    describe('sliceReducers', () => {
+    describe('reducers', () => {
       it('should initialize correctly', () => {
-        expect(counter_A.sliceReducer(undefined, { type: '@@init@@' })).toEqual(
-          0,
-        );
-        expect(counter_B.sliceReducer(undefined, { type: '@@init@@' })).toEqual(
-          0,
-        );
+        expect(counterA.reducer(undefined, { type: '@@init@@' })).toEqual(0);
+        expect(counterB.reducer(undefined, { type: '@@init@@' })).toEqual(0);
       });
-      it('should ignore actions without matching `slice` prop', () => {
+      it('should ignore actions without matching `slice` type', () => {
+        expect(counterA.reducer(undefined, { type: 'increase' })).toEqual(0);
+        expect(counterB.reducer(undefined, { type: 'increase' })).toEqual(0);
+        expect(counterA.reducer(2, { type: 'increaseBy', payload: 5 })).toEqual(
+          2,
+        );
+        expect(counterB.reducer(2, { type: 'increaseBy', payload: 5 })).toEqual(
+          2,
+        );
         expect(
-          counter_A.sliceReducer(undefined, { type: actions.increase.type }),
-        ).toEqual(0);
-        expect(
-          counter_B.sliceReducer(undefined, { type: actions.increase.type }),
-        ).toEqual(0);
-        expect(
-          counter_A.sliceReducer(2, { type: 'increaseBy', payload: 5 }),
-        ).toEqual(2);
-        expect(
-          counter_B.sliceReducer(2, { type: 'increaseBy', payload: 5 }),
-        ).toEqual(2);
-        expect(
-          counter_A.sliceReducer(10, {
-            type: 'counter/decreaseBy',
+          counterA.reducer(10, {
+            type: 'counterB/counter/decreaseBy',
             payload: 5,
-            slice: 'counter_B',
           }),
         ).toEqual(10);
         expect(
-          counter_B.sliceReducer(10, {
-            type: 'counter/decreaseBy',
+          counterB.reducer(10, {
+            type: 'counterA/counter/decreaseBy',
             payload: 5,
-            slice: 'counter_A',
           }),
         ).toEqual(10);
-        expect(
-          counter_A.sliceReducer(10, { type: 'RESET', slice: 'counter_B' }),
-        ).toEqual(10);
-        expect(
-          counter_B.sliceReducer(10, { type: 'RESET', slice: 'counter_A' }),
-        ).toEqual(10);
-        expect(
-          counter_A.sliceReducer(10, counter_B.sliceActions.decrease()),
-        ).toEqual(10);
-        expect(
-          counter_B.sliceReducer(10, counter_A.sliceActions.decrease()),
-        ).toEqual(10);
+        expect(counterA.reducer(10, { type: 'counterB/RESET' })).toEqual(10);
+        expect(counterB.reducer(10, { type: 'counterA/RESET' })).toEqual(10);
+        expect(counterA.reducer(10, counterB.actions.decrease())).toEqual(10);
+        expect(counterB.reducer(10, counterA.actions.decrease())).toEqual(10);
       });
 
-      it('should respond to actions with a matching slice prop', () => {
+      it('should respond to actions with a matching slice ', () => {
         expect(
-          counter_A.sliceReducer(undefined, {
-            type: actions.increase.type,
-            slice: 'counter_A',
+          counterA.reducer(undefined, {
+            type: `${counterA.name}/counter/increase`,
           }),
         ).toEqual(1);
         expect(
-          counter_B.sliceReducer(undefined, {
-            type: actions.increase.type,
-            slice: 'counter_B',
+          counterB.reducer(undefined, {
+            type: `${counterB.name}/counter/increase`,
           }),
         ).toEqual(1);
         expect(
-          counter_A.sliceReducer(2, {
-            type: 'increaseBy',
+          counterA.reducer(2, {
+            type: `${counterA.name}/increaseBy`,
             payload: 5,
-            slice: 'counter_A',
           }),
         ).toEqual(7);
         expect(
-          counter_B.sliceReducer(2, {
-            type: 'increaseBy',
+          counterB.reducer(2, {
+            type: `${counterB.name}/increaseBy`,
             payload: 5,
-            slice: 'counter_B',
           }),
         ).toEqual(7);
         expect(
-          counter_A.sliceReducer(10, { type: 'decrease', slice: 'counter_A' }),
+          counterA.reducer(10, { type: `${counterA.name}/decrease` }),
         ).toEqual(9);
         expect(
-          counter_B.sliceReducer(10, { type: 'decrease', slice: 'counter_B' }),
+          counterB.reducer(10, { type: `${counterB.name}/decrease` }),
         ).toEqual(9);
         expect(
-          counter_A.sliceReducer(10, {
-            type: 'counter/decreaseBy',
+          counterA.reducer(10, {
+            type: `${counterA.name}/counter/decreaseBy`,
             payload: 5,
+          }),
+        ).toEqual(5);
+        expect(
+          counterB.reducer(10, {
+            type: `${counterB.name}/counter/decreaseBy`,
+            payload: 5,
+          }),
+        ).toEqual(5);
+        expect(
+          counterA.reducer(10, {
+            type: `${counterA.name}/RESET`,
             slice: 'counter_A',
           }),
-        ).toEqual(5);
-        expect(
-          counter_B.sliceReducer(10, {
-            type: 'counter/decreaseBy',
-            payload: 5,
-            slice: 'counter_B',
-          }),
-        ).toEqual(5);
-        expect(
-          counter_A.sliceReducer(10, { type: 'RESET', slice: 'counter_A' }),
         ).toEqual(0);
         expect(
-          counter_B.sliceReducer(10, { type: 'RESET', slice: 'counter_B' }),
+          counterB.reducer(10, {
+            type: `${counterB.name}/RESET`,
+            slice: 'counter_B',
+          }),
         ).toEqual(0);
       });
       it('should create action creators that create actions with matching slice prop', () => {
         expect(
-          counter_A.sliceReducer(undefined, counter_A.sliceActions.increase()),
+          counterA.reducer(undefined, counterA.actions.increase()),
         ).toEqual(1);
         expect(
-          counter_B.sliceReducer(undefined, counter_B.sliceActions.increase()),
+          counterB.reducer(undefined, counterB.actions.increase()),
         ).toEqual(1);
-        expect(
-          counter_A.sliceReducer(2, counter_A.sliceActions.increaseBy(5)),
-        ).toEqual(7);
-        expect(
-          counter_B.sliceReducer(2, counter_B.sliceActions.increaseBy(5)),
-        ).toEqual(7);
-        expect(
-          counter_A.sliceReducer(10, counter_A.sliceActions.decrease()),
-        ).toEqual(9);
-        expect(
-          counter_B.sliceReducer(10, counter_B.sliceActions.decrease()),
-        ).toEqual(9);
-        expect(
-          counter_A.sliceReducer(10, counter_A.sliceActions.decreaseBy(5)),
-        ).toEqual(5);
-        expect(
-          counter_B.sliceReducer(10, counter_B.sliceActions.decreaseBy(5)),
-        ).toEqual(5);
-        expect(
-          counter_A.sliceReducer(10, counter_A.sliceActions.reset()),
-        ).toEqual(0);
-        expect(
-          counter_B.sliceReducer(10, counter_B.sliceActions.reset()),
-        ).toEqual(0);
+        expect(counterA.reducer(2, counterA.actions.increaseBy(5))).toEqual(7);
+        expect(counterB.reducer(2, counterB.actions.increaseBy(5))).toEqual(7);
+        expect(counterA.reducer(10, counterA.actions.decrease())).toEqual(9);
+        expect(counterB.reducer(10, counterB.actions.decrease())).toEqual(9);
+        expect(counterA.reducer(10, counterA.actions.decreaseBy(5))).toEqual(5);
+        expect(counterB.reducer(10, counterB.actions.decreaseBy(5))).toEqual(5);
+        expect(counterA.reducer(10, counterA.actions.reset())).toEqual(0);
+        expect(counterB.reducer(10, counterB.actions.reset())).toEqual(0);
       });
     });
   });
@@ -549,11 +529,13 @@ describe('multiple createSlice slices combined with `combineReducers`', () => {
   };
 
   const hiSlice = createSlice<
+    'hi',
     CasesBuilder<HiSliceState, HiActions>,
     HiSliceState,
     {},
     {}
   >({
+    name: 'hi',
     cases: {
       setWaves: (state, payload) => {
         state.waves = payload;
@@ -579,6 +561,7 @@ describe('multiple createSlice slices combined with `combineReducers`', () => {
   };
 
   const formSlice = createSlice({
+    name: 'form',
     cases: {
       setName: (state, payload: string) => {
         state.name = payload;
@@ -613,11 +596,13 @@ describe('multiple createSlice slices combined with `combineReducers`', () => {
   };
 
   const authSlice = createSlice<
+    'auth',
     CasesBuilder<AuthSliceState, AuthActions>,
     AuthSliceState,
     {},
     {}
   >({
+    name: 'auth',
     initialState: authInitialState,
     cases: {
       authLogout: (state) => {
@@ -637,9 +622,9 @@ describe('multiple createSlice slices combined with `combineReducers`', () => {
     hi: hiSlice.reducer,
   });
 
-  const authSelectors = authSlice.mapSelectorsTo('auth');
-  const formSelectors = formSlice.mapSelectorsTo('form');
-  const hiSelectors = hiSlice.mapSelectorsTo('hi');
+  const authSelectors = authSlice.selectors;
+  const formSelectors = formSlice.selectors;
+  const hiSelectors = hiSlice.selectors;
 
   it('returns the combined initial states', () => {
     expect(rootReducer(undefined, { type: '@@invalid@@' })).toEqual({

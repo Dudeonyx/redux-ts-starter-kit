@@ -40,7 +40,7 @@ export function createType<T extends string>(type: T) {
   return type;
 }
 
-export function createTypeSafeAction<T extends string>(type: T) {
+export function createTypeSafeActionCreator<T extends string>(type: T) {
   return <P>() => createAction<P, T>(type);
 }
 

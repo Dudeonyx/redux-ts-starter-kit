@@ -178,11 +178,13 @@ describe('multiple createSlice reducers used to create a redux store', () => {
   };
 
   const hiSlice = createSlice<
+    'hi',
     CasesBuilder<HiSliceState, Actions>,
     HiSliceState,
     {},
     {}
   >({
+    name: 'hi',
     cases: {
       setGreeting: (state, payload) => {
         state.greeting = payload;
@@ -208,6 +210,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
   };
 
   const formSlice = createSlice({
+    name: 'form',
     cases: {
       setName: (state, payload: string) => {
         state.name = payload;
@@ -242,11 +245,13 @@ describe('multiple createSlice reducers used to create a redux store', () => {
   };
 
   const authSlice = createSlice<
+    'auth',
     CasesBuilder<AuthSliceState, AuthActions>,
     AuthSliceState,
     {},
     {}
   >({
+    name: 'auth',
     initialState: authInitialState,
     cases: {
       authLogout: (state) => {

@@ -1,5 +1,5 @@
 import memoize from 'memoize-state';
-import { createTypeSafeAction, createSliceAction } from './action';
+import { createTypeSafeActionCreator, createSliceAction } from './action';
 import type { NestedObject, AnyAction, PayloadAction } from './types';
 import { makeTypeSafeSelector } from './selector';
 import type {
@@ -57,7 +57,9 @@ export type ReMappedSelectors<
 export type ReMappedSelector<
   P extends string[],
   Select extends (state: any) => any,
-> = (state: NestedObject<P, 0, ArgOf<Select>>) => ReturnType<Select>;
+> = P extends ['']
+  ? (state: ArgOf<Select>) => ReturnType<Select>
+  : (state: NestedObject<P, 0, ArgOf<Select>>) => ReturnType<Select>;
 
 export interface MapSelectorsTo<
   SelectorMap extends { [s: string]: (state: any) => any },
@@ -114,32 +116,52 @@ export function makeReMapableSelectors<
 export const makeActionCreators = <
   Actions extends ActionMap,
   TypeOverrides extends { [K in keyof Actions]?: string },
+  SliceName extends string | '',
 >(
   actionKeys: Array<Extract<keyof Actions, string>>,
   typeOverrides: TypeOverrides = {} as TypeOverrides,
+  name: SliceName = '' as SliceName,
 ): ActionCreatorsMap<Actions, TypeOverrides> =>
   actionKeys.reduce((map, action) => {
     const type = pickType<Actions, TypeOverrides>(typeOverrides, action);
+    if (isEmptyString(name)) {
+      // eslint-disable-next-line no-param-reassign
+      map[action] = createTypeSafeActionCreator(type)<Actions[typeof action]>();
+      return map;
+    }
     // eslint-disable-next-line no-param-reassign
-    map[action] = createTypeSafeAction(type)<Actions[typeof action]>();
+    map[action] = createTypeSafeActionCreator(`${name}/${type}`)<
+      Actions[typeof action]
+    >();
     return map;
   }, {} as any);
+
+function isEmptyString(s: '' | string): s is '' {
+  return s === '';
+}
 
 export const makeReducer = <
   Cases extends CasesBase<S>,
   S,
   TyO extends { [K in keyof Cases]?: string },
+  SliceName extends string | '',
 >(
   initialState: S,
   casesInput: Cases,
   typeOverrides: TyO = {} as TyO,
+  name: SliceName = '' as SliceName,
 ) => {
   const cases: Cases = (
     Object.keys(casesInput) as Array<Extract<keyof Cases, string>>
   ).reduce((map, key) => {
     const type = pickType<Cases, TyO>(typeOverrides, key);
+    if (isEmptyString(name)) {
+      // eslint-disable-next-line no-param-reassign
+      map[type] = casesInput[key];
+      return map;
+    }
     // eslint-disable-next-line no-param-reassign
-    map[type] = casesInput[key];
+    map[`${name}/${type}`] = casesInput[key];
     return map;
   }, {} as any);
 

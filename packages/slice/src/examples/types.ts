@@ -1,7 +1,12 @@
+/* eslint-disable no-console */
+/* eslint-disable camelcase */
+/* eslint-disable no-param-reassign */
 import type { Dispatch } from 'redux';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { combineReducers, createStore, applyMiddleware } from 'redux';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import thunk from 'redux-thunk';
-import type { Selectors } from '../slice';
+import type { CasesBuilder, Selectors } from '../slice';
 import { createSlice } from '../slice';
 import type { IordersReducerState, IDbOrders } from './types.d';
 import { createReducer } from '../reducer';
@@ -9,13 +14,14 @@ import type { ReMappedSelectors } from '../slice-utils';
 
 export type Filters = 'ALL' | 'COMPLETE' | 'PENDING';
 const visibilitySlice = createSlice({
+  name: '',
   initialState: 'ALL' as Filters,
   cases: {
     setVisibilityFilter: (state, payload: Filters) => payload,
   },
 });
 
-export const selectr = visibilitySlice.mapSelectorsTo().selectSlice('ALL');
+export const selectr = visibilitySlice.selectors.selectSlice('ALL');
 
 type SFDF = Selectors<Filters>;
 
@@ -44,10 +50,11 @@ const defaultState = {
 export const {
   actions: hiActions$,
   reducer: hiReducer$,
-  mapSelectorsTo,
+  reMapSelectorsTo: mapSelectorsTo,
   // ...hiSlice
   // slice: hiSlice$,
 } = createSlice({
+  name: '',
   cases: {
     set: (state, payload: string[]) => payload,
     reset: () => [],
@@ -70,8 +77,15 @@ hiSelector$.selectSlice(hiArray);
 export const {
   actions: hiActions,
   reducer: hiReducer,
-  mapSelectorsTo: reMapSelectorsTo,
-} = createSlice<Actions, HiSliceState, {}, { reset: 'RESET' }>({
+  reMapSelectorsTo,
+} = createSlice<
+  '',
+  CasesBuilder<HiSliceState, Actions>,
+  HiSliceState,
+  {},
+  { reset: 'RESET' }
+>({
+  name: '',
   cases: {
     set: (state, payload) => payload,
     reset: () => defaultState,
@@ -92,6 +106,7 @@ hiActions.set({ test: 'ok', wow: 0 });
 hiActions.reset();
 const red = hiReducer;
 
+// eslint-disable-next-line no-console
 console.log('\nHi selector: ', val, '\nHi reducer', red);
 
 interface AuthSliceState {
@@ -119,11 +134,12 @@ const initialState: AuthSliceState = {
 };
 
 const auth = createSlice({
+  name: 'auth',
   initialState,
-  // typeOverrides: {
-  //   authFail: 'AUTH_FAIL',
-  //   // authLogout: 5,
-  // },
+  typeOverrides: {
+    authFail: 'AUTH_FAIL',
+    // authLogout: 5,
+  },
   cases: {
     authFail: (state, payload: Error) => {
       state.error = payload;
@@ -147,7 +163,7 @@ const auth = createSlice({
 export const {
   reducer: authReducer,
   actions: { authFail, authStart, authSuccess, authLogout },
-  mapSelectorsTo: reMapAuthSelectors,
+  reMapSelectorsTo: reMapAuthSelectors,
 } = auth;
 
 export const {
@@ -165,7 +181,14 @@ export interface AuthActions$ {
   auth_Logout$: undefined;
 }
 
-const auth$ = createSlice<AuthActions$, AuthSliceState, {}, {}>({
+const auth$ = createSlice<
+  '',
+  CasesBuilder<AuthSliceState, AuthActions$>,
+  AuthSliceState,
+  {},
+  {}
+>({
+  name: '',
   initialState,
   cases: {
     auth_Fail$: (state, payload) => {
@@ -198,11 +221,12 @@ export const {
   error: getAuthError$,
   idToken: getAuthIdToken$,
   userId: getAuthUserId$,
-} = auth.mapSelectorsTo('auth');
+} = auth.reMapSelectorsTo('auth');
 
 getAuth$({ auth: {} as AuthSliceState });
 
 const auth$NoInterface = createSlice({
+  name: 'authNoInterface',
   initialState,
   computed: {
     authenticated(state) {
@@ -213,15 +237,15 @@ const auth$NoInterface = createSlice({
     },
   },
   cases: {
-    auth_Fail$2: (state, payload: Error, type) => {
+    auth_Fail$2: (state, payload: Error) => {
       state.error = payload;
       state.authenticating = false;
     },
-    auth_Logout$2: (state, _n: undefined, type) => {
+    auth_Logout$2: (state, _n: undefined) => {
       state.idToken = null;
       state.userId = null;
     },
-    auth_Start$2: (state, payload, type) => {
+    auth_Start$2: (state, payload) => {
       state.authenticating = true;
     },
     auth_Success$2: (state, payload: AuthSuccess) => {
@@ -249,7 +273,7 @@ export const {
   idToken: getAuthIdToken$2,
   userId: getAuthUserId$2,
   authenticated: getAuthenticated,
-} = auth$NoInterface.mapSelectorsTo('');
+} = auth$NoInterface.reMapSelectorsTo('');
 export const authReducer2 = createReducer({
   initialState,
   cases: {
@@ -279,6 +303,7 @@ const initialStateOeds: IordersReducerState = {
 };
 
 const orderSlice = createSlice({
+  name: '',
   initialState: initialStateOeds,
   cases: {
     setOrders: (state, payload: IDbOrders) => {
@@ -300,7 +325,7 @@ const orderSlice = createSlice({
 export const {
   reducer: ordersReducer,
   actions: ordersActions,
-  mapSelectorsTo: mapOrdersSelectorsTo,
+  reMapSelectorsTo: mapOrdersSelectorsTo,
 } = orderSlice;
 ordersActions.setOrdersLoading();
 const rootReducer = combineReducers<IState>({

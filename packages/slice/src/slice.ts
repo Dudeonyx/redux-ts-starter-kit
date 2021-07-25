@@ -1,12 +1,12 @@
 import type { Draft } from 'immer';
+import type { AreStrictlyEqual } from 'tsdef';
 import type { AnyAction, NotEmptyObject, PayloadAction } from './types';
-import type { MapSelectorsTo, CreateNameSpace } from './slice-utils';
+import type { MapSelectorsTo, ReMappedSelectors } from './slice-utils';
 import {
+  makeReMapableSelectors,
   makeActionCreators,
   makeSelectors,
-  makeReMapableSelectors,
   makeReducer,
-  makeNameSpacedReducer,
 } from './slice-utils';
 
 /** Type alias for case reducers when `slice` is blank or undefined */
@@ -51,22 +51,35 @@ export type Selectors<SS> = {
   ? { [key in keyof SS]: (state: SS) => SS[key] }
   : {});
 
-type InferLiteral<TyO extends string, Fallback> = TyO extends string
+type InferTypeLiteral<TyO extends string, Fallback> = TyO extends string
   ? TyO
   : Fallback extends string
   ? Fallback
   : never;
+
+type InferTypeLiteralWithSliceName<
+  SliceName extends string | '',
+  TyO extends string,
+  Fallback,
+> = SliceName extends ''
+  ? InferTypeLiteral<TyO, Fallback>
+  : `${SliceName}/${InferTypeLiteral<TyO, Fallback>}`;
 /** Type alias for generated action creators */
 export type ActionCreatorsMap<
   A,
   TyO extends { [K in keyof A]?: string } = {},
+  SliceName extends string = '',
 > = {
   [key in keyof A]: ActionCreator<
     A[key],
-    InferLiteral<NonNullable<TyO[key]>, key>
+    InferTypeLiteralWithSliceName<SliceName, NonNullable<TyO[key]>, key>
   > & {
-    type: InferLiteral<NonNullable<TyO[key]>, key>;
-    toString: () => InferLiteral<NonNullable<TyO[key]>, key>;
+    type: InferTypeLiteralWithSliceName<SliceName, NonNullable<TyO[key]>, key>;
+    toString: () => InferTypeLiteralWithSliceName<
+      SliceName,
+      NonNullable<TyO[key]>,
+      key
+    >;
   };
 };
 
@@ -84,10 +97,11 @@ type PayloadTypeMap<Cases extends CasesBase<any>> = {
   [K in keyof Cases]: Cases[K] extends (s: any, p: infer P) => any ? P : never;
 };
 
-type ActionCreatorsMapFromCases<
+export type ActionCreatorsMapFromCases<
   Cases extends CasesBase<any>,
   TyO = {},
-> = ActionCreatorsMap<PayloadTypeMap<Cases>, TyO>;
+  SliceName extends string = '',
+> = ActionCreatorsMap<PayloadTypeMap<Cases>, TyO, SliceName>;
 
 /** Map of computed selectors */
 type ComputedMap<S> = { [s: string]: (state: S) => any };
@@ -104,11 +118,20 @@ type Const<TyO> = { [K in keyof TyO]: TyO[K] };
  * @template Slc - [slice]
  */
 export interface Slice<
+  SliceName extends string,
   Cases extends CasesBase<SS>,
   SS,
-  SelectorMap extends { [s: string]: (s: SS) => any },
+  SelectorMap extends { [s: string]: (state: SS) => any },
+  Computed extends { [s: string]: (state: SS) => any },
   TyO extends { [K in keyof Cases]?: string },
 > {
+  /**
+   * The name of the slice
+   *
+   * @type {SliceName}
+   * @memberof Slice
+   */
+  name: SliceName;
   /**
    * @description The generated reducer
    *
@@ -121,7 +144,7 @@ export interface Slice<
    * @type { [s:string]: (payload:any)=> PayloadAction }
    * @memberof Slice
    */
-  actions: ActionCreatorsMapFromCases<Cases, TyO>;
+  actions: ActionCreatorsMapFromCases<Cases, TyO, SliceName>;
   /**
    * Helper utility for mapping selectors to paths
    *
@@ -143,7 +166,9 @@ export interface Slice<
    *
    * @memberof Slice
    */
-  mapSelectorsTo: MapSelectorsTo<SelectorMap>;
+  reMapSelectorsTo: MapSelectorsTo<SelectorMap & Computed>;
+
+  selectors: ReMappedSelectors<[SliceName], SelectorMap & Computed>;
 
   /**
    * Helper utility for nameSpacing the reducer and action creators
@@ -156,19 +181,10 @@ export interface Slice<
    *
    * @memberof Slice
    */
-  createNameSpace: CreateNameSpace<SS, ActionCreatorsMapFromCases<Cases, TyO>>;
+  // createNameSpace: CreateNameSpace<SS, ActionCreatorsMapFromCases<Cases, TyO>>;
 }
 
-/**
- * Options for `createSlice` utility
- *
- * @interface CreateSliceOptions
- * @template SS The `SliceState` type
- * @template Ax The Actions map, format - `{ [caseName]: typeof payload }`
- * @template Cx The computed selectors map, format - `{ [selectorName]: returnType }`
- * @template TyO The type overrides map, format - `{[caseName]: <string>typeOverride}`
- */
-interface CreateSliceOptions<
+interface CreateSliceOptionsBase<
   SS,
   Cases extends CasesBase<SS>,
   Cx extends ComputedMap<SS>,
@@ -257,6 +273,40 @@ interface CreateSliceOptions<
 }
 
 /**
+ * Options for `createSlice` utility
+ *
+ * @interface CreateSliceOptions
+ * @template SS The `SliceState` type
+ * @template Ax The Actions map, format - `{ [caseName]: typeof payload }`
+ * @template Cx The computed selectors map, format - `{ [selectorName]: returnType }`
+ * @template TyO The type overrides map, format - `{[caseName]: <string>typeOverride}`
+ */
+interface CreateSliceOptions<
+  SliceName extends string,
+  SS,
+  Cases extends CasesBase<SS>,
+  Cx extends ComputedMap<SS>,
+  TyO,
+> extends CreateSliceOptionsBase<SS, Cases, Cx, TyO> {
+  name: SliceName;
+}
+interface CreateSliceOptionsBlankSlice<
+  SliceName extends '',
+  SS,
+  Cases extends CasesBase<SS>,
+  Cx extends ComputedMap<SS>,
+  TyO,
+> extends CreateSliceOptionsBase<SS, Cases, Cx, TyO> {
+  /**
+   * The name of the slice
+   *
+   * @type {SliceName}
+   * @memberof CreateSliceOptionsBlankSlice
+   */
+  name: SliceName;
+}
+
+/**
  * @description Generates a redux state tree slice, complete with a `reducer`,
  *  `action creators`, `mapSelectorsTo` and `createNameSpace`
  *
@@ -290,50 +340,115 @@ interface CreateSliceOptions<
 //   TyO
 // >;
 export function createSlice<
+  SliceName extends '',
   Cases extends CasesBase<SliceState>,
   SliceState,
-  Computed extends ComputedMap<SliceState> | {},
+  Computed extends ComputedMap<SliceState>,
   TyO extends { [K in keyof Cases]?: string } = {},
 >(
-  options: CreateSliceOptions<SliceState, Cases, Computed, Const<TyO>>,
-): Slice<Cases, SliceState, NonNullable<Computed> & Selectors<SliceState>, TyO>;
+  options: CreateSliceOptionsBlankSlice<
+    SliceName,
+    SliceState,
+    Cases,
+    Computed,
+    Const<TyO>
+  >,
+): Slice<
+  SliceName,
+  Cases,
+  SliceState,
+  Selectors<SliceState>,
+  AreStrictlyEqual<
+    Computed,
+    { [s: string]: (state: SliceState) => any } | {},
+    {},
+    Computed
+  >,
+  TyO
+>;
+export function createSlice<
+  SliceName extends string,
+  Cases extends CasesBase<SliceState>,
+  SliceState,
+  Computed extends ComputedMap<SliceState>,
+  TyO extends { [K in keyof Cases]?: string } = {},
+>(
+  options: CreateSliceOptions<
+    SliceName,
+    SliceState,
+    Cases,
+    Computed,
+    Const<TyO>
+  >,
+): Slice<
+  SliceName,
+  Cases,
+  SliceState,
+  Selectors<SliceState>,
+  AreStrictlyEqual<
+    Computed,
+    { [s: string]: (state: SliceState) => any } | {},
+    {},
+    Computed
+  >,
+  TyO
+>;
 
 export function createSlice<
+  SliceName extends string | '',
   Cases extends CasesBase<SliceState>,
   SliceState,
   Computed extends ComputedMap<SliceState> = {},
   TyO extends { [K in keyof Cases]?: string } = {},
 >({
   cases,
+  name,
   initialState,
   computed = {} as Computed,
   typeOverrides = {} as Const<TyO>,
-}: CreateSliceOptions<SliceState, Cases, Computed, Const<TyO>>): Slice<
+}: CreateSliceOptions<
+  SliceName,
+  SliceState,
+  Cases,
+  Computed,
+  Const<TyO>
+>): Slice<
+  SliceName,
   Cases,
   SliceState,
-  NonNullable<Computed> & Selectors<SliceState>,
+  Selectors<SliceState>,
+  AreStrictlyEqual<
+    Computed,
+    { [s: string]: (state: SliceState) => any } | {},
+    {},
+    Computed
+  >,
   TyO
 > {
   const actionKeys = Object.keys(cases) as Array<
     Extract<keyof PayloadTypeMap<Cases>, string>
   >;
 
-  const reducer = makeReducer(initialState, cases, typeOverrides);
+  const reducer = makeReducer(initialState, cases, typeOverrides, name);
 
-  const actions = makeActionCreators<PayloadTypeMap<Cases>, Const<TyO>>(
-    actionKeys,
-    typeOverrides,
-  );
+  const actions = makeActionCreators<
+    PayloadTypeMap<Cases>,
+    Const<TyO>,
+    SliceName
+  >(actionKeys, typeOverrides, name);
   const baseSelectors = makeSelectors(initialState);
 
-  const createNameSpace = makeNameSpacedReducer(reducer, actions);
+  // const createNameSpace = makeNameSpacedReducer(reducer, actions);
 
-  const mapSelectorsTo = makeReMapableSelectors(baseSelectors, computed);
+  const reMapSelectorsTo = makeReMapableSelectors(baseSelectors, computed);
+  const selectors = reMapSelectorsTo(name);
 
   return {
+    name,
     actions,
     reducer,
-    mapSelectorsTo: mapSelectorsTo as any,
-    createNameSpace,
+    selectors: selectors as any,
+    reMapSelectorsTo: reMapSelectorsTo as any,
+    // createNameSpace,
   };
 }

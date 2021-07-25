@@ -591,7 +591,7 @@ describe('makeReducer', () => {
     reset: createType('RESET'),
   };
   describe('with typeOverrides', () => {
-    const reducer = makeReducer(0, cases, typeOverrides);
+    const reducer = makeReducer(0, cases, typeOverrides, '');
     it('should respond to both overidden and non-overriden types', () => {
       expect(
         reducer(undefined, {

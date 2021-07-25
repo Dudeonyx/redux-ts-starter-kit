@@ -1,14 +1,14 @@
 /* eslint-disable no-console */
 import {
   getActionType,
-  createTypeSafeAction,
+  createTypeSafeActionCreator,
   createType,
   createSliceAction,
 } from '../action';
 
 describe('createTypeSafeAction', () => {
   it('should create an action', () => {
-    const action = createTypeSafeAction('A_TYPE')<string>();
+    const action = createTypeSafeActionCreator('A_TYPE')<string>();
 
     expect(action('something')).toEqual({
       type: 'A_TYPE',
@@ -18,7 +18,7 @@ describe('createTypeSafeAction', () => {
 
   describe('when stringifying action', () => {
     it('should return the action type', () => {
-      const action = createTypeSafeAction('A_TYPE')<string>();
+      const action = createTypeSafeActionCreator('A_TYPE')<string>();
       expect(`${action}`).toEqual('A_TYPE');
       expect(action.type).toEqual('A_TYPE');
     });
@@ -64,7 +64,7 @@ describe('CreateType', () => {
 
 describe('getActionType', () => {
   it('should return the action type', () => {
-    const action = createTypeSafeAction('A_TYPE')();
+    const action = createTypeSafeActionCreator('A_TYPE')();
     expect(getActionType(action)).toEqual('A_TYPE');
   });
 });

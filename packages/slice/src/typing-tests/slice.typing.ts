@@ -1,3 +1,4 @@
+/* eslint-disable no-inner-declarations */
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable prefer-const */
@@ -43,6 +44,7 @@ export function expectNotAny<T extends IsNotAny<T>>(t: T): T {
 /** Test: createSlice types */
 {
   const hiSlice = createSlice({
+    name: '',
     cases: {
       add: (state, payload: string) => void state.push(payload),
       set: (_state, payload: string[]) => payload,
@@ -101,8 +103,12 @@ export function expectNotAny<T extends IsNotAny<T>>(t: T): T {
   // @ts-expect-error
   hiActions$.removeLast(0);
 
-  let selectors = hiSlice.mapSelectorsTo('hi');
+  let select = hiSlice.selectors;
 
+  let selectors = hiSlice.reMapSelectorsTo('hi');
+
+  // @ts-expect-error
+  select.fdf;
   // @ts-expect-error
   selectors.fdf;
 
@@ -134,6 +140,7 @@ export function expectNotAny<T extends IsNotAny<T>>(t: T): T {
   };
 
   const formSlice = createSlice({
+    name: 'form',
     cases: {
       setName: (state, payload: string) => {
         state.name = payload;
@@ -167,7 +174,8 @@ export function expectNotAny<T extends IsNotAny<T>>(t: T): T {
   // @ts-expect-error
   formSlice.actions.resetForm5(true);
 
-  const selectors = formSlice.mapSelectorsTo('form');
+  // const selectors = formSlice.reMapSelectorsTo('form');
+  const { selectors } = formSlice;
 
   selectors.selectSlice = (state) => state.form;
   // @ts-expect-error
@@ -193,6 +201,7 @@ export function expectNotAny<T extends IsNotAny<T>>(t: T): T {
 /** Test: TypeOverrides */
 {
   const { actions } = createSlice({
+    name: '',
     initialState: 0,
     typeOverrides: {
       increase: 'counter/increase',
@@ -241,6 +250,7 @@ export function expectNotAny<T extends IsNotAny<T>>(t: T): T {
   };
 
   const formSlice = createSlice({
+    name: '',
     cases: {
       setName: (state, payload: string) => {
         state.name = payload;
@@ -258,7 +268,7 @@ export function expectNotAny<T extends IsNotAny<T>>(t: T): T {
     initialState: formInitialState,
   });
 
-  const selectors = formSlice.mapSelectorsTo('form');
+  const selectors = formSlice.reMapSelectorsTo('form');
   // @ts-expect-error
   selectors.introduceSelfj;
 
