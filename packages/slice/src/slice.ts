@@ -318,10 +318,21 @@ interface CreateSliceOptionsBlankSlice<
  * @template TypeOverrides
  * @param {CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>} options
  * @returns {(Slice<
- *   ActionCreatorsMap<Actions, TypeOverrides>,
+ *   SliceName,
+ *   Cases,
  *   SliceState,
- *   Selectors<SliceState> & ComputedMap<SliceState, Computed>
+ *   Selectors<SliceState>,
+ *   AreStrictlyEqual<
+ *     Computed,
+ *     { [s: string]: (state: SliceState) => any } | {},
+ *     {},
+ *     Computed
+ *   >,
+ *   TyO
  * >)}
+ * @type AreStrictlyEqual<Computed,{ [s: string]: (state: SliceState) => any } | {},{},Computed>
+ *        is needed to prevent `Computed` infering as { [s: string]: (state: SliceState) => any } when computed
+ *        is undefined in the options. This would otherwise break type safety.
  */
 // export function createSlice<
 //   // Yes these are identical overloads, don't 'fix',
