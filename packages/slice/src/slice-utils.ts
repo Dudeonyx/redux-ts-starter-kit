@@ -1,6 +1,6 @@
 import memoize from 'memoize-state';
-import { createTypeSafeActionCreator, createSliceAction } from './action';
-import type { NestedObject, AnyAction, PayloadAction } from './types';
+import { createTypeSafeActionCreator } from './action';
+import type { NestedObject } from './types';
 import { makeTypeSafeSelector } from './selector';
 import type {
   ActionMap,
@@ -11,7 +11,7 @@ import type {
 } from './slice';
 import { createReducer } from './reducer';
 
-export type ArgOf<Fn> = Fn extends (o: infer O, ...g: any) => any ? O : never;
+type ArgOf<Fn> = Fn extends (o: infer O, ...g: any) => any ? O : never;
 
 export const makeComputedSelectors = <
   ComputedMap extends { [s: string]: (s: any) => any },
@@ -217,38 +217,38 @@ export type CreateNameSpace<SS, Ax> = <Sl extends string>(
   };
 };
 
-export const makeNameSpacedReducer =
-  <S, A extends ActionCreatorsMap<any, any>>(
-    reducer: Reducer<S>,
-    actions: A,
-  ): CreateNameSpace<S, A> =>
-  <Sl extends string>(slice: Sl) => {
-    const initialState = reducer(undefined, { type: '^&&@@^&&^$$&**%' });
-    const sliceReducer = (state: S = initialState, action: AnyAction) => {
-      if (slice !== action.slice) {
-        return state;
-      }
-      return reducer(state, action);
-    };
-    sliceReducer.toString = (): Sl => String(slice) as Sl;
-    const sliceActions = (
-      Object.entries(actions) as Array<[keyof A, A[keyof A]]>
-    ).reduce<{ [K in keyof A]: A[K] & { slice: Sl } }>(
-      (map, [key, fn]) => ({
-        ...map,
-        [key]: createSliceAction(fn.type, slice)<
-          InferActionCreatorPayload<typeof fn>
-        >(),
-      }),
-      {} as any,
-    );
+// export const makeNameSpacedReducer =
+//   <S, A extends ActionCreatorsMap<any, any>>(
+//     reducer: Reducer<S>,
+//     actions: A,
+//   ): CreateNameSpace<S, A> =>
+//   <Sl extends string>(slice: Sl) => {
+//     const initialState = reducer(undefined, { type: '^&&@@^&&^$$&**%' });
+//     const sliceReducer = (state: S = initialState, action: AnyAction) => {
+//       if (slice !== action.slice) {
+//         return state;
+//       }
+//       return reducer(state, action);
+//     };
+//     sliceReducer.toString = (): Sl => String(slice) as Sl;
+//     const sliceActions = (
+//       Object.entries(actions) as Array<[keyof A, A[keyof A]]>
+//     ).reduce<{ [K in keyof A]: A[K] & { slice: Sl } }>(
+//       (map, [key, fn]) => ({
+//         ...map,
+//         [key]: createSliceAction(fn.type, slice)<
+//           InferActionCreatorPayload<typeof fn>
+//         >(),
+//       }),
+//       {} as any,
+//     );
 
-    return { sliceReducer, sliceActions };
-  };
+//     return { sliceReducer, sliceActions };
+//   };
 
-type InferActionCreatorPayload<A> = A extends () => PayloadAction<infer P, any>
-  ? P
-  : never;
+// type InferActionCreatorPayload<A> = A extends () => PayloadAction<infer P, any>
+//   ? P
+//   : never;
 
 function pickType<
   Ax extends ActionMap,

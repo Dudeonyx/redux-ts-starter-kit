@@ -354,7 +354,7 @@ export function createSlice<
   SliceName extends '',
   Cases extends CasesBase<SliceState>,
   SliceState,
-  Computed extends ComputedMap<SliceState>,
+  Computed extends ComputedMap<SliceState> | {},
   TyO extends { [K in keyof Cases]?: string } = {},
 >(
   options: CreateSliceOptionsBlankSlice<
@@ -381,7 +381,7 @@ export function createSlice<
   SliceName extends string,
   Cases extends CasesBase<SliceState>,
   SliceState,
-  Computed extends ComputedMap<SliceState>,
+  Computed extends ComputedMap<SliceState> | {},
   TyO extends { [K in keyof Cases]?: string } = {},
 >(
   options: CreateSliceOptions<
@@ -409,7 +409,7 @@ export function createSlice<
   SliceName extends string | '',
   Cases extends CasesBase<SliceState>,
   SliceState,
-  Computed extends ComputedMap<SliceState> = {},
+  Computed extends ComputedMap<SliceState> | {} = {},
   TyO extends { [K in keyof Cases]?: string } = {},
 >({
   cases,

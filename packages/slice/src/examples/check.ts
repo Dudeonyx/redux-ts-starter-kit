@@ -15,6 +15,120 @@ import type { MapSelectorsTo, ReMappedSelectors } from '../slice-utils';
 
 // eslint-disable-next-line no-lone-blocks
 
+export function constArr<P0 extends ANY>(a: [P0]): typeof a;
+export function constArr<P0 extends ANY, P1 extends ANY>(a: [P0, P1]): typeof a;
+export function constArr<P0 extends ANY, P1 extends ANY, P2 extends ANY>(
+  a: [P0, P1, P2],
+): typeof a;
+export function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+>(a: [P0, P1, P2, P3]): typeof a;
+export function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+>(a: [P0, P1, P2, P3, P4]): typeof a;
+export function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5]): typeof a;
+export function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6]): typeof a;
+export function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+  P7 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6, P7]): typeof a;
+export function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+  P7 extends ANY,
+  P8 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8]): typeof a;
+export function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+  P7 extends ANY,
+  P8 extends ANY,
+  P9 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8, P9]): typeof a;
+export function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+  P7 extends ANY,
+  P8 extends ANY,
+  P9 extends ANY,
+  P10 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10]): typeof a;
+export function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+  P7 extends ANY,
+  P8 extends ANY,
+  P9 extends ANY,
+  P10 extends ANY,
+  P11 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11]): typeof a;
+export function constArr<
+  P0 extends ANY,
+  P1 extends ANY,
+  P2 extends ANY,
+  P3 extends ANY,
+  P4 extends ANY,
+  P5 extends ANY,
+  P6 extends ANY,
+  P7 extends ANY,
+  P8 extends ANY,
+  P9 extends ANY,
+  P10 extends ANY,
+  P11 extends ANY,
+  P12 extends ANY,
+>(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12]): typeof a;
+export function constArr<P0 extends ANY[]>(a: P0) {
+  return a;
+}
+
 interface CRO<S, Ax, Ac, Cx> {
   state: S;
   cases: CasesBuilder<S, Ax>;
