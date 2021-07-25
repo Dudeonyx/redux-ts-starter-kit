@@ -1,11 +1,17 @@
 import memoize from 'memoize-state';
 import { createTypeSafeAction, createSliceAction } from './action';
-import { makeTypeSafeSelector, NestedObject } from './selector';
-import { ActionsMap, ActionCreators, Selectors, Cases, Reducer } from './slice';
+import type { NestedObject, AnyAction, PayloadAction } from './types';
+import { makeTypeSafeSelector } from './selector';
+import type {
+  ActionMap,
+  ActionCreatorsMap,
+  Selectors,
+  Reducer,
+  CasesBase,
+} from './slice';
 import { createReducer } from './reducer';
-import { AnyAction, PayloadAction } from './types';
 
-export type ArgOf<Fn> = Fn extends (o: infer O) => any ? O : never;
+export type ArgOf<Fn> = Fn extends (o: infer O, ...g: any) => any ? O : never;
 
 export const makeComputedSelectors = <
   ComputedMap extends { [s: string]: (s: any) => any },
@@ -106,30 +112,33 @@ export function makeReMapableSelectors<
 }
 
 export const makeActionCreators = <
-  Actions extends ActionsMap,
+  Actions extends ActionMap,
   TypeOverrides extends { [K in keyof Actions]?: string },
 >(
   actionKeys: Array<Extract<keyof Actions, string>>,
   typeOverrides: TypeOverrides = {} as TypeOverrides,
-): ActionCreators<Actions, TypeOverrides> => actionKeys.reduce((map, action) => {
+): ActionCreatorsMap<Actions, TypeOverrides> =>
+  actionKeys.reduce((map, action) => {
     const type = pickType<Actions, TypeOverrides>(typeOverrides, action);
+    // eslint-disable-next-line no-param-reassign
     map[action] = createTypeSafeAction(type)<Actions[typeof action]>();
     return map;
   }, {} as any);
 
 export const makeReducer = <
-  Ax extends ActionsMap,
+  Cases extends CasesBase<S>,
   S,
-  TyO extends { [K in keyof Ax]?: string },
+  TyO extends { [K in keyof Cases]?: string },
 >(
   initialState: S,
-  casesInput: Cases<S, Ax, TyO>,
+  casesInput: Cases,
   typeOverrides: TyO = {} as TyO,
 ) => {
-  const cases = (
-    Object.keys(casesInput) as Array<Extract<keyof Ax, string>>
+  const cases: Cases = (
+    Object.keys(casesInput) as Array<Extract<keyof Cases, string>>
   ).reduce((map, key) => {
-    const type = pickType<Ax, TyO>(typeOverrides, key);
+    const type = pickType<Cases, TyO>(typeOverrides, key);
+    // eslint-disable-next-line no-param-reassign
     map[type] = casesInput[key];
     return map;
   }, {} as any);
@@ -186,10 +195,12 @@ export type CreateNameSpace<SS, Ax> = <Sl extends string>(
   };
 };
 
-export const makeNameSpacedReducer = <S, A extends ActionCreators<any, any>>(
-  reducer: Reducer<S>,
-  actions: A,
-): CreateNameSpace<S, A> => <Sl extends string>(slice: Sl) => {
+export const makeNameSpacedReducer =
+  <S, A extends ActionCreatorsMap<any, any>>(
+    reducer: Reducer<S>,
+    actions: A,
+  ): CreateNameSpace<S, A> =>
+  <Sl extends string>(slice: Sl) => {
     const initialState = reducer(undefined, { type: '^&&@@^&&^$$&**%' });
     const sliceReducer = (state: S = initialState, action: AnyAction) => {
       if (slice !== action.slice) {
@@ -200,12 +211,15 @@ export const makeNameSpacedReducer = <S, A extends ActionCreators<any, any>>(
     sliceReducer.toString = (): Sl => String(slice) as Sl;
     const sliceActions = (
       Object.entries(actions) as Array<[keyof A, A[keyof A]]>
-    ).reduce<{ [K in keyof A]: A[K] & { slice: Sl } }>((map, [key, fn]) => ({
+    ).reduce<{ [K in keyof A]: A[K] & { slice: Sl } }>(
+      (map, [key, fn]) => ({
         ...map,
         [key]: createSliceAction(fn.type, slice)<
           InferActionCreatorPayload<typeof fn>
         >(),
-      }), {} as any);
+      }),
+      {} as any,
+    );
 
     return { sliceReducer, sliceActions };
   };
@@ -215,7 +229,7 @@ type InferActionCreatorPayload<A> = A extends () => PayloadAction<infer P, any>
   : never;
 
 function pickType<
-  Ax extends ActionsMap,
+  Ax extends ActionMap,
   TyO extends { [K in keyof Ax]?: string },
 >(typeOverrides: TyO, key: Extract<keyof Ax, string>) {
   const newType = typeOverrides[key];

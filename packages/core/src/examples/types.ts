@@ -1,6 +1,6 @@
 import { createSlice } from '@redux-ts-starter-kit/slice';
 import thunk from 'redux-thunk';
-import { IordersReducerState, IDbOrders } from './types.d';
+import type { IordersReducerState, IDbOrders } from './types.d';
 import { configureStore } from '../configureStore';
 // import { Action } from 'redux';
 // import {} from '../index';
@@ -154,7 +154,7 @@ export const store = configureStore({
     ords: ordersReducer,
   },
 
-  middleware: [thunk,],
+  middleware: [thunk],
   // enhancers:[],
   preloadedState: {
     auth: {},

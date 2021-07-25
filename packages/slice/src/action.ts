@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { IS_PRODUCTION } from './selector';
 
 function createAction<P = any, T extends string = string>(type: T) {
@@ -33,9 +34,7 @@ export function createType<T extends string>(type: T) {
     // tslint:disable-next-line: no-unused-expression
     IS_PRODUCTION ||
       console.error(
-        `The argument to createType must be a string, But a(n) ${ 
-          typeof type 
-          } was received instead.`,
+        `The argument to createType must be a string, But a(n) ${typeof type} was received instead.`,
       );
   }
   return type;

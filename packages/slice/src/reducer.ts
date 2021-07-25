@@ -1,6 +1,6 @@
 import createNextState from 'immer';
-import { AnyAction } from './types';
-import { Cases, ActionsMap, Reducer } from './slice';
+import type { AnyAction } from './types';
+import type { CasesBase, Reducer } from './slice';
 
 /**
  * @description Input for the createReducer utility
@@ -9,7 +9,7 @@ import { Cases, ActionsMap, Reducer } from './slice';
  * @interface CreateReducer
  * @template SS - The [State] interface
  */
-export interface CreateReducer<S = any, A = any> {
+export interface CreateReducer<S = any, C extends CasesBase<S> = any> {
   /**
    * The initial State, same as in standard reducer
    *
@@ -24,7 +24,7 @@ export interface CreateReducer<S = any, A = any> {
    * @type {ReducerMap<SS, any>}
    * @memberof CreateReducer
    */
-  cases: Cases<S, A>;
+  cases: C;
 }
 
 /**
@@ -40,15 +40,15 @@ export interface CreateReducer<S = any, A = any> {
  * @returns
  */
 
-export function createReducer<S, A extends ActionsMap = ActionsMap>({
+export function createReducer<S, C extends CasesBase<S> = CasesBase<S>>({
   initialState,
   cases,
-}: CreateReducer<S, A>): Reducer<S, AnyAction> {
+}: CreateReducer<S, C>): Reducer<S, AnyAction> {
   const reducer = (state = initialState, action: AnyAction) =>
     createNextState(state, (draft: any) => {
       const caseReducer = cases[action.type];
       if (caseReducer) {
-        return caseReducer(draft, action.payload, action.type);
+        return caseReducer(draft, action.payload);
       }
       return draft;
     }) as S;

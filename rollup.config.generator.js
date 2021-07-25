@@ -31,7 +31,7 @@ export default function generateConfig({
       typescript({
         tsconfig: '../../tsconfig.json',
       }),
-      // terser(),
+      terser(),
     ],
   };
   if (!name || !pkg.unpkg) {

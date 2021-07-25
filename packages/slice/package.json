@@ -25,8 +25,8 @@
     "build": "yarn rollup -c",
     "build:declaration": "tsc -p tsconfig.build.json",
     "clean": "rimraf lib .rpt2_cache",
-    "tsc:tests": "yarn run tsc -p ./src/tests --noEmit",
-    "test:types": "typings-tester -c ./src/examples/tsconfig.json ./src/examples/types.ts",
+    "tsc:tests": "yarn run tsc -p ./src/tests",
+    "test:types": "yarn tsc:tests",
     "lint": "prettier --write src/**/*.ts && eslint --fix src/**/*.ts",
     "example": "ts-node ./src/examples/types.ts"
   },
@@ -42,7 +42,8 @@
   ],
   "dependencies": {
     "immer": "^9.0.5",
-    "memoize-state": "^2.0.15"
+    "memoize-state": "^2.0.15",
+    "tsdef": "^0.0.14"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",

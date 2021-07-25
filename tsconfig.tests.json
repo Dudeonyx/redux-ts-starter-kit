@@ -1,9 +1,9 @@
 {
-    "extends": "./tsconfig.base.json",
-    "compilerOptions": {
-        "noEmit": true,
-        "baseUrl": ".",
-    },
-    "exclude": ["node_modules"],
-    "include": ["./packages/**/src/tests/*.ts"]
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": "."
+  },
+  "exclude": ["node_modules"],
+  "include": ["./packages/**/src/tests/*.ts", "./packages/**/src/*typing.ts"]
 }

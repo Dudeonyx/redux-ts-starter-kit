@@ -1,5 +1,6 @@
-import { Action } from '@redux-ts-starter-kit/slice';
-import { AnyAction, Middleware } from 'redux';
+/* eslint-disable no-console */
+import type { Action } from '@redux-ts-starter-kit/slice';
+import type { AnyAction, Middleware } from 'redux';
 import isPlainObject from './isPlainObject';
 
 export function isPlain(
@@ -47,7 +48,7 @@ export function findNonSerializableValue<O extends { [x: string]: any }>(
   }
 
   for (const property in obj) {
-    if (obj.hasOwnProperty(property)) {
+    if (Object.hasOwnProperty.call(obj, property)) {
       const nestedPath = path.concat(property);
       const nestedValue = obj[property];
 
@@ -78,38 +79,38 @@ export default function createSerializableStateInvariantMiddleware(
 ): Middleware {
   const { isSerializable = isPlain } = options;
 
-  return (storeAPI: { getState: () => any }) => (
-    next: (arg0: AnyAction) => AnyAction,
-  ) => (action: Action) => {
-    const foundActionNonSerializableValue = findNonSerializableValue(
-      action,
-      [],
-      isSerializable,
-    );
-
-    if (foundActionNonSerializableValue) {
-      const { keyPath, value } = foundActionNonSerializableValue;
-
-      console.error(NON_SERIALIZABLE_ACTION_MESSAGE, keyPath, value, action);
-    }
-
-    const result = next(action);
-
-    const state = storeAPI.getState();
-
-    const foundStateNonSerializableValue = findNonSerializableValue(state);
-
-    if (foundStateNonSerializableValue) {
-      const { keyPath, value } = foundStateNonSerializableValue;
-
-      console.error(
-        NON_SERIALIZABLE_STATE_MESSAGE,
-        keyPath,
-        value,
-        action.type,
+  return (storeAPI: { getState: () => any }) =>
+    (next: (arg0: AnyAction) => AnyAction) =>
+    (action: Action) => {
+      const foundActionNonSerializableValue = findNonSerializableValue(
+        action,
+        [],
+        isSerializable,
       );
-    }
 
-    return result;
-  };
+      if (foundActionNonSerializableValue) {
+        const { keyPath, value } = foundActionNonSerializableValue;
+
+        console.error(NON_SERIALIZABLE_ACTION_MESSAGE, keyPath, value, action);
+      }
+
+      const result = next(action);
+
+      const state = storeAPI.getState();
+
+      const foundStateNonSerializableValue = findNonSerializableValue(state);
+
+      if (foundStateNonSerializableValue) {
+        const { keyPath, value } = foundStateNonSerializableValue;
+
+        console.error(
+          NON_SERIALIZABLE_STATE_MESSAGE,
+          keyPath,
+          value,
+          action.type,
+        );
+      }
+
+      return result;
+    };
 }

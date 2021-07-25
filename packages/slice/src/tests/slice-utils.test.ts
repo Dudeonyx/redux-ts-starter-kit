@@ -207,10 +207,12 @@ describe('makeComputedSelectors *could be more OCD*', () => {
 
   const computedSelectors = makeComputedSelectors({
     calc0: (state: typeof testState) => {
+      // eslint-disable-next-line no-plusplus
       calc0Called++;
       return state.anotherValue * state.a.value.used.in.calculation;
     },
     calc1: (state: typeof testState) => {
+      // eslint-disable-next-line no-plusplus
       calc1Called++;
       return (state.onlyTheThirdIsUsed[2] as number) * state.anotherValue;
     },
@@ -464,21 +466,23 @@ describe('makeReMappableSelectors', () => {
   const selectors = makeSelectors(initialState, 'form');
   const computedSelectors = {
     nameAndMiddleName: (state: { form: typeof initialState }) => {
+      // eslint-disable-next-line no-plusplus
       computedNameAndMiddleNameCalled++;
-      return `${state.form.name  } ${  state.form.middlename}`;
+      return `${state.form.name} ${state.form.middlename}`;
     },
     fullName(state: { form: typeof initialState }) {
-      return `${this.nameAndMiddleName(state)  } ${  state.form.surname}`;
+      return `${this.nameAndMiddleName(state)} ${state.form.surname}`;
     },
   };
   const selectors1 = makeSelectors(initialState);
   const computedSelectors1 = {
     nameAndMiddleName: (state: typeof initialState) => {
+      // eslint-disable-next-line no-plusplus
       computedNameAndMiddleNameCalled1++;
-      return `${state.name  } ${  state.middlename}`;
+      return `${state.name} ${state.middlename}`;
     },
     fullName(state: typeof initialState) {
-      return `${this.nameAndMiddleName(state)  } ${  state.surname}`;
+      return `${this.nameAndMiddleName(state)} ${state.surname}`;
     },
   };
   const mapTo = makeReMapableSelectors(selectors, computedSelectors);

@@ -1,7 +1,8 @@
-import { A, makeGetter, makeTypeSafeSelector, get } from '../selector';
+/* eslint-disable no-console */
+import { makeGetter, makeTypeSafeSelector, get } from '../selector';
 
 describe('makeGetter/makeTypeSafeSelector', () => {
-  const property = A('property', 'fdf');
+  const property = ['property', 'fdf'];
   const deepState = {
     some: {
       very: {
@@ -14,8 +15,10 @@ describe('makeGetter/makeTypeSafeSelector', () => {
           },
         },
       },
+      yoink: 'actual',
     },
     another: {
+      yoink: 'actual',
       deeply: {
         nested: {
           property,
@@ -39,20 +42,20 @@ describe('makeGetter/makeTypeSafeSelector', () => {
     'nested',
     'property',
   )<string[]>();
-  const getter1B = makeGetter('another', 'deeply', 'nested', 'property', '0');
+  const getter1B = makeGetter('another', 'deeply', 'nested', 'property', 0);
   const getter1C = makeTypeSafeSelector(
     'another',
     'deeply',
     'nested',
     'property',
-    '0',
+    0,
   )<string>();
   const getter1D = makeTypeSafeSelector(
     'another',
     'deeply',
     'nested',
     'property',
-    '0',
+    0,
   ).bindToInput<typeof deepState>();
   const getter2 = makeGetter(
     'anotherdf',

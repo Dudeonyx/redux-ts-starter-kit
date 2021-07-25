@@ -1,16 +1,20 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable no-param-reassign */
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { combineReducers } from 'redux';
+import type { CasesBuilder } from '../slice';
 import { createSlice } from '../slice';
 import { createType } from '../action';
 
 describe('createSlice', () => {
-  describe('General useage', () => {
+  describe('General usage', () => {
     type State = number;
     interface Actions {
-      increment: never;
+      increment: undefined;
       multiply: number;
     }
     const { actions, reducer, mapSelectorsTo } = createSlice<
-      Actions,
+      CasesBuilder<State, Actions>,
       State,
       {},
       {}
@@ -23,11 +27,11 @@ describe('createSlice', () => {
     });
     const selectors = mapSelectorsTo();
     it('should create increment action', () => {
-      expect(actions.hasOwnProperty('increment')).toBe(true);
+      expect(Object.hasOwnProperty.call(actions, 'increment')).toBe(true);
     });
 
     it('should create multiply action', () => {
-      expect(actions.hasOwnProperty('multiply')).toBe(true);
+      expect(Object.hasOwnProperty.call(actions, 'multiply')).toBe(true);
     });
 
     it('should have the correct action for increment', () => {
@@ -56,7 +60,7 @@ describe('createSlice', () => {
 
     describe('when using selectors', () => {
       it('should create selector with correct name', () => {
-        expect(selectors.hasOwnProperty('selectSlice')).toBe(true);
+        expect(Object.hasOwnProperty.call(selectors, 'selectSlice')).toBe(true);
       });
 
       it('should return the slice state data', () => {
@@ -69,6 +73,7 @@ describe('createSlice', () => {
   describe('createSlice mapSelectorsTo when initialState is an object, and reMapSelectors', () => {
     let nameAndSurnameCalled = 0;
     let fullNameCalled = 0;
+    let introduceSelfCalled = 0;
     const { mapSelectorsTo } = createSlice({
       cases: {},
       initialState: {
@@ -79,11 +84,15 @@ describe('createSlice', () => {
       computed: {
         nameAndSurname: (state) => {
           nameAndSurnameCalled++;
-          return `${state.name  } ${  state.surname}`;
+          return `${state.name} ${state.surname}`;
         },
         fullName: (state) => {
           fullNameCalled++;
-          return `${state.name  } ${  state.middlename  } ${  state.surname}`;
+          return `${state.name} ${state.middlename} ${state.surname}`;
+        },
+        introduceSelf(state): string {
+          introduceSelfCalled++;
+          return `Hello!, I am ${this.fullName(state)}.`;
         },
       },
     });
@@ -110,26 +119,42 @@ describe('createSlice', () => {
     const reMappedSelectors = mapSelectorsTo('users', 'userA', 'details');
 
     it('should create selector with correct name', () => {
-      expect(selectors.hasOwnProperty('selectSlice')).toBe(true);
-      expect(reMappedSelectors.hasOwnProperty('selectSlice')).toBe(true);
+      expect(Object.hasOwnProperty.call(selectors, 'selectSlice')).toBe(true);
+      expect(Object.hasOwnProperty.call(reMappedSelectors, 'selectSlice')).toBe(
+        true,
+      );
     });
     it('should create sub selector with correct name', () => {
-      expect(selectors.hasOwnProperty('name')).toBe(true);
-      expect(reMappedSelectors.hasOwnProperty('name')).toBe(true);
+      expect(Object.hasOwnProperty.call(selectors, 'name')).toBe(true);
+      expect(Object.hasOwnProperty.call(reMappedSelectors, 'name')).toBe(true);
     });
     it('should create sub selector with correct name', () => {
-      expect(selectors.hasOwnProperty('surname')).toBe(true);
-      expect(reMappedSelectors.hasOwnProperty('surname')).toBe(true);
+      expect(Object.hasOwnProperty.call(selectors, 'surname')).toBe(true);
+      expect(Object.hasOwnProperty.call(reMappedSelectors, 'surname')).toBe(
+        true,
+      );
     });
     it('should create sub selector with correct name', () => {
-      expect(selectors.hasOwnProperty('middlename')).toBe(true);
-      expect(reMappedSelectors.hasOwnProperty('middlename')).toBe(true);
+      expect(Object.hasOwnProperty.call(selectors, 'middlename')).toBe(true);
+      expect(Object.hasOwnProperty.call(reMappedSelectors, 'middlename')).toBe(
+        true,
+      );
     });
     it('should create computed selector with correct name', () => {
-      expect(selectors.hasOwnProperty('fullName')).toBe(true);
-      expect(selectors.hasOwnProperty('nameAndSurname')).toBe(true);
-      expect(reMappedSelectors.hasOwnProperty('fullName')).toBe(true);
-      expect(reMappedSelectors.hasOwnProperty('nameAndSurname')).toBe(true);
+      expect(Object.hasOwnProperty.call(selectors, 'fullName')).toBe(true);
+      expect(Object.hasOwnProperty.call(selectors, 'nameAndSurname')).toBe(
+        true,
+      );
+      expect(Object.hasOwnProperty.call(selectors, 'introduceSelf')).toBe(true);
+      expect(Object.hasOwnProperty.call(reMappedSelectors, 'fullName')).toBe(
+        true,
+      );
+      expect(
+        Object.hasOwnProperty.call(reMappedSelectors, 'nameAndSurname'),
+      ).toBe(true);
+      expect(
+        Object.hasOwnProperty.call(reMappedSelectors, 'introduceSelf'),
+      ).toBe(true);
     });
 
     it('should select the state slice', () => {
@@ -171,6 +196,18 @@ describe('createSlice', () => {
         'John2 Doe2',
       );
       expect(nameAndSurnameCalled).toBe(2);
+    });
+    it('should select the computed introduceSelf', () => {
+      expect(selectors.introduceSelf(state)).toEqual(
+        'Hello!, I am John Wayne Doe.',
+      );
+      expect(introduceSelfCalled).toBe(1);
+      expect(fullNameCalled).toBe(2);
+      expect(reMappedSelectors.introduceSelf(alternateState)).toEqual(
+        'Hello!, I am John2 Wayne2 Doe2.',
+      );
+      expect(introduceSelfCalled).toBe(2);
+      expect(fullNameCalled).toBe(2);
     });
     it('should memoize the computed nameAndSurname', () => {
       expect(selectors.nameAndSurname(state)).toEqual('John Doe');
@@ -310,12 +347,14 @@ describe('createSlice', () => {
         reset: () => 0,
       },
       typeOverrides: {
-        increase: 'counter/increase' as const,
-        decreaseBy: createType('counter/decreaseBy'),
-        reset: createType('RESET'),
+        increase: 'counter/increase',
+        decreaseBy: 'counter/decreaseBy',
+        reset: 'RESET',
       },
     });
+    // eslint-disable-next-line camelcase
     const counter_A = createNameSpacedReducer('counter_A');
+    // eslint-disable-next-line camelcase
     const counter_B = createNameSpacedReducer('counter_B');
 
     describe('sliceActions', () => {
@@ -500,7 +539,7 @@ describe('multiple createSlice slices combined with `combineReducers`', () => {
     // The interface used to type the actions
     setWaves: number; // payload is number
     setGreeting: string; //  payload is string
-    resetHi: never; // never indicates no payload expected
+    resetHi: undefined; // undefined indicates no payload expected
   }
 
   const hiInitialState: HiSliceState = {
@@ -509,7 +548,12 @@ describe('multiple createSlice slices combined with `combineReducers`', () => {
     waves: 0,
   };
 
-  const hiSlice = createSlice<HiActions, HiSliceState, {}, {}>({
+  const hiSlice = createSlice<
+    CasesBuilder<HiSliceState, HiActions>,
+    HiSliceState,
+    {},
+    {}
+  >({
     cases: {
       setWaves: (state, payload) => {
         state.waves = payload;
@@ -545,7 +589,7 @@ describe('multiple createSlice slices combined with `combineReducers`', () => {
       setMiddlename: (state, payload: string) => {
         state.middlename = payload;
       },
-      resetForm: (state, _: never) => formInitialState,
+      resetForm: (state, _: undefined) => formInitialState,
     },
     initialState: formInitialState,
   });
@@ -560,7 +604,7 @@ describe('multiple createSlice slices combined with `combineReducers`', () => {
   }
   interface AuthActions {
     authLogin: AuthSuccess;
-    authLogout: never;
+    authLogout: undefined;
   }
 
   const authInitialState: AuthSliceState = {
@@ -568,7 +612,12 @@ describe('multiple createSlice slices combined with `combineReducers`', () => {
     userId: null,
   };
 
-  const authSlice = createSlice<AuthActions, AuthSliceState, {}, {}>({
+  const authSlice = createSlice<
+    CasesBuilder<AuthSliceState, AuthActions>,
+    AuthSliceState,
+    {},
+    {}
+  >({
     initialState: authInitialState,
     cases: {
       authLogout: (state) => {

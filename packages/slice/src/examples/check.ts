@@ -1,11 +1,12 @@
+/* eslint-disable no-console */
 import { Draft } from 'immer';
-import { ActionsMap, Slice, Cases } from '../slice';
-import { PayloadAction } from '../types';
+import type { PayloadAction } from '../types';
 import { createTypeSafeAction } from '../action';
+import type { CasesBuilder } from '../slice';
 
 interface CRO<S, Ax, Ac, Cx> {
   state: S;
-  cases: Cases<S, Ax>;
+  cases: CasesBuilder<S, Ax>;
   computed: Cx;
   actionCreators?: Ac;
 }
@@ -218,14 +219,13 @@ function intGet(object: any, ...paths: any[]) {
   return getter(paths, object);
 }
 
-type SlMp<S, M> = { [K in keyof M]: (s: S) => any };
+type SlMp<S> = { [K: string]: (s: S) => any };
 function reMapSelectors<
   P extends string[] & {
     length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   },
-  S extends {},
-  MapS extends { [s: string]: any },
->(selectors: SlMp<S, MapS>, ...paths: P): S {
+  S,
+>(selectors: SlMp<S>, ...paths: P): S {
   return null as any;
 }
 
@@ -235,147 +235,52 @@ const newLocale = {
 };
 const chk = reMapSelectors(newLocale);
 type Selector<S, R> = (state: S) => R;
-export function createStructuredSelector<S, T>(
-  selectors: { [K in keyof T]: Selector<{ [E in keyof S]: S[E] }, T[K]> },
-): Selector<S, T> {
-  return selectors as any;
-}
+// export function createStructuredSelector<S, T>(
+//   selectors: { [K in keyof T]: Selector<{ [E in keyof S]: S[E] }, T[K]> },
+// ): Selector<S, T> {
+//   return selectors as any;
+// }
 
-const chk2 = createStructuredSelector({
-  sel: (state: { key: number }) => state.key,
-});
+// const chk2 = createStructuredSelector({
+//   sel: (state: { key: number }) => state.key,
+// });
 type ANY = string | boolean | number | symbol | object | null | undefined;
-type Const<O> = { [K in keyof O]: O[K] };
+
+type Const<O> = {
+  [K in keyof O]: O[K] extends any[]
+    ? any[]
+    : O[K] extends { [s: string]: ANY }
+    ? Const<O[K]>
+    : O[K];
+};
+
 function constObj<O extends {}, K extends { [S in keyof O]: ANY }>(
   o: Const<K>,
 ): K {
-  return o;
+  return o as any;
 }
 
 const fdffdf = constObj({
   hello: 'world',
   my: 'name is',
   age: 5,
-  other: constObj({
+  other: {
+    things: ['matter', 'a bit'],
+    to: 'me',
+  },
+});
+const fdffdf2 = {
+  hello: 'world',
+  my: 'name is',
+  age: 5,
+  other: {
     things: ['matter'],
     to: 'me',
-  }),
-});
+  },
+} as const;
 
-function constArr<P0 extends ANY>(a: [P0]): typeof a;
-function constArr<P0 extends ANY, P1 extends ANY>(a: [P0, P1]): typeof a;
-function constArr<P0 extends ANY, P1 extends ANY, P2 extends ANY>(
-  a: [P0, P1, P2],
-): typeof a;
-function constArr<
-  P0 extends ANY,
-  P1 extends ANY,
-  P2 extends ANY,
-  P3 extends ANY,
->(a: [P0, P1, P2, P3]): typeof a;
-function constArr<
-  P0 extends ANY,
-  P1 extends ANY,
-  P2 extends ANY,
-  P3 extends ANY,
-  P4 extends ANY,
->(a: [P0, P1, P2, P3, P4]): typeof a;
-function constArr<
-  P0 extends ANY,
-  P1 extends ANY,
-  P2 extends ANY,
-  P3 extends ANY,
-  P4 extends ANY,
-  P5 extends ANY,
->(a: [P0, P1, P2, P3, P4, P5]): typeof a;
-function constArr<
-  P0 extends ANY,
-  P1 extends ANY,
-  P2 extends ANY,
-  P3 extends ANY,
-  P4 extends ANY,
-  P5 extends ANY,
-  P6 extends ANY,
->(a: [P0, P1, P2, P3, P4, P5, P6]): typeof a;
-function constArr<
-  P0 extends ANY,
-  P1 extends ANY,
-  P2 extends ANY,
-  P3 extends ANY,
-  P4 extends ANY,
-  P5 extends ANY,
-  P6 extends ANY,
-  P7 extends ANY,
->(a: [P0, P1, P2, P3, P4, P5, P6, P7]): typeof a;
-function constArr<
-  P0 extends ANY,
-  P1 extends ANY,
-  P2 extends ANY,
-  P3 extends ANY,
-  P4 extends ANY,
-  P5 extends ANY,
-  P6 extends ANY,
-  P7 extends ANY,
-  P8 extends ANY,
->(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8]): typeof a;
-function constArr<
-  P0 extends ANY,
-  P1 extends ANY,
-  P2 extends ANY,
-  P3 extends ANY,
-  P4 extends ANY,
-  P5 extends ANY,
-  P6 extends ANY,
-  P7 extends ANY,
-  P8 extends ANY,
-  P9 extends ANY,
->(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8, P9]): typeof a;
-function constArr<
-  P0 extends ANY,
-  P1 extends ANY,
-  P2 extends ANY,
-  P3 extends ANY,
-  P4 extends ANY,
-  P5 extends ANY,
-  P6 extends ANY,
-  P7 extends ANY,
-  P8 extends ANY,
-  P9 extends ANY,
-  P10 extends ANY,
->(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10]): typeof a;
-function constArr<
-  P0 extends ANY,
-  P1 extends ANY,
-  P2 extends ANY,
-  P3 extends ANY,
-  P4 extends ANY,
-  P5 extends ANY,
-  P6 extends ANY,
-  P7 extends ANY,
-  P8 extends ANY,
-  P9 extends ANY,
-  P10 extends ANY,
-  P11 extends ANY,
->(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11]): typeof a;
-function constArr<
-  P0 extends ANY,
-  P1 extends ANY,
-  P2 extends ANY,
-  P3 extends ANY,
-  P4 extends ANY,
-  P5 extends ANY,
-  P6 extends ANY,
-  P7 extends ANY,
-  P8 extends ANY,
-  P9 extends ANY,
-  P10 extends ANY,
-  P11 extends ANY,
-  P12 extends ANY,
->(a: [P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12]): typeof a;
-function constArr<P0 extends ANY[]>(a: P0) {
-  return a;
-}
-const dfdfaf = constArr(['hello']);
+// const dfdfaf = constArr(['hello']);
+
 {
   type GetS<S> = S extends number ? number : S extends string ? string : S;
 
@@ -390,7 +295,7 @@ const dfdfaf = constArr(['hello']);
   type OmitNonMethods<T extends {}> = { [K in ExcludeNonMethodKeys<T>]: T[K] };
   interface CRO2<S, Ax, Ac, Cx> {
     state: S;
-    cases: Cases<S, Ax>;
+    cases: CasesBuilder<S, Ax>;
     computed: Cx;
     actionCreators?: Ac;
   }
@@ -400,7 +305,7 @@ const dfdfaf = constArr(['hello']);
   interface CSX<S> {
     [s: string]: (s: S) => any;
   }
-  function crSl<
+  function crSl2<
     S,
     Ax extends {},
     Ac extends { [K in keyof Ax]?: string },
@@ -415,7 +320,7 @@ const dfdfaf = constArr(['hello']);
     computed: Cx;
   };
 
-  function crSl<
+  function crSl2<
     S,
     Ax extends {},
     Ac extends { [K in keyof Ax]?: string },
@@ -429,11 +334,12 @@ const dfdfaf = constArr(['hello']);
     >;
   };
 
-  function crSl(o: any): any {
+  // eslint-disable-next-line no-inner-declarations
+  function crSl2(o: any): any {
     return null as any;
   }
 
-  const tsff = crSl({
+  const tsff = crSl2({
     actionCreators: {
       fth: createType('TypeSafe'),
     },

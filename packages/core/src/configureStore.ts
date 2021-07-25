@@ -1,8 +1,4 @@
-import {
-  createStore,
-  compose,
-  applyMiddleware,
-  combineReducers,
+import type {
   Middleware,
   Reducer,
   StoreEnhancer,
@@ -11,17 +7,20 @@ import {
   Action,
   Store,
 } from 'redux';
-import { composeWithDevTools, EnhancerOptions } from 'redux-devtools-extension';
-import thunk, { ThunkDispatch } from 'redux-thunk';
+import { createStore, compose, applyMiddleware, combineReducers } from 'redux';
+import type { EnhancerOptions } from 'redux-devtools-extension';
+import { composeWithDevTools } from 'redux-devtools-extension';
+import type { ThunkDispatch } from 'redux-thunk';
+import thunk from 'redux-thunk';
 import createSerializableStateInvariantMiddleware from './serializableStateInvariantMiddleware';
 
 import isPlainObject from './isPlainObject';
 
-
 export function getDefaultMiddleware() {
   return process.env.NODE_ENV === 'production'
-    ? [thunk,]
+    ? [thunk]
     : [
+        // eslint-disable-next-line global-require
         require('redux-immutable-state-invariant').default() as Middleware,
         thunk,
         createSerializableStateInvariantMiddleware(),
@@ -93,7 +92,7 @@ interface ConfigureStoreOptions1<
   A extends Action,
   Ext,
   StateExt,
-  DispatchExt
+  DispatchExt,
 > extends ConfigureStoreDefaultOptions<S, A, Ext, StateExt> {
   /**
    * @param [middleware] An array of middlewares. A middleware is a higher-order function that
@@ -123,7 +122,7 @@ export function configureStore<
   S,
   A extends Action = Action,
   Ext extends {} = {},
-  StateExt = {}
+  StateExt = {},
 >({
   reducer,
   devTools,
@@ -136,7 +135,7 @@ export function configureStore<
   A extends Action = Action,
   Ext extends {} = {},
   StateExt = {},
-  DispatchExt = {}
+  DispatchExt = {},
 >({
   reducer,
   devTools,
@@ -153,7 +152,7 @@ export function configureStore<
   S,
   A extends Action = Action,
   Ext extends {} = {},
-  StateExt = {}
+  StateExt = {},
 >({
   reducer,
   devTools,
@@ -185,7 +184,7 @@ export function configureStore(
 
   const middlewareEnhancer = applyMiddleware(...middleware);
 
-  const storeEnhancers = [middlewareEnhancer, ...enhancers,];
+  const storeEnhancers = [middlewareEnhancer, ...enhancers];
 
   const finalCompose =
     devTools === true

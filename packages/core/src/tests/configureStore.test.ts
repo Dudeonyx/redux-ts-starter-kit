@@ -1,7 +1,9 @@
+/* eslint-disable no-param-reassign */
 import * as redux from 'redux';
 import * as devtools from 'redux-devtools-extension';
 
 import thunk from 'redux-thunk';
+import type { CasesBuilder } from '@redux-ts-starter-kit/slice';
 import { createSlice } from '@redux-ts-starter-kit/slice';
 import { configureStore, getDefaultMiddleware } from '../configureStore';
 
@@ -13,7 +15,7 @@ describe('getDefaultMiddleware', () => {
   });
   it('returns an array with only redux-thunk in production', () => {
     process.env.NODE_ENV = 'production';
-    expect(getDefaultMiddleware()).toEqual([thunk,]);
+    expect(getDefaultMiddleware()).toEqual([thunk]);
   });
 
   it('returns an array with additional middleware in development', () => {
@@ -92,10 +94,10 @@ describe('configureStore', () => {
 
   describe('given custom middleware', () => {
     it('calls createStore with custom middleware and without default middleware', () => {
-      const thank = (store: any) => (next: (arg0: any) => any) => (
-        action: any,
-      ) => next(action);
-      expect(configureStore({ middleware: [thank,], reducer })).toBeInstanceOf(
+      const thank =
+        (store: any) => (next: (arg0: any) => any) => (action: any) =>
+          next(action);
+      expect(configureStore({ middleware: [thank], reducer })).toBeInstanceOf(
         Object,
       );
       expect(redux.applyMiddleware).toHaveBeenCalledWith(thank);
@@ -139,7 +141,7 @@ describe('configureStore', () => {
   describe('given enhancers', () => {
     it('calls createStore with enhancers', () => {
       const enhancer = (next: any) => next;
-      expect(configureStore({ enhancers: [enhancer,], reducer })).toBeInstanceOf(
+      expect(configureStore({ enhancers: [enhancer], reducer })).toBeInstanceOf(
         Object,
       );
       expect(redux.applyMiddleware).toHaveBeenCalled();
@@ -167,7 +169,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
   interface Actions {
     setGreeting: string;
     setWaves: number;
-    resetHi: never;
+    resetHi: undefined;
   }
 
   const hiInitialState: HiSliceState = {
@@ -175,7 +177,12 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     waves: 0,
   };
 
-  const hiSlice = createSlice<Actions, HiSliceState, {}, {}>({
+  const hiSlice = createSlice<
+    CasesBuilder<HiSliceState, Actions>,
+    HiSliceState,
+    {},
+    {}
+  >({
     cases: {
       setGreeting: (state, payload) => {
         state.greeting = payload;
@@ -211,7 +218,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
       setMiddlename: (state, payload: string) => {
         state.middlename = payload;
       },
-      resetForm: (state, _: never) => formInitialState,
+      resetForm: (state, _: undefined) => formInitialState,
     },
     initialState: formInitialState,
   });
@@ -226,7 +233,7 @@ describe('multiple createSlice reducers used to create a redux store', () => {
   }
   interface AuthActions {
     authLogin: AuthSuccess;
-    authLogout: never;
+    authLogout: undefined;
   }
 
   const authInitialState: AuthSliceState = {
@@ -234,7 +241,12 @@ describe('multiple createSlice reducers used to create a redux store', () => {
     userId: '',
   };
 
-  const authSlice = createSlice<AuthActions, AuthSliceState, {}, {}>({
+  const authSlice = createSlice<
+    CasesBuilder<AuthSliceState, AuthActions>,
+    AuthSliceState,
+    {},
+    {}
+  >({
     initialState: authInitialState,
     cases: {
       authLogout: (state) => {
@@ -259,22 +271,22 @@ describe('multiple createSlice reducers used to create a redux store', () => {
   describe('store dispatches actions correctly', () => {
     describe('Actions in hiSlice', () => {
       it('sets greeting in hi', () => {
-        store.dispatch(hiSlice.actions.setGreeting('Kaydo!')),
-          expect(store.getState()).toEqual({
-            form: {
-              name: '',
-              surname: '',
-              middlename: '',
-            },
-            hi: {
-              greeting: 'Kaydo!',
-              waves: 0,
-            },
-            auth: {
-              idToken: '',
-              userId: '',
-            },
-          });
+        store.dispatch(hiSlice.actions.setGreeting('Kaydo!'));
+        expect(store.getState()).toEqual({
+          form: {
+            name: '',
+            surname: '',
+            middlename: '',
+          },
+          hi: {
+            greeting: 'Kaydo!',
+            waves: 0,
+          },
+          auth: {
+            idToken: '',
+            userId: '',
+          },
+        });
       });
       it('sets waves in hi', () => {
         store.dispatch(hiSlice.actions.setWaves(5));
@@ -295,42 +307,42 @@ describe('multiple createSlice reducers used to create a redux store', () => {
         });
       });
       it('resets hi', () => {
-        store.dispatch(hiSlice.actions.resetHi()),
-          expect(store.getState()).toEqual({
-            form: {
-              name: '',
-              surname: '',
-              middlename: '',
-            },
-            hi: {
-              greeting: '',
-              waves: 0,
-            },
-            auth: {
-              idToken: '',
-              userId: '',
-            },
-          });
+        store.dispatch(hiSlice.actions.resetHi());
+        expect(store.getState()).toEqual({
+          form: {
+            name: '',
+            surname: '',
+            middlename: '',
+          },
+          hi: {
+            greeting: '',
+            waves: 0,
+          },
+          auth: {
+            idToken: '',
+            userId: '',
+          },
+        });
       });
     });
     describe('Actions in formSlice', () => {
       it('sets name in form', () => {
-        store.dispatch(formSlice.actions.setName('John')),
-          expect(store.getState()).toEqual({
-            form: {
-              name: 'John',
-              surname: '',
-              middlename: '',
-            },
-            hi: {
-              greeting: '',
-              waves: 0,
-            },
-            auth: {
-              idToken: '',
-              userId: '',
-            },
-          });
+        store.dispatch(formSlice.actions.setName('John'));
+        expect(store.getState()).toEqual({
+          form: {
+            name: 'John',
+            surname: '',
+            middlename: '',
+          },
+          hi: {
+            greeting: '',
+            waves: 0,
+          },
+          auth: {
+            idToken: '',
+            userId: '',
+          },
+        });
       });
       it('sets surname in form', () => {
         store.dispatch(formSlice.actions.setSurname('Wayne'));
@@ -351,22 +363,22 @@ describe('multiple createSlice reducers used to create a redux store', () => {
         });
       });
       it('sets middlename in form', () => {
-        store.dispatch(formSlice.actions.setMiddlename('Doe')),
-          expect(store.getState()).toEqual({
-            form: {
-              name: 'John',
-              surname: 'Wayne',
-              middlename: 'Doe',
-            },
-            hi: {
-              greeting: '',
-              waves: 0,
-            },
-            auth: {
-              idToken: '',
-              userId: '',
-            },
-          });
+        store.dispatch(formSlice.actions.setMiddlename('Doe'));
+        expect(store.getState()).toEqual({
+          form: {
+            name: 'John',
+            surname: 'Wayne',
+            middlename: 'Doe',
+          },
+          hi: {
+            greeting: '',
+            waves: 0,
+          },
+          auth: {
+            idToken: '',
+            userId: '',
+          },
+        });
       });
       it('resets form', () => {
         store.dispatch(formSlice.actions.resetForm());
@@ -394,40 +406,40 @@ describe('multiple createSlice reducers used to create a redux store', () => {
             idToken: 'a random token',
             userId: 'a user id',
           }),
-        ),
-          expect(store.getState()).toEqual({
-            form: {
-              name: '',
-              surname: '',
-              middlename: '',
-            },
-            hi: {
-              greeting: '',
-              waves: 0,
-            },
-            auth: {
-              idToken: 'a random token',
-              userId: 'a user id',
-            },
-          });
+        );
+        expect(store.getState()).toEqual({
+          form: {
+            name: '',
+            surname: '',
+            middlename: '',
+          },
+          hi: {
+            greeting: '',
+            waves: 0,
+          },
+          auth: {
+            idToken: 'a random token',
+            userId: 'a user id',
+          },
+        });
       });
       it('resets userId and idToken in auth', () => {
-        store.dispatch(authSlice.actions.authLogout()),
-          expect(store.getState()).toEqual({
-            form: {
-              name: '',
-              surname: '',
-              middlename: '',
-            },
-            hi: {
-              greeting: '',
-              waves: 0,
-            },
-            auth: {
-              idToken: '',
-              userId: '',
-            },
-          });
+        store.dispatch(authSlice.actions.authLogout());
+        expect(store.getState()).toEqual({
+          form: {
+            name: '',
+            surname: '',
+            middlename: '',
+          },
+          hi: {
+            greeting: '',
+            waves: 0,
+          },
+          auth: {
+            idToken: '',
+            userId: '',
+          },
+        });
       });
     });
   });

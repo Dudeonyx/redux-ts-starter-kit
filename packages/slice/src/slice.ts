@@ -1,25 +1,18 @@
 import type { Draft } from 'immer';
-import type { AnyAction, PayloadAction } from './types';
-import type {
-  MapSelectorsTo,
-  CreateNameSpace} from './slice-utils';
+import type { AnyAction, NotEmptyObject, PayloadAction } from './types';
+import type { MapSelectorsTo, CreateNameSpace } from './slice-utils';
 import {
   makeActionCreators,
   makeSelectors,
   makeReMapableSelectors,
   makeReducer,
-  makeNameSpacedReducer
+  makeNameSpacedReducer,
 } from './slice-utils';
 
-interface NotEmptyObject {
-  [s: string]: string | number | symbol | boolean | object | undefined | null;
-  [s: number]: string | number | symbol | boolean | object | undefined | null;
-}
 /** Type alias for case reducers when `slice` is blank or undefined */
-type CaseReducer<S = any, P = any, T extends string = string> = (
+type CaseReducer<S = any, P = any> = (
   state: Draft<S>,
   payload: P,
-  type: T,
 ) => S | void | undefined;
 
 /** Type alias for the generated reducer */
@@ -34,14 +27,15 @@ export type Reducer<S = any, A extends AnyAction = AnyAction> = (
  * @template SS is the `SliceState`
  * @template Ax  is the `ActionsMap`
  */
-export type Cases<
-  SS,
-  Ax extends {},
-  TyO extends { [C in keyof Ax]?: string } = {},
-> = { [K in keyof Ax]: CaseReducer<SS, Ax[K], InferType<TyO[K], K>> };
+export type CasesBase<SS> = {
+  [s: string]: CaseReducer<SS>;
+};
+export type CasesBuilder<SS, Ax extends {}> = {
+  [K in keyof Ax]: CaseReducer<SS, Ax[K]>;
+};
 
-/** Generic Actions Map interface */
-export interface ActionsMap<P = any> {
+/** Generic Action Map interface */
+export interface ActionMap<P = any> {
   [Action: string]: P;
 }
 export interface AnyState {
@@ -56,37 +50,49 @@ export type Selectors<SS> = {
   : SS extends AnyState
   ? { [key in keyof SS]: (state: SS) => SS[key] }
   : {});
-type InferType<TyO extends string | undefined, Fallback> = TyO extends string
+
+type InferLiteral<TyO extends string, Fallback> = TyO extends string
   ? TyO
   : Fallback extends string
   ? Fallback
   : never;
 /** Type alias for generated action creators */
-export type ActionCreators<A, TyO extends { [K in keyof A]?: string } = {}> = {
-  [key in keyof A]: ActionCreator<A, key, InferType<TyO[key], key>> & {
-    type: InferType<TyO[key], key>;
-    toString: () => InferType<TyO[key], key>;
+export type ActionCreatorsMap<
+  A,
+  TyO extends { [K in keyof A]?: string } = {},
+> = {
+  [key in keyof A]: ActionCreator<
+    A[key],
+    InferLiteral<NonNullable<TyO[key]>, key>
+  > & {
+    type: InferLiteral<NonNullable<TyO[key]>, key>;
+    toString: () => InferLiteral<NonNullable<TyO[key]>, key>;
   };
 };
 
-type ActionCreator<
-  A,
-  K extends keyof A,
-  T extends string,
-> = unknown extends A[K] // hacky ternary for `A[K] is any`
+type ActionCreator<A, T extends string> = 0 extends A & 1 // hacky ternary for `A[K] is any` see `https://stackoverflow.com/questions/55541275/typescript-check-for-the-any-type`
   ? (payload?: any) => PayloadAction<any, T>
-  : A[K] extends never | undefined | void // No payload when type is `never` | `undefined` | `void`
+  : A extends never | undefined | void // No payload when type is `never` | `undefined` | `void`
   ? () => PayloadAction<undefined, T>
-  : A[K] extends NotEmptyObject // needed to prevent very rare edge cases where the next ternary is wrongly triggered
-  ? (payload: A[K]) => PayloadAction<A[K], T>
-  : {} extends A[K] // ensures payload isn't inferred as {}, this is due to way ts narrows uninferred types to {}, ts@>3.5 will potentially fix this
+  : A extends NotEmptyObject // needed to prevent very rare edge cases where the next ternary is wrongly triggered
+  ? (payload: A) => PayloadAction<A, T>
+  : {} extends A // ensures payload isn't inferred as {}, this is due to way ts narrows uninferred types to {}, ts@>3.5 will potentially fix this
   ? () => PayloadAction<undefined, T>
-  : (payload: A[K]) => PayloadAction<A[K], T>;
+  : (payload: A) => PayloadAction<A, T>;
+
+type PayloadTypeMap<Cases extends CasesBase<any>> = {
+  [K in keyof Cases]: Cases[K] extends (s: any, p: infer P) => any ? P : never;
+};
+
+type ActionCreatorsMapFromCases<
+  Cases extends CasesBase<any>,
+  TyO = {},
+> = ActionCreatorsMap<PayloadTypeMap<Cases>, TyO>;
 
 /** Map of computed selectors */
-type ComputedMap<S, C extends {}> = { [K in keyof C]: (state: S) => C[K] };
+type ComputedMap<S> = { [s: string]: (state: S) => any };
 
-/** Hack used to make `typeOverrides` string literals */
+/** Hack used to make values of `typeOverrides` Object string literals */
 type Const<TyO> = { [K in keyof TyO]: TyO[K] };
 
 /**
@@ -98,9 +104,10 @@ type Const<TyO> = { [K in keyof TyO]: TyO[K] };
  * @template Slc - [slice]
  */
 export interface Slice<
-  Ax extends ActionCreators<any, any>,
+  Cases extends CasesBase<SS>,
   SS,
   SelectorMap extends { [s: string]: (s: SS) => any },
+  TyO extends { [K in keyof Cases]?: string },
 > {
   /**
    * @description The generated reducer
@@ -114,7 +121,7 @@ export interface Slice<
    * @type { [s:string]: (payload:any)=> PayloadAction }
    * @memberof Slice
    */
-  actions: Ax;
+  actions: ActionCreatorsMapFromCases<Cases, TyO>;
   /**
    * Helper utility for mapping selectors to paths
    *
@@ -149,7 +156,7 @@ export interface Slice<
    *
    * @memberof Slice
    */
-  createNameSpace: CreateNameSpace<SS, Ax>;
+  createNameSpace: CreateNameSpace<SS, ActionCreatorsMapFromCases<Cases, TyO>>;
 }
 
 /**
@@ -161,7 +168,12 @@ export interface Slice<
  * @template Cx The computed selectors map, format - `{ [selectorName]: returnType }`
  * @template TyO The type overrides map, format - `{[caseName]: <string>typeOverride}`
  */
-interface CreateSliceOptions<SS, Ax, Cx, TyO> {
+interface CreateSliceOptions<
+  SS,
+  Cases extends CasesBase<SS>,
+  Cx extends ComputedMap<SS>,
+  TyO,
+> {
   /**
    * The initial State, same as standard reducer
    *
@@ -186,7 +198,7 @@ interface CreateSliceOptions<SS, Ax, Cx, TyO> {
    * })
    * @memberof CreateSliceOptions
    */
-  cases: Cases<SS, Ax, TyO>;
+  cases: Cases;
 
   /**
    * @description computed selectors for this slice, will be memoized using the `memoize-state` lib
@@ -212,7 +224,7 @@ interface CreateSliceOptions<SS, Ax, Cx, TyO> {
    * @type {ComputedMap<SS, Cx>}
    * @memberof CreateSliceOptions
    */
-  computed?: ComputedMap<SS, Cx>;
+  computed?: Cx;
 
   /**
    * @description Type overrides to override the `type` which case reducers respond to
@@ -256,58 +268,59 @@ interface CreateSliceOptions<SS, Ax, Cx, TyO> {
  * @template TypeOverrides
  * @param {CreateSliceOptions<SliceState, Actions, Computed, TypeOverrides>} options
  * @returns {(Slice<
- *   ActionCreators<Actions, TypeOverrides>,
+ *   ActionCreatorsMap<Actions, TypeOverrides>,
  *   SliceState,
  *   Selectors<SliceState> & ComputedMap<SliceState, Computed>
  * >)}
  */
+// export function createSlice<
+//   // Yes these are identical overloads, don't 'fix',
+//   // counter: 5, increment counter each time you ignore warning and try to defy fate
+//   // Hah! take that past me, I finally fixed it, whoo!
+//   Cases extends CasesBase<SliceState>,
+//   SliceState,
+//   Computed extends ComputedMap<SliceState> = {},
+//   TyO extends { [K in keyof Cases]?: string } = {},
+// >(
+//   options: CreateSliceOptions<SliceState, Cases, Computed, Const<TyO>>,
+// ): Slice<
+//   Cases,
+//   SliceState,
+//   NonNullable<Computed> & Selectors<SliceState> ,
+//   TyO
+// >;
 export function createSlice<
-  Actions extends ActionsMap,
+  Cases extends CasesBase<SliceState>,
   SliceState,
-  Computed extends ActionsMap,
-  TyO extends { [K in keyof Actions]?: string },
+  Computed extends ComputedMap<SliceState> | {},
+  TyO extends { [K in keyof Cases]?: string } = {},
 >(
-  options: CreateSliceOptions<SliceState, Actions, Computed, Const<TyO>>,
-): Slice<
-  ActionCreators<Actions, TyO>,
-  SliceState,
-  Selectors<SliceState> & ComputedMap<SliceState, Computed>
->;
-export function createSlice<
-  Actions extends ActionsMap,
-  SliceState,
-  Computed extends ActionsMap,
-  TyO extends { [K in keyof Actions]?: string },
->(
-  options: CreateSliceOptions<SliceState, Actions, Computed, Const<TyO>>,
-): Slice<
-  ActionCreators<Actions, TyO>,
-  SliceState,
-  Selectors<SliceState> & ComputedMap<SliceState, Computed>
->;
+  options: CreateSliceOptions<SliceState, Cases, Computed, Const<TyO>>,
+): Slice<Cases, SliceState, NonNullable<Computed> & Selectors<SliceState>, TyO>;
 
 export function createSlice<
-  Actions extends ActionsMap,
+  Cases extends CasesBase<SliceState>,
   SliceState,
-  Computed extends ActionsMap,
-  TyO extends { [K in keyof Actions]?: string },
+  Computed extends ComputedMap<SliceState> = {},
+  TyO extends { [K in keyof Cases]?: string } = {},
 >({
   cases,
   initialState,
-  computed = {} as ComputedMap<SliceState, Computed>,
+  computed = {} as Computed,
   typeOverrides = {} as Const<TyO>,
-}: CreateSliceOptions<SliceState, Actions, Computed, Const<TyO>>): Slice<
-  ActionCreators<Actions, TyO>,
+}: CreateSliceOptions<SliceState, Cases, Computed, Const<TyO>>): Slice<
+  Cases,
   SliceState,
-  Selectors<SliceState> & ComputedMap<SliceState, Computed>
+  NonNullable<Computed> & Selectors<SliceState>,
+  TyO
 > {
   const actionKeys = Object.keys(cases) as Array<
-    Extract<keyof Actions, string>
+    Extract<keyof PayloadTypeMap<Cases>, string>
   >;
 
   const reducer = makeReducer(initialState, cases, typeOverrides);
 
-  const actions = makeActionCreators<Actions, Const<TyO>>(
+  const actions = makeActionCreators<PayloadTypeMap<Cases>, Const<TyO>>(
     actionKeys,
     typeOverrides,
   );
@@ -320,7 +333,7 @@ export function createSlice<
   return {
     actions,
     reducer,
-    mapSelectorsTo,
+    mapSelectorsTo: mapSelectorsTo as any,
     createNameSpace,
   };
 }

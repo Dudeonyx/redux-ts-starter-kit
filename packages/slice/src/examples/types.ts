@@ -1,9 +1,11 @@
-import { combineReducers, createStore, applyMiddleware, Dispatch } from 'redux';
+import type { Dispatch } from 'redux';
+import { combineReducers, createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import { createSlice, Selectors } from '../slice';
-import { IordersReducerState, IDbOrders } from './types.d';
+import type { Selectors } from '../slice';
+import { createSlice } from '../slice';
+import type { IordersReducerState, IDbOrders } from './types.d';
 import { createReducer } from '../reducer';
-import { ReMappedSelectors } from '../slice-utils';
+import type { ReMappedSelectors } from '../slice-utils';
 
 export type Filters = 'ALL' | 'COMPLETE' | 'PENDING';
 const visibilitySlice = createSlice({
@@ -31,7 +33,7 @@ interface IState {
 
 interface Actions {
   set: HiSliceState;
-  reset: never;
+  reset: undefined;
 }
 
 const defaultState = {
@@ -104,9 +106,9 @@ interface AuthSuccess {
 }
 export interface AuthActions {
   authSuccess: AuthSuccess;
-  authStart: never;
+  authStart: undefined;
   authFail: Error;
-  authLogout: never;
+  authLogout: undefined;
 }
 
 const initialState: AuthSliceState = {
@@ -118,10 +120,10 @@ const initialState: AuthSliceState = {
 
 const auth = createSlice({
   initialState,
-  typeOverrides: {
-    authFail: 'AUTH_FAIL',
-    // authLogout: 5,
-  },
+  // typeOverrides: {
+  //   authFail: 'AUTH_FAIL',
+  //   // authLogout: 5,
+  // },
   cases: {
     authFail: (state, payload: Error) => {
       state.error = payload;
@@ -158,9 +160,9 @@ export const {
 
 export interface AuthActions$ {
   auth_Success$: AuthSuccess;
-  auth_Start$: never;
+  auth_Start$: undefined;
   auth_Fail$: Error;
-  auth_Logout$: never;
+  auth_Logout$: undefined;
 }
 
 const auth$ = createSlice<AuthActions$, AuthSliceState, {}, {}>({
@@ -215,7 +217,7 @@ const auth$NoInterface = createSlice({
       state.error = payload;
       state.authenticating = false;
     },
-    auth_Logout$2: (state, _n: never, type) => {
+    auth_Logout$2: (state, _n: undefined, type) => {
       state.idToken = null;
       state.userId = null;
     },
