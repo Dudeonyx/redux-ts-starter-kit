@@ -33,7 +33,6 @@ export default function generateConfig({
     plugins: [
       typescript({
         tsconfig: '../../tsconfig.json',
-        declaration: true
       }),
       terser(),
     ],

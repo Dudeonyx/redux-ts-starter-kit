@@ -2,7 +2,7 @@ import type { NestedObject, Getter, GetArrayLength } from './types';
 
 export const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
-export function makeTypeSafeSelector<P extends string[]>(
+export function makeTypeSafeSelector<P extends (string | number)[]>(
   slice: '',
   ...paths: P
 ): {
@@ -11,7 +11,7 @@ export function makeTypeSafeSelector<P extends string[]>(
     object: O,
   ) => Getter<P, O>;
 };
-export function makeTypeSafeSelector<P extends string[]>(
+export function makeTypeSafeSelector<P extends (string | number)[]>(
   ...paths: P
 ): {
   <V>(): (object: NestedObject<P, 0, V>) => V;
@@ -21,7 +21,7 @@ export function makeTypeSafeSelector<P extends string[]>(
 };
 
 export function makeTypeSafeSelector<
-  P extends string[] & {
+  P extends (string | number)[] & {
     length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   },
 >(...paths: P) {
@@ -34,7 +34,7 @@ export function makeTypeSafeSelector<
           bindToInput:
             <O extends NestedObject<P, 0, any>>() =>
             (object: O): Getter<P, O> =>
-              getter(paths, object as any) as any,
+              getter(paths, object) as any,
         },
       )
     : Object.assign(
@@ -51,20 +51,20 @@ export function makeTypeSafeSelector<
 }
 
 export const makeGetter =
-  <P extends string[]>(...paths: P) =>
+  <P extends (string | number)[]>(...paths: P) =>
   (object: NestedObject<P, 0, any>) =>
     getter(paths, object);
 
 export const get = <
   O extends NestedObject<P, 0, any>,
-  P extends string[] | ReadonlyArray<string>,
+  P extends (string | number)[] | ReadonlyArray<string | number>,
 >(
   object: O,
   ...paths: P
 ) => getter(paths, object);
 
 function getter<
-  P extends string[] | ReadonlyArray<string>,
+  P extends (string | number)[] | ReadonlyArray<string | number>,
   O extends NestedObject<P, 0, any, GetArrayLength<P>>,
 >(paths: P, targetObject: O | undefined): Getter<P, O> | undefined {
   if (paths.length === 0) {

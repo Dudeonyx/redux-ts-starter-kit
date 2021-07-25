@@ -49,7 +49,7 @@ type IncreaseNum<N extends number> = N extends 0
   : Start extends Max
   ? Fin
   : S[Start] extends number
-  ? S[IncreaseNum<Start>] extends string
+  ? S[IncreaseNum<Start>] extends number
     ? (NestedObject<S, IncreaseNum<Start>, Fin, Max> & NotEmptyObject)[]
     : NestedObject<S, IncreaseNum<Start>, Fin, Max>[]
   : {
@@ -57,7 +57,7 @@ type IncreaseNum<N extends number> = N extends 0
     }; */
 
 export type NestedObject<
-  S extends string[] | ReadonlyArray<string>,
+  S extends (string | number)[] | ReadonlyArray<string | number>,
   Start extends number,
   Fin,
   Max extends number = GetArrayLength<S>,
@@ -108,4 +108,94 @@ export type Getter<
   ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]][P[7]][P[8]]
   : GetArrayLength<P> extends 10
   ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]][P[7]][P[8]][P[9]]
+  : never;
+
+export type MakeObject<P extends (string | number)[], Final = any> = P extends 0
+  ? { [K0 in P[0]]: Final }
+  : P extends 1
+  ? { [K0 in P[0]]: { [K1 in P[1]]: Final } }
+  : P extends 2
+  ? { [K0 in P[0]]: { [K1 in P[1]]: { [K2 in P[2]]: Final } } }
+  : P extends 3
+  ? {
+      [K0 in P[0]]: { [K1 in P[1]]: { [K2 in P[2]]: { [K3 in P[3]]: Final } } };
+    }
+  : P extends 4
+  ? {
+      [K0 in P[0]]: {
+        [K1 in P[1]]: {
+          [K2 in P[2]]: { [K3 in P[3]]: { [K4 in P[4]]: Final } };
+        };
+      };
+    }
+  : P extends 5
+  ? {
+      [K0 in P[0]]: {
+        [K1 in P[1]]: {
+          [K2 in P[2]]: {
+            [K3 in P[3]]: { [K4 in P[4]]: { [K5 in P[5]]: Final } };
+          };
+        };
+      };
+    }
+  : P extends 6
+  ? {
+      [K0 in P[0]]: {
+        [K1 in P[1]]: {
+          [K2 in P[2]]: {
+            [K3 in P[3]]: {
+              [K4 in P[4]]: { [K5 in P[5]]: { [K6 in P[6]]: Final } };
+            };
+          };
+        };
+      };
+    }
+  : P extends 7
+  ? {
+      [K0 in P[0]]: {
+        [K1 in P[1]]: {
+          [K2 in P[2]]: {
+            [K3 in P[3]]: {
+              [K4 in P[4]]: {
+                [K5 in P[5]]: { [K6 in P[6]]: { [K7 in P[7]]: Final } };
+              };
+            };
+          };
+        };
+      };
+    }
+  : P extends 8
+  ? {
+      [K0 in P[0]]: {
+        [K1 in P[1]]: {
+          [K2 in P[2]]: {
+            [K3 in P[3]]: {
+              [K4 in P[4]]: {
+                [K5 in P[5]]: {
+                  [K6 in P[6]]: { [K7 in P[7]]: { [K8 in P[8]]: Final } };
+                };
+              };
+            };
+          };
+        };
+      };
+    }
+  : P extends 9
+  ? {
+      [K0 in P[0]]: {
+        [K1 in P[1]]: {
+          [K2 in P[2]]: {
+            [K3 in P[3]]: {
+              [K4 in P[4]]: {
+                [K5 in P[5]]: {
+                  [K6 in P[6]]: {
+                    [K7 in P[7]]: { [K8 in P[8]]: { [K9 in P[9]]: Final } };
+                  };
+                };
+              };
+            };
+          };
+        };
+      };
+    }
   : never;

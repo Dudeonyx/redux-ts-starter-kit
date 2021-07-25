@@ -2,7 +2,7 @@
 import { makeGetter, makeTypeSafeSelector, get } from '../selector';
 
 describe('makeGetter/makeTypeSafeSelector', () => {
-  const property: ['property', 'fdf'] = ['property', 'fdf'];
+  const property = ['property', 'fdf'] as const;
   const deepState = {
     some: {
       very: {
@@ -41,21 +41,21 @@ describe('makeGetter/makeTypeSafeSelector', () => {
     'deeply',
     'nested',
     'property',
-  )<string[]>();
-  const getter1B = makeGetter('another', 'deeply', 'nested', 'property', '0');
+  )<typeof property>();
+  const getter1B = makeGetter('another', 'deeply', 'nested', 'property', 0);
   const getter1C = makeTypeSafeSelector(
     'another',
     'deeply',
     'nested',
     'property',
-    '0',
+    0,
   )<string>();
   const getter1D = makeTypeSafeSelector(
     'another',
     'deeply',
     'nested',
     'property',
-    '0',
+    0,
   ).bindToInput<typeof deepState>();
   const getter2 = makeGetter(
     'anotherdf',
