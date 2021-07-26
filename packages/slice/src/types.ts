@@ -1,3 +1,5 @@
+import type { IsAny } from 'tsdef';
+
 export interface Action<T extends string = string> {
   readonly type: T;
 }
@@ -15,28 +17,30 @@ export interface PayloadAction<P = any, T extends string = string>
   readonly payload: P;
 }
 
-type IncreaseNum<N extends number> = N extends 0
-  ? 1
-  : N extends 1
-  ? 2
-  : N extends 2
-  ? 3
-  : N extends 3
-  ? 4
-  : N extends 4
-  ? 5
-  : N extends 5
-  ? 6
-  : N extends 6
-  ? 7
-  : N extends 7
-  ? 8
-  : N extends 8
-  ? 9
-  : N extends 9
-  ? 10
-  : N extends 10
-  ? 11
+type IncreaseNum<N extends number> = IsAny<N, never, false> extends false
+  ? N extends 0
+    ? 1
+    : N extends 1
+    ? 2
+    : N extends 2
+    ? 3
+    : N extends 3
+    ? 4
+    : N extends 4
+    ? 5
+    : N extends 5
+    ? 6
+    : N extends 6
+    ? 7
+    : N extends 7
+    ? 8
+    : N extends 8
+    ? 9
+    : N extends 9
+    ? 10
+    : N extends 10
+    ? 11
+    : never
   : never;
 
 /* export type NestedObject<
@@ -57,7 +61,7 @@ type IncreaseNum<N extends number> = N extends 0
     }; */
 
 export type NestedObject<
-  S extends (string | number)[] | ReadonlyArray<string | number>,
+  S extends string[] | ReadonlyArray<string>,
   Start extends number,
   Fin,
   Max extends number = GetArrayLength<S>,
@@ -84,7 +88,7 @@ export type GetArrayLength<S extends any[] | ReadonlyArray<any>> = S extends {
   ? L
   : never;
 export type Getter<
-  P extends (string | number)[] | ReadonlyArray<string | number>,
+  P extends string[] | ReadonlyArray<string>,
   O extends { [s: string]: any },
 > = GetArrayLength<P> extends 0
   ? O
@@ -110,17 +114,19 @@ export type Getter<
   ? O[P[0]][P[1]][P[2]][P[3]][P[4]][P[5]][P[6]][P[7]][P[8]][P[9]]
   : never;
 
-export type MakeObject<P extends (string | number)[], Final = any> = P extends 0
-  ? { [K0 in P[0]]: Final }
+/* type MakeObject<P extends (string | number)[], Final = any> = P extends 0
+  ? Final
   : P extends 1
-  ? { [K0 in P[0]]: { [K1 in P[1]]: Final } }
+  ? { [K0 in P[0]]: Final }
   : P extends 2
-  ? { [K0 in P[0]]: { [K1 in P[1]]: { [K2 in P[2]]: Final } } }
+  ? { [K0 in P[0]]: { [K1 in P[1]]: Final } }
   : P extends 3
+  ? { [K0 in P[0]]: { [K1 in P[1]]: { [K2 in P[2]]: Final } } }
+  : P extends 4
   ? {
       [K0 in P[0]]: { [K1 in P[1]]: { [K2 in P[2]]: { [K3 in P[3]]: Final } } };
     }
-  : P extends 4
+  : P extends 5
   ? {
       [K0 in P[0]]: {
         [K1 in P[1]]: {
@@ -128,7 +134,7 @@ export type MakeObject<P extends (string | number)[], Final = any> = P extends 0
         };
       };
     }
-  : P extends 5
+  : P extends 6
   ? {
       [K0 in P[0]]: {
         [K1 in P[1]]: {
@@ -138,7 +144,7 @@ export type MakeObject<P extends (string | number)[], Final = any> = P extends 0
         };
       };
     }
-  : P extends 6
+  : P extends 7
   ? {
       [K0 in P[0]]: {
         [K1 in P[1]]: {
@@ -150,7 +156,7 @@ export type MakeObject<P extends (string | number)[], Final = any> = P extends 0
         };
       };
     }
-  : P extends 7
+  : P extends 8
   ? {
       [K0 in P[0]]: {
         [K1 in P[1]]: {
@@ -164,7 +170,7 @@ export type MakeObject<P extends (string | number)[], Final = any> = P extends 0
         };
       };
     }
-  : P extends 8
+  : P extends 9
   ? {
       [K0 in P[0]]: {
         [K1 in P[1]]: {
@@ -180,7 +186,7 @@ export type MakeObject<P extends (string | number)[], Final = any> = P extends 0
         };
       };
     }
-  : P extends 9
+  : P extends 10
   ? {
       [K0 in P[0]]: {
         [K1 in P[1]]: {
@@ -198,4 +204,4 @@ export type MakeObject<P extends (string | number)[], Final = any> = P extends 0
         };
       };
     }
-  : never;
+  : never; */
