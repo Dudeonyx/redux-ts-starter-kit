@@ -1,11 +1,13 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "noEmit": false,
-    "emitDeclarationOnly": true,
+    // "noEmit": false,
+    // "emitDeclarationOnly": true,
     "declaration": true,
-    "declarationDir": "./lib",
-    "baseUrl": "./",
+    "declarationDir": "./",
+    // "outFile": "index.d.ts",
+    "baseUrl": ".",
+    "rootDir": "./src",
     "lib": ["esnext"]
   },
   "include": ["./src/index.ts"]

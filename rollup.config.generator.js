@@ -32,7 +32,7 @@ export default function generateConfig({
     ],
     plugins: [
       typescript({
-        tsconfig: '../../tsconfig.json',
+        tsconfig: './tsconfig.build.json',
       }),
       terser(),
     ],

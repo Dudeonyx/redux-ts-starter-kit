@@ -23,7 +23,6 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "build:declaration": "tsc -p tsconfig.build.json",
     "clean": "rimraf lib .rpt2_cache",
     "tsc:tests": "yarn run tsc -p ./src/tests --noEmit",
     "lint": "prettier --write src/**/*.ts && eslint --fix src/**/*.ts",

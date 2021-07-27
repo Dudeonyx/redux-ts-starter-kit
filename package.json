@@ -7,8 +7,6 @@
     "test:watch": "jest --watch",
     "prebuild": "yarn clean",
     "build": "lerna run --parallel build",
-    "postbuild": "yarn build:declaration",
-    "build:declaration": "lerna run --parallel build:declaration",
     "bootstrap": "lerna bootstrap",
     "clean": "lerna run --parallel clean",
     "prepublish": "yarn test && yarn build",
