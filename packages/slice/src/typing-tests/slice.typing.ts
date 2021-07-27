@@ -4,7 +4,6 @@
 /* eslint-disable prefer-const */
 /* eslint-disable no-void */
 
-import type { IsAny, IsUnknown } from 'tsdef';
 import type {
   PayloadAction,
   AnyAction,
@@ -12,6 +11,7 @@ import type {
   Reducer,
 } from '../index';
 import { createSlice } from '../index';
+import type { IsAny, IsUnknown } from '../types';
 
 type Equals<T, U> = IsAny<
   T,
@@ -112,14 +112,14 @@ export function expectNotAny<T extends IsNotAny<T>>(t: T): T {
   // @ts-expect-error
   selectors.fdf;
 
-  selectors = {
+  expectType<typeof selectors>({
     selectSlice: (state: { hi: string[] }) => state.hi,
-  };
+  });
 
-  selectors = {
+  expectType<typeof selectors>({
     // @ts-expect-error
     selectSlice: (state: { wow: string[] }) => state.wow,
-  };
+  });
 
   // let reducer = hiReducer$;
 
@@ -177,15 +177,17 @@ export function expectNotAny<T extends IsNotAny<T>>(t: T): T {
   // const selectors = formSlice.reMapSelectorsTo('form');
   const { selectors } = formSlice;
 
-  selectors.selectSlice = (state) => state.form;
+  expectType<typeof selectors.selectSlice>((state) => state.form);
   // @ts-expect-error
-  selectors.selectSlice = (state) => state.details;
-  // @ts-expect-error
-  selectors.selectSlice = (state: { form: number[] }) => state.form;
+  expectType<typeof selectors.selectSlice>((state) => state.details);
+  expectType<typeof selectors.selectSlice>(
+    // @ts-expect-error
+    (state: { form: number[] }) => state.form,
+  );
 
-  selectors.middlename = (state) => state.form.middlename;
-  selectors.surname = (state) => state.form.surname;
-  selectors.name = (state) => state.form.name;
+  expectType<typeof selectors.middlename>((state) => state.form.middlename);
+  expectType<typeof selectors.surname>((state) => state.form.surname);
+  expectType<typeof selectors.name>((state) => state.form.name);
 
   // @ts-expect-error
   selectors.lastName;

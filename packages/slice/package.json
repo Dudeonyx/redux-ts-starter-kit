@@ -41,8 +41,7 @@
   ],
   "dependencies": {
     "immer": "^9.0.5",
-    "memoize-state": "^2.0.15",
-    "tsdef": "^0.0.14"
+    "memoize-state": "^2.0.15"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",

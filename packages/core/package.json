@@ -45,8 +45,7 @@
     "redux": "^4.1.0",
     "redux-devtools-extension": "^2.13.9",
     "redux-immutable-state-invariant": "^2.1.0",
-    "redux-thunk": "^2.3.0",
-    "tsdef": "^0.0.14"
+    "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",

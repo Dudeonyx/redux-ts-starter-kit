@@ -1,4 +1,27 @@
-import type { IsAny } from 'tsdef';
+/**
+ * @author 'tsdef'
+ */
+export type IsAny<T, True, False = never> = True | False extends (
+  T extends never ? True : False
+)
+  ? True
+  : False;
+/**
+ * @author 'tsdef'
+ */
+export type IsUnknown<T, True, False = never> = unknown extends T
+  ? IsAny<T, False, True>
+  : False;
+/**
+ * @see https://stackoverflow.com/questions/51465182/how-to-remove-index-signature-using-mapped-types
+ */
+export type RemoveIndex<T> = {
+  [K in keyof T as string extends K
+    ? never
+    : number extends K
+    ? never
+    : K]: T[K];
+};
 
 export interface Action<T extends string = string> {
   readonly type: T;

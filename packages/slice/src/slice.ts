@@ -1,6 +1,10 @@
 import type { Draft } from 'immer';
-import type { AreStrictlyEqual } from 'tsdef';
-import type { AnyAction, NotEmptyObject, PayloadAction } from './types';
+import type {
+  AnyAction,
+  NotEmptyObject,
+  PayloadAction,
+  RemoveIndex,
+} from './types';
 import type { MapSelectorsTo, ReMappedSelectors } from './slice-utils';
 import {
   makeReMapableSelectors,
@@ -184,12 +188,29 @@ export interface Slice<
   // createNameSpace: CreateNameSpace<SS, ActionCreatorsMapFromCases<Cases, TyO>>;
 }
 
-interface CreateSliceOptionsBase<
+/**
+ * Options for `createSlice` utility
+ *
+ * @interface CreateSliceOptions
+ * @template SS The `SliceState` type
+ * @template Ax The Actions map, format - `{ [caseName]: typeof payload }`
+ * @template Cx The computed selectors map, format - `{ [selectorName]: returnType }`
+ * @template TyO The type overrides map, format - `{[caseName]: <string>typeOverride}`
+ */
+interface CreateSliceOptions<
+  SliceName extends string,
   SS,
   Cases extends CasesBase<SS>,
   Cx extends ComputedMap<SS>,
   TyO,
 > {
+  /**
+   *The slice name
+   *
+   * @type {SliceName}
+   * @memberof CreateSliceOptions
+   */
+  name: SliceName;
   /**
    * The initial State, same as standard reducer
    *
@@ -273,40 +294,6 @@ interface CreateSliceOptionsBase<
 }
 
 /**
- * Options for `createSlice` utility
- *
- * @interface CreateSliceOptions
- * @template SS The `SliceState` type
- * @template Ax The Actions map, format - `{ [caseName]: typeof payload }`
- * @template Cx The computed selectors map, format - `{ [selectorName]: returnType }`
- * @template TyO The type overrides map, format - `{[caseName]: <string>typeOverride}`
- */
-interface CreateSliceOptions<
-  SliceName extends string,
-  SS,
-  Cases extends CasesBase<SS>,
-  Cx extends ComputedMap<SS>,
-  TyO,
-> extends CreateSliceOptionsBase<SS, Cases, Cx, TyO> {
-  name: SliceName;
-}
-interface CreateSliceOptionsBlankSlice<
-  SliceName extends '',
-  SS,
-  Cases extends CasesBase<SS>,
-  Cx extends ComputedMap<SS>,
-  TyO,
-> extends CreateSliceOptionsBase<SS, Cases, Cx, TyO> {
-  /**
-   * The name of the slice
-   *
-   * @type {SliceName}
-   * @memberof CreateSliceOptionsBlankSlice
-   */
-  name: SliceName;
-}
-
-/**
  * @description Generates a redux state tree slice, complete with a `reducer`,
  *  `action creators`, `mapSelectorsTo` and `createNameSpace`
  *
@@ -330,58 +317,14 @@ interface CreateSliceOptionsBlankSlice<
  *   >,
  *   TyO
  * >)}
- * @type AreStrictlyEqual<Computed,{ [s: string]: (state: SliceState) => any } | {},{},Computed>
- *        is needed to prevent `Computed` infering as { [s: string]: (state: SliceState) => any } when computed
- *        is undefined in the options. This would otherwise break type safety.
+ * @type   RemoveIndex<Computed> is needed to prevent `Computed` infering as { [s: string]: (state: SliceState) => any } when computed
+ *         is undefined in the argument to `createSlice`. This would otherwise break type safety.
  */
-// export function createSlice<
-//   // Yes these are identical overloads, don't 'fix',
-//   // counter: 5, increment counter each time you ignore warning and try to defy fate
-//   // Hah! take that past me, I finally fixed it, whoo!
-//   Cases extends CasesBase<SliceState>,
-//   SliceState,
-//   Computed extends ComputedMap<SliceState> = {},
-//   TyO extends { [K in keyof Cases]?: string } = {},
-// >(
-//   options: CreateSliceOptions<SliceState, Cases, Computed, Const<TyO>>,
-// ): Slice<
-//   Cases,
-//   SliceState,
-//   NonNullable<Computed> & Selectors<SliceState> ,
-//   TyO
-// >;
-export function createSlice<
-  SliceName extends '',
-  Cases extends CasesBase<SliceState>,
-  SliceState,
-  Computed extends ComputedMap<SliceState> | {},
-  TyO extends { [K in keyof Cases]?: string } = {},
->(
-  options: CreateSliceOptionsBlankSlice<
-    SliceName,
-    SliceState,
-    Cases,
-    Computed,
-    Const<TyO>
-  >,
-): Slice<
-  SliceName,
-  Cases,
-  SliceState,
-  Selectors<SliceState>,
-  AreStrictlyEqual<
-    Computed,
-    { [s: string]: (state: SliceState) => any } | {},
-    {},
-    Computed
-  >,
-  TyO
->;
 export function createSlice<
   SliceName extends string,
   Cases extends CasesBase<SliceState>,
   SliceState,
-  Computed extends ComputedMap<SliceState> | {},
+  Computed extends ComputedMap<SliceState> = ComputedMap<SliceState>,
   TyO extends { [K in keyof Cases]?: string } = {},
 >(
   options: CreateSliceOptions<
@@ -396,12 +339,7 @@ export function createSlice<
   Cases,
   SliceState,
   Selectors<SliceState>,
-  AreStrictlyEqual<
-    Computed,
-    { [s: string]: (state: SliceState) => any } | {},
-    {},
-    Computed
-  >,
+  RemoveIndex<Computed>,
   TyO
 >;
 
@@ -409,7 +347,7 @@ export function createSlice<
   SliceName extends string | '',
   Cases extends CasesBase<SliceState>,
   SliceState,
-  Computed extends ComputedMap<SliceState> | {} = {},
+  Computed extends ComputedMap<SliceState> = {},
   TyO extends { [K in keyof Cases]?: string } = {},
 >({
   cases,
@@ -428,12 +366,7 @@ export function createSlice<
   Cases,
   SliceState,
   Selectors<SliceState>,
-  AreStrictlyEqual<
-    Computed,
-    { [s: string]: (state: SliceState) => any } | {},
-    {},
-    Computed
-  >,
+  RemoveIndex<Computed>,
   TyO
 > {
   const actionKeys = Object.keys(cases) as Array<
