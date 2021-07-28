@@ -99,8 +99,6 @@ type ActionCreator<A, T extends string> = 0 extends A & 1 // hacky ternary for `
   ? () => PayloadAction<undefined, T>
   : (payload: A) => PayloadAction<A, T>;
 
-// type t = [number|string] extends [number|string|5] ? true : false;
-
 type PayloadTypeMap<Cases extends CasesBase<any>> = {
   [K in keyof Cases]: Cases[K] extends (s: any, p: infer P) => any ? P : never;
 };
