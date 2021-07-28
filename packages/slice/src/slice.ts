@@ -1,10 +1,5 @@
 import type { Draft } from 'immer';
-import type {
-  AnyAction,
-  NotEmptyObject,
-  PayloadAction,
-  RemoveIndex,
-} from './types';
+import type { AnyAction, PayloadAction, RemoveIndex } from './types';
 import type { MapSelectorsTo, ReMappedSelectors } from './slice-utils';
 import {
   makeReMapableSelectors,
@@ -89,13 +84,13 @@ export type ActionCreatorsMap<
 
 type ActionCreator<A, T extends string> = 0 extends A & 1 // hacky ternary for `A[K] is any` see `https://stackoverflow.com/questions/55541275/typescript-check-for-the-any-type`
   ? (payload?: any) => PayloadAction<any, T>
-  : unknown extends A
+  : unknown extends A // payload is unknown, and therefore skipped
   ? () => PayloadAction<undefined, T>
-  : [undefined] extends [A] // No payload when type is `undefined`
+  : [undefined] extends [A] // if payload is maybe undefined
   ? (payload?: A) => PayloadAction<A, T>
-  : A extends NotEmptyObject // needed to prevent very rare edge cases where the next ternary is wrongly triggered
+  : [null] extends [A] // if payload is maybe null
   ? (payload: A) => PayloadAction<A, T>
-  : {} extends A // ensures payload isn't inferred as {}, this is due to way ts narrows uninferred types to {}, ts@>3.5 will potentially fix this
+  : keyof A extends never // ensures payload isn't inferred as {}, this is due to way ts narrows uninferred types to {}, ts@>3.5 will potentially fix this by infering as unknown instead
   ? () => PayloadAction<undefined, T>
   : (payload: A) => PayloadAction<A, T>;
 
