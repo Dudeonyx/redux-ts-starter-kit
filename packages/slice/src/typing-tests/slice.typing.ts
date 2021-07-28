@@ -47,7 +47,9 @@ export function expectNotAny<T extends IsNotAny<T>>(t: T): T {
     name: '',
     cases: {
       add: (state, payload: string) => void state.push(payload),
+      // add2: (state, payload: null) => void state.push(payload),
       set: (_state, payload: string[]) => payload,
+      set2: (_state, payload: string[] | undefined) => payload,
       removeLast: (state) => void state.pop(),
       reset: () => ['defaultState', 'jhj'],
     },
@@ -56,9 +58,12 @@ export function expectNotAny<T extends IsNotAny<T>>(t: T): T {
 
   const { actions: hiActions$, reducer: hiReducer$ } = hiSlice;
 
+  // hiActions$.set(null)
+
   type Actions = ActionCreatorsMap<
     {
       set: string[];
+      set2?: string[];
       removeLast: unknown;
       add: string;
       reset: unknown;
@@ -94,6 +99,10 @@ export function expectNotAny<T extends IsNotAny<T>>(t: T): T {
   hiActions$.set(['hj']);
   // @ts-expect-error
   hiActions$.set();
+
+  hiActions$.set2();
+  // @ts-expect-error
+  hiActions$.set2(5);
 
   hiActions$.add('sup');
   // @ts-expect-error

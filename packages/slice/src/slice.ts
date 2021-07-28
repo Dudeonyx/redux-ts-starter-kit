@@ -89,13 +89,17 @@ export type ActionCreatorsMap<
 
 type ActionCreator<A, T extends string> = 0 extends A & 1 // hacky ternary for `A[K] is any` see `https://stackoverflow.com/questions/55541275/typescript-check-for-the-any-type`
   ? (payload?: any) => PayloadAction<any, T>
-  : A extends never | undefined | void // No payload when type is `never` | `undefined` | `void`
+  : unknown extends A
   ? () => PayloadAction<undefined, T>
+  : [undefined] extends [A] // No payload when type is `undefined`
+  ? (payload?: A) => PayloadAction<A, T>
   : A extends NotEmptyObject // needed to prevent very rare edge cases where the next ternary is wrongly triggered
   ? (payload: A) => PayloadAction<A, T>
   : {} extends A // ensures payload isn't inferred as {}, this is due to way ts narrows uninferred types to {}, ts@>3.5 will potentially fix this
   ? () => PayloadAction<undefined, T>
   : (payload: A) => PayloadAction<A, T>;
+
+// type t = [number|string] extends [number|string|5] ? true : false;
 
 type PayloadTypeMap<Cases extends CasesBase<any>> = {
   [K in keyof Cases]: Cases[K] extends (s: any, p: infer P) => any ? P : never;
@@ -222,7 +226,7 @@ interface CreateSliceOptions<
    * @description - An object whose methods represent the cases the generated reducer handles,
    * can be thought of as the equivalent of [switch-case] statements in a standard reducer.
    *
-   * @type {Cases<SS, Ax, TyO>}
+   * @type {Cases}
    * @example
    * interface Todo {title: string, completed: boolean};
    * const todoSlice = createSlice({
