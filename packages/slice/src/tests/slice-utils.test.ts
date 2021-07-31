@@ -388,6 +388,19 @@ describe('ReMapSelectors', () => {
     'form',
   );
 
+  const reMappedNameSelector = reMapSelectors(
+    selectors1.name,
+    'data',
+    'userA',
+    'personalDetails',
+    'updated',
+    'form',
+  );
+
+  it('works when called with a single selector', () => {
+    expect(reMappedNameSelector(altState)).toEqual('Foo');
+  });
+
   it('creates a reMapped `selectSlice` selector and additional selectors', () => {
     expect(Object.hasOwnProperty.call(reMappedSelectors, 'selectSlice')).toBe(
       true,

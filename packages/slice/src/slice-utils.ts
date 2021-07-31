@@ -27,27 +27,48 @@ export const makeComputedSelectors = <
   return temp;
 };
 
-export const reMapSelectors = <
+export function reMapSelectors<
   P extends string[] & {
     length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   },
   SelectorMap extends { [s: string]: (s: any) => any },
->(
-  selectors: SelectorMap,
-  ...paths: P
-): ReMappedSelectors<P, SelectorMap> => {
-  const mapFn = makeTypeSafeSelector(...paths)();
-  type Obj = ArgOf<typeof mapFn>;
+  State extends any,
+  Obj extends NestedObject<P, 0, any>,
+>(selectors: SelectorMap, ...paths: P): ReMappedSelectors<P, SelectorMap>;
+
+export function reMapSelectors<
+  P extends string[] & {
+    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  },
+  Selector extends (s: any) => any,
+  State extends any,
+  Obj extends NestedObject<P, 0, any>,
+>(selector: Selector, ...paths: P): ReMappedSelector<P, Selector>;
+
+export function reMapSelectors<
+  P extends string[] & {
+    length: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  },
+  SelectorMap extends { [s: string]: (s: State) => any },
+  Selector extends (s: State) => any,
+  State,
+>(selectors: SelectorMap | Selector, ...paths: P) {
+  const mapFn = makeTypeSafeSelector<P>(...paths)<State>();
+
+  if (typeof selectors == 'function') {
+    return (state: NestedObject<P, 0, State>) =>
+      selectors(mapFn(state)) as ReMappedSelector<P, Selector>;
+  }
   return (Object.keys(selectors) as Array<keyof SelectorMap>).reduce<
     ReMappedSelectors<P, SelectorMap>
   >((map, key) => {
     const selector = selectors[key];
     return {
       ...map,
-      [key]: (state: Obj) => selector(mapFn(state)),
+      [key]: (state: NestedObject<P, 0, State>) => selector(mapFn(state)),
     };
   }, {} as any);
-};
+}
 
 export type ReMappedSelectors<
   P extends string[],
