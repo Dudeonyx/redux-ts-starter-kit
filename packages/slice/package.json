@@ -41,7 +41,8 @@
   ],
   "dependencies": {
     "immer": "^9.0.5",
-    "memoize-state": "^2.0.15"
+    "memoize-state": "^2.0.15",
+    "reselect": "^4.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",
