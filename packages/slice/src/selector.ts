@@ -52,7 +52,7 @@ export function makeTypeSafeSelector<
 
 export const makeGetter =
   <P extends string[]>(...paths: P) =>
-  (object: NestedObject<P, 0, any>) =>
+  <O extends NestedObject<P, 0, any>>(object: O) =>
     getter(paths, object);
 
 export const get = <
