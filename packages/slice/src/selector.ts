@@ -50,11 +50,18 @@ export function makeTypeSafeSelector<
       );
 }
 
-export const makeGetter =
+export const createGetter =
   <P extends string[]>(...paths: P) =>
   <O extends NestedObject<P, 0, any>>(object: O) =>
     getter(paths, object);
-
+/**
+ * Alias for `getter`, The argument order is simply switched, `object` before `paths`;
+ *
+ * @template O
+ * @template P
+ * @param {O} object
+ * @param {...P} paths
+ */
 export const get = <
   O extends NestedObject<P, 0, any>,
   P extends string[] | ReadonlyArray<string>,
@@ -66,7 +73,7 @@ export const get = <
 function getter<
   P extends string[] | ReadonlyArray<string>,
   O extends NestedObject<P, 0, any, GetArrayLength<P>>,
->(paths: P, targetObject: O | undefined): Getter<P, O> | undefined {
+>(paths: P, targetObject: O): Getter<P, O> {
   if (paths.length === 0) {
     return targetObject as any;
   }

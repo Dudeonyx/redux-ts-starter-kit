@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { makeGetter, makeTypeSafeSelector, get } from '../selector';
+import { createGetter, makeTypeSafeSelector, get } from '../selector';
 
 describe('makeGetter/makeTypeSafeSelector', () => {
   const property = ['property', 'fdf'] as const;
@@ -27,7 +27,7 @@ describe('makeGetter/makeTypeSafeSelector', () => {
     },
   };
 
-  const getter0 = makeGetter(
+  const getter0 = createGetter(
     'some',
     'very',
     'really',
@@ -35,14 +35,14 @@ describe('makeGetter/makeTypeSafeSelector', () => {
     'nested',
     'value',
   );
-  const getter1 = makeGetter('another', 'deeply', 'nested', 'property');
+  const getter1 = createGetter('another', 'deeply', 'nested', 'property');
   const getter1A = makeTypeSafeSelector(
     'another',
     'deeply',
     'nested',
     'property',
   )<typeof property>();
-  const getter1B = makeGetter('another', 'deeply', 'nested', 'property', '0');
+  const getter1B = createGetter('another', 'deeply', 'nested', 'property', '0');
   const getter1C = makeTypeSafeSelector(
     'another',
     'deeply',
@@ -57,13 +57,13 @@ describe('makeGetter/makeTypeSafeSelector', () => {
     'property',
     '0',
   ).bindToInput<typeof deepState>();
-  const getter2 = makeGetter(
+  const getter2 = createGetter(
     'anotherdf',
     'deeplyf',
     'nestefdfdd',
     'propfdferty',
   );
-  const getter2B = makeGetter('another', 'deeply', 'nestedd', 'property');
+  const getter2B = createGetter('another', 'deeply', 'nestedd', 'property');
   const getter3 = makeTypeSafeSelector(
     'some',
     'very',
