@@ -1,5 +1,5 @@
 import type { Draft } from 'immer';
-import type { AnyAction, PayloadAction, RemoveIndex } from './types';
+import type { AnyAction, PartialKeys, PayloadAction } from './types';
 import type { MapSelectorsTo, ReMappedSelectors } from './slice-utils';
 import {
   makeReMapableSelectors,
@@ -258,7 +258,7 @@ interface CreateSliceOptions<
    * @type {ComputedMap<SS, Cx>}
    * @memberof CreateSliceOptions
    */
-  computed?: Cx;
+  computed: Cx;
 
   /**
    * @description Type overrides to override the `type` which case reducers respond to
@@ -321,30 +321,42 @@ export function createSlice<
   SliceName extends string,
   Cases extends CasesBase<SliceState>,
   SliceState,
-  Computed extends ComputedMap<SliceState> = ComputedMap<SliceState>,
+  Computed extends ComputedMap<SliceState>,
   TyO extends { [K in keyof Cases]?: string } = {},
->(
-  options: CreateSliceOptions<
-    SliceName,
-    SliceState,
-    Cases,
-    Computed,
-    Const<TyO>
-  >,
-): Slice<
+>({
+  cases,
+  name,
+  initialState,
+  computed,
+  typeOverrides,
+}: CreateSliceOptions<
   SliceName,
-  Cases,
   SliceState,
-  Selectors<SliceState>,
-  RemoveIndex<Computed>,
-  TyO
->;
-
+  Cases,
+  Computed,
+  Const<TyO>
+>): Slice<SliceName, Cases, SliceState, Selectors<SliceState>, Computed, TyO>;
 export function createSlice<
-  SliceName extends string | '',
+  SliceName extends string,
   Cases extends CasesBase<SliceState>,
   SliceState,
-  Computed extends ComputedMap<SliceState> = {},
+  Computed extends Record<string, never> = Record<string, never>,
+  TyO extends { [K in keyof Cases]?: string } = {},
+>({
+  cases,
+  name,
+  initialState,
+  typeOverrides,
+}: Omit<
+  CreateSliceOptions<SliceName, SliceState, Cases, {}, Const<TyO>>,
+  'computed'
+>): Slice<SliceName, Cases, SliceState, Selectors<SliceState>, {}, TyO>;
+
+export function createSlice<
+  SliceName extends string,
+  Cases extends CasesBase<SliceState>,
+  SliceState,
+  Computed extends { [K: string]: (s: SliceState) => any },
   TyO extends { [K in keyof Cases]?: string } = {},
 >({
   cases,
@@ -352,20 +364,10 @@ export function createSlice<
   initialState,
   computed = {} as Computed,
   typeOverrides = {} as Const<TyO>,
-}: CreateSliceOptions<
-  SliceName,
-  SliceState,
-  Cases,
-  Computed,
-  Const<TyO>
->): Slice<
-  SliceName,
-  Cases,
-  SliceState,
-  Selectors<SliceState>,
-  RemoveIndex<Computed>,
-  TyO
-> {
+}: PartialKeys<
+  CreateSliceOptions<SliceName, SliceState, Cases, Computed, Const<TyO>>,
+  'computed'
+>): Slice<SliceName, Cases, SliceState, Selectors<SliceState>, Computed, TyO> {
   const actionKeys = Object.keys(cases) as Array<
     Extract<keyof PayloadTypeMap<Cases>, string>
   >;
@@ -388,8 +390,8 @@ export function createSlice<
     name,
     actions,
     reducer,
-    selectors: selectors as any,
-    reMapSelectorsTo: reMapSelectorsTo as any,
+    selectors,
+    reMapSelectorsTo,
     // createNameSpace,
   };
 }
