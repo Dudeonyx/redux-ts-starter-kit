@@ -1,3 +1,10 @@
+export type PartialKeys<T, K extends PropertyKey = PropertyKey> = Partial<
+  Pick<T, Extract<keyof T, K>>
+> &
+  Omit<T, K> extends infer O
+  ? { [P in keyof O]: O[P] }
+  : never;
+
 /**
  * @author 'tsdef'
  */
@@ -41,7 +48,9 @@ export interface PayloadAction<P = any, T extends string = string>
 }
 
 type IncreaseNum<N extends number> = IsAny<N, never, false> extends false
-  ? N extends 0
+  ? number extends N
+    ? never
+    : N extends 0
     ? 1
     : N extends 1
     ? 2
@@ -63,6 +72,52 @@ type IncreaseNum<N extends number> = IsAny<N, never, false> extends false
     ? 10
     : N extends 10
     ? 11
+    : N extends 11
+    ? 12
+    : N extends 12
+    ? 13
+    : N extends 13
+    ? 14
+    : N extends 14
+    ? 15
+    : N extends 15
+    ? 16
+    : N extends 16
+    ? 17
+    : N extends 17
+    ? 18
+    : N extends 18
+    ? 19
+    : N extends 19
+    ? 20
+    : N extends 20
+    ? 21
+    : N extends 21
+    ? 22
+    : N extends 22
+    ? 23
+    : N extends 23
+    ? 24
+    : N extends 24
+    ? 25
+    : N extends 25
+    ? 26
+    : N extends 26
+    ? 27
+    : N extends 27
+    ? 28
+    : N extends 28
+    ? 29
+    : N extends 29
+    ? 30
+    : N extends 30
+    ? 31
+    : N extends 31
+    ? 32
+    : N extends 32
+    ? 33
+    : N extends 33
+    ? 34
     : never
   : never;
 
